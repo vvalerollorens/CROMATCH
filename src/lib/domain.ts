@@ -1,5 +1,17 @@
 import { z } from "zod";
 export type Sticker = {
+  catalog_reference?: boolean;
+  catalog_section?: string;
+  catalog_review?: string;
+  catalog_number_status?: string;
+  catalog_notes?: string[];
+  catalog_sources?: {
+    name: string;
+    url: string;
+    number: string | null;
+    nameInSource: string;
+  }[];
+
   id: string;
   collection_id: string;
   official_code: string;

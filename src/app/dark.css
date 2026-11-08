@@ -2273,3 +2273,22 @@ progress {
     margin-bottom: 19px;
   }
 }
+.team-badge > .club-crest {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+.team-choice .real-team-badge {
+  opacity: 0.8;
+}
+.team-choice.selected .real-team-badge {
+  opacity: 1;
+}
+.workspace-footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

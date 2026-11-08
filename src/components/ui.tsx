@@ -35,8 +35,9 @@ export function Legal({ close }: { close: () => void }) {
       <h2 id="legal-title">Privacidad y uso responsable</h2>
       <p>
         CROMATCH es un proyecto independiente, sin afiliación con LaLiga ni
-        Panini. Las marcas mencionadas identifican las colecciones. No se
-        incluyen fotografías ni logotipos de terceros.
+        Panini. Las marcas mencionadas identifican las colecciones. Los escudos
+        de clubes proceden de FootyLogos y pertenecen a sus respectivos
+        titulares.
       </p>
       <h3>Tus datos</h3>
       <p>

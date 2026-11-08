@@ -1,0 +1,162 @@
+{
+  "athletic": {
+    "file": "/badges/athletic-white.svg",
+    "source": "https://www.footylogos.com/es/logos/athletic-club-bilbao",
+    "download": "https://www.footylogos.com/downloads/monochrome/athletic-club-bilbao-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "4bc5d03b2d67fdc7429a24386a1772105d73e75501fd55feb0951d4bc596971c",
+    "bytes": 14464
+  },
+  "atletico": {
+    "file": "/badges/atletico-white.svg",
+    "source": "https://www.footylogos.com/es/logos/atletico-madrid",
+    "download": "https://www.footylogos.com/downloads/monochrome/atletico-madrid-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "4322d8823b94ddf60b7cb3fd87857b75b26d3aa0eab84b0c8900c92b5cc1a57b",
+    "bytes": 8828
+  },
+  "osasuna": {
+    "file": "/badges/osasuna-white.svg",
+    "source": "https://www.footylogos.com/es/logos/osasuna",
+    "download": "https://www.footylogos.com/downloads/monochrome/osasuna-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "2df309503fc1ae91022005a3e38ec600d17bd2cde1c74a24f2a61525e874bb7d",
+    "bytes": 18483
+  },
+  "celta": {
+    "file": "/badges/celta-white.svg",
+    "source": "https://www.footylogos.com/es/logos/celta-vigo",
+    "download": "https://www.footylogos.com/downloads/monochrome/celta-vigo-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "034ad505defbaa5e20f5f19015458df1aa1b5cde54d3b1c13b59364699d8ac4f",
+    "bytes": 29839
+  },
+  "alaves": {
+    "file": "/badges/alaves-white.svg",
+    "source": "https://www.footylogos.com/es/logos/deportivo-alaves",
+    "download": "https://www.footylogos.com/downloads/monochrome/deportivo-alaves-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "a52028f0cbe06557a8ca149e6a37ff18678b5ec6bbdd18d1335ddb07a4b9e810",
+    "bytes": 9453
+  },
+  "elche": {
+    "file": "/badges/elche-white.svg",
+    "source": "https://www.footylogos.com/es/logos/elche-cf",
+    "download": "https://www.footylogos.com/downloads/monochrome/elche-cf-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "50d9e07f2d71cecd18d29a22fbf746c3e925d960cfa773c19283e2a04371cdd2",
+    "bytes": 21413
+  },
+  "barcelona": {
+    "file": "/badges/barcelona-white.svg",
+    "source": "https://www.footylogos.com/es/logos/fc-barcelona",
+    "download": "https://www.footylogos.com/downloads/monochrome/fc-barcelona-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "0ed72eace249d48a2d149b2f013a9101f92fead17e5021f8ba9407124e932c70",
+    "bytes": 7402
+  },
+  "getafe": {
+    "file": "/badges/getafe-white.svg",
+    "source": "https://www.footylogos.com/es/logos/getafe-cf",
+    "download": "https://www.footylogos.com/downloads/monochrome/getafe-cf-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "bf341c47602007b1c22c101002c96eedfc85dfa6c264b643b7050728196b5fb3",
+    "bytes": 43350
+  },
+  "levante": {
+    "file": "/badges/levante-white.svg",
+    "source": "https://www.footylogos.com/es/logos/levante-ud",
+    "download": "https://www.footylogos.com/downloads/monochrome/levante-ud-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "24bb51ff203d678fcfec3f577cf21bc435304e7afa41dd178aa5cce9ee0ab77f",
+    "bytes": 9800
+  },
+  "malaga": {
+    "file": "/badges/malaga-white.svg",
+    "source": "https://www.footylogos.com/es/logos/malaga-cf",
+    "download": "https://www.footylogos.com/downloads/monochrome/malaga-cf-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "b95d1f1245d70920fb4f89d53ee6ad9a8dea5cb86a4a64193d02bd7b9d857761",
+    "bytes": 35586
+  },
+  "racing": {
+    "file": "/badges/racing-white.svg",
+    "source": "https://www.footylogos.com/es/logos/racing-santander",
+    "download": "https://www.footylogos.com/downloads/monochrome/racing-santander-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "9fdaf531a2fbbb780d79153166e1fa4241cdbf01a8f685e32e57bcf8650f1238",
+    "bytes": 41314
+  },
+  "rayo": {
+    "file": "/badges/rayo-white.svg",
+    "source": "https://www.footylogos.com/es/logos/rayo-vallecano",
+    "download": "https://www.footylogos.com/downloads/monochrome/rayo-vallecano-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "a0bdcbc8abfdf754d09789b01f6ed53043b52d75b1ffc37dff53f3fb12491314",
+    "bytes": 32186
+  },
+  "deportivo": {
+    "file": "/badges/deportivo-white.svg",
+    "source": "https://www.footylogos.com/es/logos/deportivo-la-coruna",
+    "download": "https://www.footylogos.com/downloads/monochrome/deportivo-la-coruna-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "54739301ab4febb90e67e20867834a38d4de9101fd449abc390bfddff4f8e5f4",
+    "bytes": 104733
+  },
+  "espanyol": {
+    "file": "/badges/espanyol-white.svg",
+    "source": "https://www.footylogos.com/es/logos/rcd-espanyol-barcelona",
+    "download": "https://www.footylogos.com/downloads/monochrome/rcd-espanyol-barcelona-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "fc156f55b79022aece1ac586802c09e85b1f4da3fc74fba0b588a4282a089c26",
+    "bytes": 14718
+  },
+  "betis": {
+    "file": "/badges/betis-white.svg",
+    "source": "https://www.footylogos.com/es/logos/real-betis-balompie",
+    "download": "https://www.footylogos.com/downloads/monochrome/real-betis-balompie-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "7761b6d521492035c06e88dfe04274c27ac356d19a73670b1debe96289fb06ea",
+    "bytes": 6891
+  },
+  "madrid": {
+    "file": "/badges/madrid-white.svg",
+    "source": "https://www.footylogos.com/es/logos/real-madrid",
+    "download": "https://www.footylogos.com/downloads/monochrome/real-madrid-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "48569299068213ed3fa00b885a7016bca4ffd85573df3124793b2bd7bde362d7",
+    "bytes": 33065
+  },
+  "sociedad": {
+    "file": "/badges/sociedad-white.svg",
+    "source": "https://www.footylogos.com/es/logos/real-sociedad",
+    "download": "https://www.footylogos.com/downloads/monochrome/real-sociedad-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "15e5b62abd7bf12b5422e0d4294ae5efcd6d0f0d89b024646c197daace9f4068",
+    "bytes": 27659
+  },
+  "sevilla": {
+    "file": "/badges/sevilla-white.svg",
+    "source": "https://www.footylogos.com/es/logos/sevilla-fc",
+    "download": "https://www.footylogos.com/downloads/monochrome/sevilla-fc-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "bd887234d5b8f033c1b23f74adc4d05c9106f16f08aa0e58a5065eb2b1175347",
+    "bytes": 18009
+  },
+  "valencia": {
+    "file": "/badges/valencia-white.svg",
+    "source": "https://www.footylogos.com/es/logos/valencia-cf",
+    "download": "https://www.footylogos.com/downloads/monochrome/valencia-cf-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "0381aa1fe030ae430d80f38e124868d4f0b105629480998face5c6a771dc8ef5",
+    "bytes": 7941
+  },
+  "villarreal": {
+    "file": "/badges/villarreal-white.svg",
+    "source": "https://www.footylogos.com/es/logos/villarreal-cf",
+    "download": "https://www.footylogos.com/downloads/monochrome/villarreal-cf-white-logo-footylogos.svg",
+    "retrieved_at": "2026-11-08",
+    "sha256": "ef362ac2cce5fdd037b54212ac0b920419a3637ca33166599df44d8ca7e47e3d",
+    "bytes": 27323
+  }
+}

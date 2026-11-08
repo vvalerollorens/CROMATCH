@@ -10,11 +10,13 @@ Abre directamente **`/visita`**, o en la bienvenida pulsa **Ver por dentro sin c
 
 ## Álbum visual para móvil
 
-La interfaz utiliza fondo oscuro, luces moradas y acentos amarillos. Mi álbum muestra una barra horizontal de equipos y casilleros táctiles: toca uno que te falta para añadir una unidad; si ya lo tienes, abre su detalle. Los controles +/− ajustan repetidos y respetan las reservas.
+La nueva dirección toma como referencia piezas sociales de fútbol: morado profundo, crema y amarillo dorado, tipografía condensada y detalles de álbum impreso. Incluye los veinte escudos blancos de FootyLogos con atribución y el orden de equipos de los listados del álbum.
 
-En la visita, doce casilleros de diseño por equipo permiten probar el gesto. No tienen códigos oficiales ni representan cromos publicados; se guardan solo en la memoria de esa vista y se reinician al abandonarla. La cuenta real utiliza exclusivamente el catálogo verificado y PostgreSQL. Los símbolos de equipo son escudos originales con iniciales, no logotipos oficiales.
+El listado de consulta contiene 661 registros y 29 apartados, con nombres, números y sus fuentes. Siete registros requieren revisión y **no se declara completitud oficial**. El [PDF de cuarta edición indicado por el usuario](https://www.panini.es//media/paniniFiles/Checklist_LALIGA_2026-27-4aED.pdf) devuelve 403 desde este entorno y sigue pendiente de cotejo. Véase [catálogo y fuentes](docs/CATALOGO.md).
 
-Acceso directo al álbum de prueba: `/visita#album`.
+En la visita puedes marcar estas fichas para revisar el diseño. Son marcas en memoria que no modifican colecciones reales. La cuenta utiliza exclusivamente IDs del catálogo publicado en Supabase para guardar cantidades; el listado de consulta no se importa automáticamente.
+
+Acceso directo: `/visita#album`. El enlace de visita sigue siendo público por URL; el uso previsto para el grupo no configura por sí solo una restricción de acceso.
 
 ## Instalar
 
@@ -102,8 +104,9 @@ No se ha creado ningún despliegue ni servicio de pago automáticamente. Las cla
 - [Arquitectura, navegación y modelo](docs/ARQUITECTURA.md)
 - [Seguridad y operación](docs/SEGURIDAD.md)
 - [Catálogo, formato y fuentes consultadas](docs/CATALOGO.md)
+- [Dirección visual y tipografías](docs/DISENO.md)
 - [Guía de uso](docs/USUARIO.md)
 - [Pruebas y evidencia](docs/VERIFICACION.md)
 - [Limitaciones y siguientes fases](docs/ESTADO.md)
 
-La aplicación es independiente de Panini y LaLiga. No incluye fotografías ni escudos de terceros. La información legal en pantalla es provisional y debe completarse por el operador antes de abrir registros públicos.
+La aplicación es independiente de Panini y LaLiga. Los escudos de los clubes proceden de FootyLogos, con atribución en la app; no se incluyen fotografías de cromos. La información legal en pantalla es provisional y debe completarse por el operador antes de abrir registros públicos.

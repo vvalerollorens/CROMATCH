@@ -20,20 +20,23 @@ describe("álbum visual", () => {
     expect(teamKey("Real Madrid")).toBe("madrid");
     expect(new Set(seasonTeams.map((t) => t.id)).size).toBe(20);
   });
-  it("sin catálogo una cuenta real no recibe cromos de prueba", () => {
+  it("sin catálogo una cuenta real solo ve el catálogo de referencia", () => {
     const html = renderToStaticMarkup(
       <VisualAlbum {...props} stickers={[]} visitor={false} />,
     );
-    expect(html).toContain("El catálogo está esperando");
-    expect(html).not.toContain("preview-slot");
+    expect(html).toContain("Catálogo de consulta");
+    expect(html).not.toContain("Toca para abrir");
   });
   it("la visita etiqueta sus casilleros y no inventa jugadores ni códigos oficiales", () => {
     const html = renderToStaticMarkup(
       <VisualAlbum {...props} stickers={[]} visitor />,
     );
-    expect(html).toContain("Sin numeración oficial");
-    expect(html.match(/class="album-slot preview-slot/g)).toHaveLength(12);
-    expect(html).not.toContain("Desbloquear ");
+    expect(html).toContain("Tus marcas no se guardan");
+    expect(
+      html.match(/class="album-slot real-slot reference-slot/g),
+    ).toHaveLength(23);
+    expect(html).toContain("Marcar Sivera, número 3");
+    expect(html).not.toContain("Casillero de prueba");
   });
   it("los cromos reales muestran cantidades y protegen las reservas", () => {
     const sticker = {
@@ -42,7 +45,7 @@ describe("álbum visual", () => {
       official_code: "TEST",
       edition: "TEST",
       variant: "base",
-      teams: { name: "Athletic Club" },
+      teams: { name: "Deportivo Alavés" },
     } as Sticker;
     const html = renderToStaticMarkup(
       <VisualAlbum

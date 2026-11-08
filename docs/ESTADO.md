@@ -18,7 +18,7 @@
 ## Bloqueos externos actuales
 
 1. No hay proyecto Supabase ni claves configuradas en este entorno. No se ha ejecutado el E2E alojado de autenticación, correo, Realtime y dos cuentas reales.
-2. No hay checklist oficial de 2026–27 contrastado accesible. El catálogo publicado está vacío de forma deliberada, sin nombres o numeraciones de relleno.
+2. No hay checklist oficial de 2026–27 contrastado accesible. El catálogo publicado en la base está vacío; existe un listado de consulta de 661 registros, con fuentes y siete incidencias, separado del inventario. El PDF de cuarta edición indicado por el usuario devuelve 403 y no se ha podido cotejar.
 3. Vercel no está vinculado ni desplegado. El repositorio contiene las instrucciones; no se ha contratado infraestructura.
 4. El responsable del servicio, contacto legal, política de retención, región, contratos y procedimientos operativos deben definirse antes de abrir registros públicos.
 

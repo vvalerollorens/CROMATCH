@@ -1,47 +1,44 @@
-# Catálogo y fuentes
+# Catálogo, edición y fuentes
 
-## Estado a 8 de noviembre de 2026
+## Fuente indicada por el usuario
 
-Se crearon únicamente los metadatos de «LaLiga ESTE 2026–27». No se importó ningún jugador, código, imagen, cifra de cromos ni número de posiciones físicas sin verificación.
+[Listado de Panini: LaLiga 2026–27, cuarta edición](https://www.panini.es//media/paniniFiles/Checklist_LALIGA_2026-27-4aED.pdf).
 
-La investigación localizó listados de terceros con cifras diferentes. La consulta de `https://www.panini.es/` mediante la herramienta de búsqueda devolvió HTTP 403. Las búsquedas restringidas al dominio oficial no devolvieron un checklist verificable. Esto no demuestra que no exista un catálogo oficial: solo significa que no se pudo contrastar aquí.
+El 8 de noviembre de 2026 se intentó leer esta URL, también normalizando la doble barra. Tanto el cliente HTTP como la herramienta web recibieron **403 Forbidden**. No se ha podido comprobar el contenido del PDF. Es la referencia pendiente de cotejar; su URL no se presenta como prueba de haberla leído. Una copia adjunta del documento permitirá hacer la comparación de primera mano.
 
-Pistas para revisión humana, **no fuentes aprobadas ni importaciones realizadas**:
+## Catálogo de consulta disponible
 
-- [Stickers.app, Liga ESTE 2026–27](https://stckrs.app/es/albums/2026/liga-este-2026-27/)
-- [De Cromos con JR, listado por ediciones](https://www.decromosconjr.es/laliga-ea-sports-2026-27-listado-ediciones/)
-- [Cromolista, Liga Este 2026–27](https://cromolista.com/coleccion/liga-este-2026-27)
-- [Panini España](https://www.panini.es/)
+`src/data/catalogue-2026-27.json` reúne **661 registros en 29 apartados**: veinte equipos, ADN LaLiga Prime, LaLiga Fantasy, Draft 23, Draft 23 Kromix, tres acabados Extra Sticker, Últimos Fichajes y Top Fichajes. El orden de equipos se contrastó con los listados de Cromolista, Stickers.app y JR: Alavés, Athletic, Atlético, Barcelona, Betis, Celta, Deportivo, Elche, Espanyol, Getafe, Levante, Real Madrid, Málaga, Osasuna, Racing, Rayo, Real Sociedad, Sevilla, Valencia y Villarreal.
 
-Las páginas de terceros deben abrirse y revisarse individualmente; los extractos de un buscador no bastan para verificar cada fila. No se mezclan temporadas ni huecos reservados con cromos publicados.
+Se conservaron los nombres y números de los listados, sin crear jugadores, huecos ni numeraciones de relleno. Cada registro incluye referencias y sus valores originales. Las fuentes son:
 
-## Formato de importación JSON
+- [Cromolista](https://cromolista.com/coleccion/liga-este-2026-27).
+- [Stickers.app](https://stckrs.app/albums/2026/liga-este-2026-27/).
+- [De Cromos con JR](https://www.decromosconjr.es/laliga-ea-sports-2026-27-listado-ediciones/).
+- [HobbyRadar](https://hobbyradar.es/deportivas/liga-este-2026-27), como contraste del listado inicial, excluyendo los registros «Por anunciar».
 
-El administrador carga un array JSON de 1 a 2000 filas. No hay importador CSV en esta versión; conviértelo a JSON antes de validar.
+**No se afirma que estos 661 registros sean la colección oficial completa.** El dato `officially_complete` permanece en `false`. Este catálogo no se importa automáticamente en inventarios de usuarios: se muestra como consulta hasta poder cotejar Panini y resolver las discrepancias.
 
-| Campo               | Obligación                                   |
-| ------------------- | -------------------------------------------- |
-| `official_code`     | Cadena exacta, incluidos sufijos y letras    |
-| `name`              | Nombre publicado, sin inventarlo             |
-| `edition`           | Edición de publicación                       |
-| `variant`           | Variante; valor por defecto `base`           |
-| `team`, `series`    | Opcionales, texto normalizado                |
-| `sticker_type`      | Tipo; por defecto `normal`                   |
-| `album_position`    | Opcional; puede ser compartida por variantes |
-| `source_url`        | HTTPS de la fuente primaria oficial          |
-| `corroboration_url` | HTTPS de otra fuente contrastada             |
-| `verified_at`       | ISO 8601 con zona horaria, no futura         |
+## Incidencias explícitas
 
-La validación local no publica. Tras revisar los errores y contrastar las fuentes, el administrador confirma la importación. La base vuelve a validar las condiciones esenciales y guarda las revisiones. Una URL con HTTPS no acredita por sí sola autoridad ni exactitud; el administrador es responsable de la comprobación editorial.
+Hay siete registros marcados para revisión: Altay Bayındır, Hugo Burcio, Marc Casadó, John Chetauya y las tres fichas de Top Fichajes. En las tres últimas, los listados no coinciden en orden/número: la interfaz muestra `?`, no elige un número sin respaldo suficiente.
 
-## Identidad estable y correcciones
+Los Extra Sticker aparecen como **S/N** porque los identificadores E1 o LY-B empleados por algunas webs no acreditan numeración impresa. Para los colocas con número compartido, no se presentan los sufijos internos BIS2/BisB como número oficial confirmado. Una misma posición física no se cuenta automáticamente como dos posiciones de álbum.
 
-La identidad natural es colección + código + edición + variante; cada cromo tiene además un UUID interno. Corregir su nombre o posición conserva su UUID. Cambiar la identidad crea otra fila, nunca reutiliza silenciosamente los inventarios. Las fusiones, retirada de datos erróneos y migraciones de identidad requieren una migración explícita y auditada; no hay botón de borrado.
+Racing/Rayo también presentan diferencias de agrupación en una fuente. JR y Cromolista sitúan Pedro Díaz 11A y Nteka 11B en Rayo; no se duplica Nteka en Racing. Las discrepancias y valores originales pueden consultarse desde el botón de fuentes de cada ficha.
 
-El importador no descarga imágenes. Las fotografías y escudos quedan fuera hasta contar con licencia verificable. Los diseños genéricos de la interfaz son originales y no representan cromos oficiales.
+Las ediciones se muestran cuando una fuente las identifica. «Edición por confirmar» significa que no se ha inferido la edición a partir de la posición del registro.
 
-## Equipos de la barra visual
+## Consulta frente a inventario
 
-Los nombres de los veinte clubes de la temporada 2026/27 se contrastaron con el [directorio de clubes de LaLiga](https://www.laliga.com/es-NG/laliga-easports/clubes), consultado el 8 de noviembre de 2026. Se versionan en `src/lib/teams.ts`; esto no acredita los cromos publicados por Panini. Los escudos son formas y monogramas originales, sin descargar logotipos. Los equipos de otras colecciones se derivan de su catálogo.
+Sin catálogo publicado en Supabase, el álbum muestra el listado de consulta. En `/visita#album` sus marcas son efímeras y no modifican inventarios. Una cuenta real puede consultar sus fuentes, pero no guardar los UUID de referencia como cromos publicados. Cuando exista catálogo en la base, las operaciones usan exclusivamente sus IDs y las funciones transaccionales.
 
-En modo visita, los doce casilleros por equipo son exclusivamente controles de prueba del diseño, sin numeración ni nombres oficiales. No se publican como catálogo ni se mezclan con el inventario.
+## Importación JSON del catálogo publicado
+
+El importador administrativo mantiene su validación independiente. Exige código, nombre, edición, variante, dos fuentes HTTPS y fecha. No descarga fotografías. La validación estructural no demuestra exactitud editorial: antes de publicar hay que cotejar la fuente del editor y resolver las incidencias.
+
+Las correcciones de nombres conservan los UUID de la base y quedan auditadas. No deben reemplazarse inventarios ni IDs existentes por los IDs del listado de consulta.
+
+## Escudos de clubes
+
+Los veinte escudos SVG blancos se descargaron por petición expresa del usuario desde [FootyLogos](https://www.footylogos.com/es/competition/laliga). Se sirven sin modificaciones desde `public/badges/`; `sources.json` registra la URL de la ficha, descarga, fecha, tamaño y SHA-256. La interfaz incluye atribución a FootyLogos. Los escudos pertenecen a sus respectivos titulares; no se afirma afiliación con los clubes ni una licencia de uso comercial.

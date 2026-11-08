@@ -1,30 +1,30 @@
 // Club names checked against LaLiga's 2026/27 club directory on 2026-11-08.
 // https://www.laliga.com/es-NG/laliga-easports/clubes
-// Original monochrome shield/monogram artwork; these are not official club logos.
+// White club crests: FootyLogos, requested by the user. Provenance: public/badges/sources.json.
+// Album order corroborated in JR, Cromolista and Stickers.app.
 export const seasonTeams = [
+  ["alaves", "Deportivo Alavés", "ALA"],
   ["athletic", "Athletic Club", "ATH"],
   ["atletico", "Atlético de Madrid", "ATM"],
-  ["osasuna", "CA Osasuna", "OSA"],
-  ["celta", "Celta", "CEL"],
-  ["alaves", "Deportivo Alavés", "ALA"],
-  ["elche", "Elche CF", "ELC"],
   ["barcelona", "FC Barcelona", "FCB"],
+  ["betis", "Real Betis", "BET"],
+  ["celta", "RC Celta", "CEL"],
+  ["deportivo", "RC Deportivo", "DEP"],
+  ["elche", "Elche CF", "ELC"],
+  ["espanyol", "RCD Espanyol", "ESP"],
   ["getafe", "Getafe CF", "GET"],
   ["levante", "Levante UD", "LEV"],
+  ["madrid", "Real Madrid CF", "RMA"],
   ["malaga", "Málaga CF", "MAL"],
-  ["racing", "R. Racing Club", "RAC"],
+  ["osasuna", "CA Osasuna", "OSA"],
+  ["racing", "Racing de Santander", "RAC"],
   ["rayo", "Rayo Vallecano", "RAY"],
-  ["deportivo", "RC Deportivo", "DEP"],
-  ["espanyol", "RCD Espanyol de Barcelona", "ESP"],
-  ["betis", "Real Betis", "BET"],
-  ["madrid", "Real Madrid", "RMA"],
   ["sociedad", "Real Sociedad", "RSO"],
   ["sevilla", "Sevilla FC", "SEV"],
   ["valencia", "Valencia CF", "VAL"],
   ["villarreal", "Villarreal CF", "VIL"],
 ].map(([id, name, short]) => ({ id, name, short }));
 const aliases: Record<string, string> = {
-  "rc celta": "celta",
   "rc celta de vigo": "celta",
   "celta de vigo": "celta",
   "atletico madrid": "atletico",
@@ -32,6 +32,14 @@ const aliases: Record<string, string> = {
   "athletic club de bilbao": "athletic",
   "athletic bilbao": "athletic",
   osasuna: "osasuna",
+  celta: "celta",
+  "real madrid": "madrid",
+
+  "ca osasuna": "osasuna",
+  "c a osasuna": "osasuna",
+  "real sociedad": "sociedad",
+  "rc celta": "celta",
+  "rcd espanyol": "espanyol",
   alaves: "alaves",
   "real madrid cf": "madrid",
   "real racing club": "racing",
@@ -40,7 +48,7 @@ const aliases: Record<string, string> = {
   "deportivo de la coruna": "deportivo",
   "rc deportivo de la coruna": "deportivo",
   espanyol: "espanyol",
-  "rcd espanyol": "espanyol",
+
   "real betis balompie": "betis",
   barcelona: "barcelona",
   valencia: "valencia",

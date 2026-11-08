@@ -2096,7 +2096,16 @@ export function Cromatch({
             </>
           )}
           <footer className="workspace-footer">
-            <span>CROMATCH · Cada cromo cuenta.</span>
+            <span>
+              CROMATCH · Cada cromo cuenta.{" "}
+              <a
+                href="https://www.footylogos.com/es"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Escudos: FootyLogos
+              </a>
+            </span>
             <span>Tu colección es tuya. Tu privacidad, también.</span>
           </footer>
         </main>
@@ -2131,13 +2140,46 @@ export function Cromatch({
             {selected.variant}
           </p>
           <p>Posición física: {selected.album_position ?? "No verificada"}</p>
+          {!selected.catalog_reference && (
+            <p>
+              {own.get(selected.id)?.quantity ?? 0} unidades ·{" "}
+              {available(own.get(selected.id))} disponibles ·{" "}
+              {own.get(selected.id)?.reserved ?? 0} reservadas
+            </p>
+          )}
+          {selected.catalog_reference && (
+            <div className="reference-detail">
+              <strong>
+                {selected.catalog_review === "needs_review"
+                  ? "Dato pendiente de confirmar"
+                  : "Coincidencias entre listados de coleccionismo"}
+              </strong>
+              <p>
+                Catálogo de consulta: no equivale a validación oficial de Panini
+                ni activa el inventario.
+              </p>
+              {selected.catalog_notes?.map((note, index) => (
+                <p key={index}>{note}</p>
+              ))}
+              <h3>Qué dice cada fuente</h3>
+              {selected.catalog_sources?.map((source, index) => (
+                <div key={index}>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {source.name} ↗
+                  </a>
+                  <p>
+                    {source.number ?? "Sin número"} · {source.nameInSource}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
           <p>
-            {own.get(selected.id)?.quantity ?? 0} unidades ·{" "}
-            {available(own.get(selected.id))} disponibles ·{" "}
-            {own.get(selected.id)?.reserved ?? 0} reservadas
-          </p>
-          <p>
-            Verificado:{" "}
+            {selected.catalog_reference ? "Consultado:" : "Verificado:"}{" "}
             {new Date(selected.verified_at).toLocaleDateString("es-ES")}
           </p>
           <div className="export-actions">
@@ -2157,8 +2199,8 @@ export function Cromatch({
             </a>
           </div>
           <p>
-            Sin imagen: no se ha incorporado material protegido sin
-            autorización.
+            Se muestran nombres y numeración; las fotografías de los cromos no
+            se incluyen.
           </p>
         </Dialog>
       )}

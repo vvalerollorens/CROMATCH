@@ -4,37 +4,72 @@ import {
   ArrowLeft,
   Check,
   ChevronRight,
-  Grid2X2,
+  Info,
   LockKeyhole,
   Minus,
   Plus,
   Search,
-  Shield,
-  SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
 import { available, type Inventory, type Sticker } from "@/lib/domain";
 import { seasonTeams, teamKey } from "@/lib/teams";
-export function TeamBadge({ short }: { short: string }) {
+import {
+  albumSections,
+  albumSectionKey,
+  catalogueSummary,
+  referenceStickers,
+} from "@/lib/catalogue";
+export function TeamBadge({
+  short,
+  teamId,
+}: {
+  short: string;
+  teamId?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [teamId]);
+  const crest = seasonTeams.some((t) => t.id === teamId)
+    ? `/badges/${teamId}-white.svg`
+    : null;
+  if (crest && !failed)
+    return (
+      <span className="team-badge real-team-badge" aria-hidden="true">
+        <img
+          className="club-crest"
+          src={crest}
+          alt=""
+          width={48}
+          height={56}
+          decoding="async"
+          draggable={false}
+          onError={() => setFailed(true)}
+        />
+      </span>
+    );
   return (
     <span className="team-badge" aria-hidden="true">
-      <svg viewBox="0 0 48 56" fill="none">
-        <path
-          d="M24 3 43 10v18c0 11-10 19-19 25C15 47 5 39 5 28V10L24 3Z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        />
-        <path
-          d="M12 16h24M13 38l11 8 11-8"
-          stroke="currentColor"
-          strokeWidth="1"
-          opacity=".35"
-        />
-      </svg>
-      <span>{short}</span>
+      {teamId &&
+      albumSections.some((s) => s.id === teamId && s.kind === "series") ? (
+        <Sparkles size={28} />
+      ) : (
+        <>
+          <svg viewBox="0 0 48 56" fill="none">
+            <path
+              d="M24 3 43 10v18c0 11-10 19-19 25C15 47 5 39 5 28V10L24 3Z"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+          </svg>
+          <span>{short}</span>
+        </>
+      )}
     </span>
   );
 }
+const sectionOf = (s: Sticker) =>
+  s.catalog_section ??
+  (s.sticker_series && albumSectionKey(s.sticker_series.name)) ??
+  (s.teams ? teamKey(s.teams.name) : (s.sticker_series?.name ?? "especiales"));
 export function VisualAlbum({
   stickers,
   inventory,
@@ -54,130 +89,188 @@ export function VisualAlbum({
   onDetail: (s: Sticker) => void;
   onNavigate: (s: "repetidos" | "faltantes") => void;
 }) {
-  const teams = useMemo(() => {
-    const roster =
-      !collectionName || collectionName.includes("2026") ? seasonTeams : [];
-    const result = [...roster];
-    for (const s of stickers) {
-      const name = s.teams?.name ?? "Series especiales";
-      const id = teamKey(name);
-      if (!result.some((t) => t.id === id))
-        result.push({
+  const reference =
+    stickers.length === 0 &&
+    (!collectionName || collectionName.includes("2026"));
+  const entries = reference ? referenceStickers : stickers;
+  const sections = useMemo(() => {
+    const base =
+      !collectionName || collectionName.includes("2026")
+        ? albumSections.map((s) => ({
+            ...s,
+            short:
+              seasonTeams.find((t) => t.id === s.id)?.short ??
+              {
+                "adn-prime": "ADN",
+                fantasy: "FAN",
+                draft: "D23",
+                "draft-kromix": "K23",
+                "extra-bronce": "BR",
+                "extra-plata": "PL",
+                "extra-oro": "OR",
+                "ultimos-fichajes": "UF",
+                "top-fichajes": "TF",
+              }[s.id as string] ??
+              "CM",
+          }))
+        : [];
+    for (const s of entries) {
+      const id = sectionOf(s);
+      if (!base.some((t) => t.id === id))
+        base.push({
           id,
-          name,
-          short: name
-            .split(" ")
-            .map((w) => w[0])
-            .join("")
-            .slice(0, 3)
-            .toUpperCase(),
+          name: s.teams?.name ?? s.sticker_series?.name ?? "Especiales",
+          kind: s.teams ? "team" : "series",
+          short: s.teams?.name.slice(0, 3).toUpperCase() ?? "CM",
         });
     }
-    return result;
-  }, [stickers, collectionName]);
-  const [selected, setSelected] = useState(teams[0]?.id ?? "");
+    return base;
+  }, [entries, collectionName]);
+  const [selected, setSelected] = useState(sections[0]?.id ?? "");
+  const [group, setGroup] = useState<"team" | "series">("team");
   const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [mode, setMode] = useState<"all" | "missing" | "owned">("all");
-  const [preview, setPreview] = useState<Record<string, boolean>>({});
+  const [marked, setMarked] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(0);
   const [announcement, setAnnouncement] = useState("");
   useEffect(() => {
-    setSelected(teams[0]?.id ?? "");
+    setSelected(sections[0]?.id ?? "");
+    setGroup("team");
     setQuery("");
     setMode("all");
     setPage(0);
-    setPreview({});
-  }, [collectionName, teams]);
-  const team = teams.find((t) => t.id === selected);
+    setMarked({});
+  }, [collectionName, sections]);
+  const section = sections.find((t) => t.id === selected);
   const own = new Map(inventory.map((i) => [i.sticker_id, i]));
-  const rows = stickers.filter(
-    (s) =>
-      (s.teams?.name ? teamKey(s.teams.name) : "series especiales") ===
-      selected,
-  );
-  const owned = rows.filter((s) => (own.get(s.id)?.quantity ?? 0) > 0).length;
+  const quantity = (s: Sticker) =>
+    reference ? (marked[s.id] ? 1 : 0) : (own.get(s.id)?.quantity ?? 0);
+  const rows = entries.filter((s) => sectionOf(s) === selected);
+  const count = rows.filter((s) => quantity(s) > 0).length;
   const visible = rows.filter(
     (s) =>
       (mode === "all" ||
-        (mode === "missing"
-          ? !own.get(s.id)?.quantity
-          : (own.get(s.id)?.quantity ?? 0) > 0)) &&
+        (mode === "missing" ? quantity(s) === 0 : quantity(s) > 0)) &&
       `${s.official_code} ${s.name}`
-        .toLowerCase()
-        .includes(query.toLowerCase()),
+        .toLocaleLowerCase("es")
+        .includes(query.toLocaleLowerCase("es")),
   );
-  const previewRows = Array.from(
-    { length: 12 },
-    (_, index) => `${selected}:${index}`,
-  );
-  const previewOwned = previewRows.filter((id) => preview[id]).length;
-  const showPreview = visitor && rows.length === 0;
-  const total = showPreview ? 12 : rows.length;
-  const count = showPreview ? previewOwned : owned;
   const choose = (id: string) => {
     setSelected(id);
+    setSearchOpen(false);
     setPage(0);
     setQuery("");
     setMode("all");
+  };
+  const open = (s: Sticker) => {
+    if (reference) {
+      if (!visitor) {
+        onDetail(s);
+        return;
+      }
+      setMarked((v) => ({ ...v, [s.id]: !v[s.id] }));
+      setAnnouncement(
+        `${s.name}: ${marked[s.id] ? "sin marcar" : "marcado en esta visita"}`,
+      );
+    } else if (quantity(s) > 0) onDetail(s);
+    else void onQuantity(s, 1);
   };
   return (
     <section className="visual-album" aria-label="Álbum visual por equipos">
       <div className="album-topline">
         <span className="album-season">
-          {collectionName ?? "Temporada 2026 / 27"}
+          {collectionName ?? "LaLiga ESTE · 2026 / 27"}
         </span>
-        <span className="album-dot" /> <span>Tu colección</span>
+        <span className="album-dot" />
+        <span>{reference ? "Catálogo de consulta" : "Tu colección"}</span>
       </div>
-      <div className="team-strip" role="group" aria-label="Equipos del álbum">
-        {teams.map((t) => (
+      <div
+        className="album-groups"
+        role="group"
+        aria-label="Apartados del álbum"
+      >
+        {[
+          { id: "team", label: "Equipos" },
+          { id: "series", label: "Especiales" },
+        ].map((g) => (
           <button
-            className={`team-choice ${selected === t.id ? "selected" : ""}`}
-            key={t.id}
-            aria-label={`Ver ${t.name}`}
-            aria-pressed={selected === t.id}
-            onClick={() => choose(t.id)}
+            key={g.id}
+            aria-label={`${g.label} ${sections.filter((s) => s.kind === g.id).length}`}
+            aria-pressed={group === g.id}
+            className={group === g.id ? "selected" : ""}
+            onClick={() => {
+              setGroup(g.id as typeof group);
+              choose(sections.find((s) => s.kind === g.id)?.id ?? "");
+            }}
           >
-            <TeamBadge short={t.short} />
-            <span>
-              {t.name
-                .replace("RCD Espanyol de Barcelona", "Espanyol")
-                .replace("Atlético de Madrid", "Atlético")
-                .replace("Deportivo Alavés", "Alavés")
-                .replace("Athletic Club", "Athletic")
-                .replace("FC Barcelona", "Barcelona")
-                .replace("R. Racing Club", "Racing")
-                .replace("RC Deportivo", "Deportivo")}
-            </span>
-            <i />
+            {g.label}
+            <span>{sections.filter((s) => s.kind === g.id).length}</span>
           </button>
         ))}
       </div>
+      <div
+        className="team-strip"
+        role="group"
+        aria-label={
+          group === "team" ? "Equipos del álbum" : "Series especiales del álbum"
+        }
+      >
+        {sections
+          .filter((t) => t.kind === group)
+          .map((t) => (
+            <button
+              className={`team-choice ${selected === t.id ? "selected" : ""}`}
+              key={t.id}
+              aria-label={`Ver ${t.name}`}
+              aria-pressed={selected === t.id}
+              onClick={() => choose(t.id)}
+            >
+              <TeamBadge short={t.short} teamId={t.id} />
+              <span>
+                {t.name
+                  .replace("Atlético de Madrid", "Atlético")
+                  .replace("Deportivo Alavés", "Alavés")
+                  .replace("Athletic Club", "Athletic")
+                  .replace("FC Barcelona", "Barcelona")
+                  .replace("Racing de Santander", "Racing")
+                  .replace("Extra Sticker ", "Extra ")
+                  .replace("Draft 23 Kromix", "Kromix")}
+              </span>
+              <i />
+            </button>
+          ))}
+      </div>
       <div className="album-team-heading">
         <div>
-          <span className="eyebrow">TU EQUIPO, CROMO A CROMO</span>
-          <h2>{team?.name ?? "Elige un equipo"}</h2>
+          <span className="eyebrow">
+            {group === "team"
+              ? "TU EQUIPO, CROMO A CROMO"
+              : "LAS SERIES DEL ÁLBUM"}
+          </span>
+          <h2>{section?.name ?? "Elige un apartado"}</h2>
           <p>
-            {showPreview
-              ? "Toca un casillero y prueba a desbloquearlo."
+            {reference
+              ? "Nombres y numeración de los listados consultados."
               : "Toca los que tienes para completar tu página."}
           </p>
         </div>
-        {team && <TeamBadge short={team.short} />}
+        {section && <TeamBadge short={section.short} teamId={section.id} />}
       </div>
       <div className="album-progress">
         <span>
           <strong>{count}</strong>
-          <span> / {total}</span>{" "}
-          {showPreview ? "abiertos en la prueba" : "conseguidos"}
+          <span> / {rows.length}</span>{" "}
+          {reference ? "marcados en esta visita" : "conseguidos"}
         </span>
-        <span>{total ? Math.round((count / total) * 100) : 0}%</span>
+        <span>
+          {rows.length ? Math.round((count / rows.length) * 100) : 0}%
+        </span>
         <progress
           aria-label={
-            showPreview
-              ? "Casilleros abiertos en la prueba"
-              : "Progreso del equipo"
+            reference ? "Cromos marcados en esta visita" : "Progreso del equipo"
           }
-          max={Math.max(1, total)}
+          max={Math.max(1, rows.length)}
           value={count}
         />
       </div>
@@ -201,13 +294,25 @@ export function VisualAlbum({
             </button>
           ))}
         </div>
-        {!showPreview && (
+        <button
+          className="album-search-toggle secondary"
+          aria-label="Buscar en este apartado"
+          aria-expanded={searchOpen}
+          onClick={() => {
+            setSearchOpen((v) => !v);
+            setQuery("");
+            setPage(0);
+          }}
+        >
+          <Search size={18} />
+        </button>
+        {searchOpen && (
           <label className="album-search">
             <Search size={17} />
             <input
               aria-label="Buscar cromo"
               value={query}
-              placeholder="Buscar número o nombre"
+              placeholder="Número o nombre"
               onChange={(e) => {
                 setQuery(e.target.value);
                 setPage(0);
@@ -216,123 +321,97 @@ export function VisualAlbum({
           </label>
         )}
       </div>
-      {showPreview && (
+      {reference && (
         <p className="album-preview-note">
-          <Sparkles size={14} /> Prueba visual · Sin numeración oficial. Se
-          reinicia al salir.
+          <Info size={14} />
+          {visitor
+            ? "Prueba del catálogo · Tus marcas no se guardan."
+            : "Catálogo de consulta · Aún sin activar el inventario."}
         </p>
       )}
       <div className="album-slots">
-        {showPreview
-          ? previewRows
-              .filter(
-                (id) =>
-                  mode === "all" ||
-                  (mode === "owned" ? preview[id] : !preview[id]),
-              )
-              .map((id) => {
-                const index = previewRows.indexOf(id);
-                const unlocked = Boolean(preview[id]);
-                return (
-                  <button
-                    key={id}
-                    className={`album-slot preview-slot ${unlocked ? "unlocked" : ""}`}
-                    aria-label={`Casillero de prueba ${index + 1}, ${unlocked ? "desbloqueado" : "bloqueado"}`}
-                    aria-pressed={unlocked}
-                    onClick={() => {
-                      setPreview((v) => ({ ...v, [id]: !v[id] }));
-                      setAnnouncement(
-                        unlocked
-                          ? "Casillero de prueba bloqueado"
-                          : "Casillero de prueba desbloqueado",
-                      );
-                    }}
-                  >
-                    <span className="slot-kicker">VISTA PREVIA</span>
-                    <span className="slot-symbol">
-                      {unlocked ? (
-                        <TeamBadge short={team?.short ?? "CM"} />
-                      ) : (
-                        <LockKeyhole size={25} />
-                      )}
-                    </span>
-                    <span className="slot-caption">
-                      {unlocked ? "Lo tengo" : "Toca para abrir"}
-                    </span>
-                    <span className="slot-corner">
-                      {unlocked ? <Check size={13} /> : <Plus size={13} />}
-                    </span>
-                  </button>
-                );
-              })
-          : visible.slice(page * 48, (page + 1) * 48).map((s) => {
-              const i = own.get(s.id);
-              const q = i?.quantity ?? 0;
-              return (
-                <article
-                  className={`album-slot real-slot ${q ? "unlocked" : ""}`}
-                  key={s.id}
+        {visible.slice(page * 48, (page + 1) * 48).map((s) => {
+          const i = own.get(s.id);
+          const q = quantity(s);
+          const review = s.catalog_review === "needs_review";
+          return (
+            <article
+              className={`album-slot real-slot ${reference ? "reference-slot" : ""} ${q ? "unlocked" : ""} ${review ? "needs-review" : ""}`}
+              key={s.id}
+            >
+              <button
+                className="slot-main"
+                disabled={busy && !reference}
+                aria-label={
+                  reference
+                    ? `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
+                    : q
+                      ? `Ver ${s.name}, ${q} unidades`
+                      : `Desbloquear ${s.name}, código ${s.official_code}`
+                }
+                aria-pressed={q > 0}
+                onClick={() => open(s)}
+              >
+                <span className="slot-kicker">
+                  {s.edition
+                    .replace(" edición", "")
+                    .replace("Edición por confirmar", "ED. ?")}
+                </span>
+                <strong className="slot-number">{s.official_code}</strong>
+                <span className="slot-symbol">
+                  <TeamBadge
+                    short={section?.short ?? "CM"}
+                    teamId={section?.id}
+                  />
+                </span>
+                <span className="slot-caption">{s.name}</span>
+                <span className="slot-corner">
+                  {q ? <Check size={13} /> : <Plus size={13} />}
+                </span>
+                {review && <span className="slot-review">Revisar</span>}
+              </button>
+              {reference ? (
+                <button
+                  className="slot-source-button"
+                  aria-label={`Ver fuentes de ${s.name}`}
+                  onClick={() => onDetail(s)}
                 >
-                  <button
-                    className="slot-main"
-                    disabled={busy}
-                    aria-label={
-                      q
-                        ? `Ver ${s.name}, ${q} unidades`
-                        : `Desbloquear ${s.name}, código ${s.official_code}`
-                    }
-                    aria-pressed={q > 0}
-                    onClick={() => {
-                      if (q) onDetail(s);
-                      else void onQuantity(s, 1);
-                    }}
-                  >
-                    <span className="slot-kicker">{s.official_code}</span>
-                    <span className="slot-symbol">
-                      {q ? (
-                        <TeamBadge short={team?.short ?? "CM"} />
-                      ) : (
-                        <LockKeyhole size={25} />
-                      )}
+                  <Info size={12} />
+                  <span>
+                    {review ? "Dato por confirmar" : "Fuentes y edición"}
+                  </span>
+                </button>
+              ) : (
+                q > 0 && (
+                  <div className="slot-counter">
+                    <button
+                      disabled={busy || (i?.reserved ?? 0) > Math.max(q - 2, 0)}
+                      onClick={() => void onQuantity(s, -1)}
+                      aria-label={`Quitar una unidad de ${s.name}`}
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span>
+                      {q}
+                      <small>{q > 1 ? ` · ${available(i)} libres` : ""}</small>
                     </span>
-                    <span className="slot-caption">{s.name}</span>
-                    <span className="slot-corner">
-                      {q ? <Check size={13} /> : <Plus size={13} />}
-                    </span>
-                  </button>
-                  {q > 0 && (
-                    <div className="slot-counter">
-                      <button
-                        disabled={
-                          busy || (i?.reserved ?? 0) > Math.max(q - 2, 0)
-                        }
-                        onClick={() => void onQuantity(s, -1)}
-                        aria-label={`Quitar una unidad de ${s.name}`}
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span>
-                        {q}
-                        <small>
-                          {q > 1 ? ` · ${available(i)} libres` : ""}
-                        </small>
-                      </span>
-                      <button
-                        disabled={busy}
-                        onClick={() => void onQuantity(s, 1)}
-                        aria-label={`Añadir una unidad de ${s.name}`}
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
-                  )}
-                </article>
-              );
-            })}
+                    <button
+                      disabled={busy}
+                      onClick={() => void onQuantity(s, 1)}
+                      aria-label={`Añadir una unidad de ${s.name}`}
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                )
+              )}
+            </article>
+          );
+        })}
       </div>
-      {!showPreview && !visible.length && (
+      {!visible.length && (
         <div className="album-empty">
-          <Shield size={30} />
+          <Sparkles size={28} />
           <h3>
             {rows.length
               ? "No hay cromos con estos filtros"
@@ -340,23 +419,12 @@ export function VisualAlbum({
           </h3>
           <p>
             {rows.length
-              ? "Prueba otra búsqueda."
-              : "Los cromos publicados aparecerán aquí cuando se verifique el catálogo de este equipo."}
+              ? "Prueba otra búsqueda o vuelve a Todos."
+              : "Este apartado todavía no tiene cromos publicados en la base de datos."}
           </p>
         </div>
       )}
-      {showPreview &&
-        previewRows.filter(
-          (id) =>
-            mode === "all" || (mode === "owned" ? preview[id] : !preview[id]),
-        ).length === 0 && (
-          <p className="album-empty">
-            {mode === "owned"
-              ? "Toca un casillero en Todos para probar el álbum."
-              : "Ya has abierto todos los casilleros de prueba de este equipo."}
-          </p>
-        )}
-      {visible.length > 48 && !showPreview && (
+      {visible.length > 48 && (
         <div className="pagination">
           <button
             className="secondary"
@@ -377,12 +445,46 @@ export function VisualAlbum({
           </button>
         </div>
       )}
+      {reference && (
+        <details className="catalogue-review">
+          <summary>
+            Sobre el listado · {catalogueSummary.total} registros /{" "}
+            {catalogueSummary.sections} apartados <ChevronRight size={14} />
+          </summary>
+          <p>
+            Listado de consulta contrastado en Cromolista, Stickers.app y De
+            Cromos con JR. {catalogueSummary.review} registros necesitan
+            revisión. Las fuentes discrepan en algunos sufijos y en Top
+            Fichajes; no asignamos números definitivos a esos casos. Los Extra
+            Sticker sin número impreso aparecen como S/N.
+          </p>
+          <p>
+            <a
+              href={catalogueSummary.officialUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Abrir el listado de Panini · 4ª edición ↗
+            </a>
+          </p>
+          <p>
+            El PDF oficial de Panini no ha podido comprobarse. No se garantiza
+            todavía que el catálogo oficial esté completo y no se ha publicado
+            en los inventarios. Los huecos sin jugador no se cuentan como
+            cromos.
+          </p>
+          <p>
+            Las marcas de esta visita solo sirven para probar el diseño y se
+            reinician al salir del álbum.
+          </p>
+        </details>
+      )}
       <div className="album-shortcuts">
         <button className="secondary" onClick={() => onNavigate("repetidos")}>
           Mis repetidos ·{" "}
           {inventory
             .filter((i) => stickers.some((s) => s.id === i.sticker_id))
-            .reduce((sum, i) => sum + available(i), 0)}{" "}
+            .reduce((sum, i) => sum + available(i), 0)}
           <ChevronRight size={15} />
         </button>
         <button className="secondary" onClick={() => onNavigate("faltantes")}>

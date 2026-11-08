@@ -93,9 +93,7 @@ test("visita sin correo recorre pantallas sin peticiones de datos", async ({
     page.getByRole("heading", { name: "Mi álbum", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText(
-      "Prueba visual · Sin numeración oficial. Se reinicia al salir.",
-    ),
+    page.getByText("Prueba del catálogo · Tus marcas no se guardan."),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Mis repetidos · 0", exact: true })
@@ -167,34 +165,34 @@ test("álbum por equipos: casilleros táctiles y estado separado por club", asyn
     page.getByRole("heading", { name: "FC Barcelona", exact: true }),
   ).toBeVisible();
   const slot = page.getByRole("button", {
-    name: "Casillero de prueba 1, bloqueado",
+    name: "Marcar Escudo, número 1",
     exact: true,
   });
   await slot.click();
   await expect(
     page.getByRole("button", {
-      name: "Casillero de prueba 1, desbloqueado",
+      name: "Desmarcar Escudo, número 1",
       exact: true,
     }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(
-    page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
+    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
   ).toHaveAttribute("value", "1");
   await page.getByRole("button", { name: "Los tengo", exact: true }).click();
-  await expect(page.locator(".preview-slot")).toHaveCount(1);
+  await expect(page.locator(".reference-slot")).toHaveCount(1);
   await teams
-    .getByRole("button", { name: "Ver Real Madrid", exact: true })
+    .getByRole("button", { name: "Ver Real Madrid CF", exact: true })
     .click();
-  await expect(page.locator(".preview-slot")).toHaveCount(12);
+  await expect(page.locator(".reference-slot")).toHaveCount(26);
   await expect(
-    page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
+    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
   ).toHaveAttribute("value", "0");
   await teams
     .getByRole("button", { name: "Ver FC Barcelona", exact: true })
     .click();
   await expect(
     page.getByRole("button", {
-      name: "Casillero de prueba 1, desbloqueado",
+      name: "Desmarcar Escudo, número 1",
       exact: true,
     }),
   ).toBeVisible();
@@ -209,12 +207,12 @@ test("álbum por equipos: casilleros táctiles y estado separado por club", asyn
   });
   await page
     .getByRole("button", {
-      name: "Casillero de prueba 1, desbloqueado",
+      name: "Desmarcar Escudo, número 1",
       exact: true,
     })
     .click();
   await expect(
-    page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
+    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
   ).toHaveAttribute("value", "0");
   expect(requests).toEqual([]);
   await page.reload();
@@ -222,7 +220,7 @@ test("álbum por equipos: casilleros táctiles y estado separado por club", asyn
     page.getByRole("heading", { name: "Mi álbum", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
+    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
   ).toHaveAttribute("value", "0");
 });
 test("diseño móvil: inicio oscuro y navegación sin desbordamiento", async ({
@@ -257,7 +255,7 @@ test("entrada al álbum y primer casillero visibles en móvil", async ({
     page.getByRole("heading", { name: "Mi álbum", exact: true }),
   ).toBeVisible();
   const slot = page.getByRole("button", {
-    name: "Casillero de prueba 1, bloqueado",
+    name: "Marcar Escudo, número 1",
     exact: true,
   });
   await expect(slot).toBeVisible();
@@ -271,4 +269,56 @@ test("entrada al álbum y primer casillero visibles en móvil", async ({
   await page.screenshot({
     path: testInfo.outputPath("album-primer-pantalla.png"),
   });
+});
+
+test("índice completo de consulta, numeración y fuentes visibles", async ({
+  page,
+}) => {
+  await page.goto("/visita#album");
+  const group = page.getByRole("group", { name: "Equipos del álbum" });
+  await expect(group.getByRole("button").first()).toHaveAccessibleName(
+    "Ver Deportivo Alavés",
+  );
+  await expect(
+    page.getByRole("button", { name: "Marcar Sivera, número 3", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Especiales 9", exact: true }).click();
+  const series = page.getByRole("group", {
+    name: "Series especiales del álbum",
+  });
+  await expect(series.getByRole("button")).toHaveCount(9);
+  await series
+    .getByRole("button", { name: "Ver Últimos Fichajes", exact: true })
+    .click();
+  await expect(
+    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
+  ).toHaveAttribute("max", "66");
+  await page.getByRole("button", { name: "Siguiente", exact: true }).click();
+  await expect(
+    page.getByRole("button", {
+      name: "Marcar Jonathan David, número UF66",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await series
+    .getByRole("button", { name: "Ver Top Fichajes", exact: true })
+    .click();
+  await expect(page.locator(".needs-review")).toHaveCount(3);
+  await page
+    .getByRole("button", { name: "Ver fuentes de Rodri", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "pendiente de confirmar",
+  );
+  await expect(page.getByRole("dialog")).toContainText("Qué dice cada fuente");
+  await page.keyboard.press("Escape");
+  await series
+    .getByRole("button", { name: "Ver Extra Sticker Oro", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Marcar Lamine Yamal, número S/N",
+      exact: true,
+    }),
+  ).toBeVisible();
 });
