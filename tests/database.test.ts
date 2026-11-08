@@ -53,10 +53,15 @@ async function propose(n = 1) {
 beforeAll(async () => {
   db = new PGlite();
   await db.exec(
-    `create role anon nologin;create role authenticated nologin;create schema auth;create table auth.users(id uuid primary key,raw_user_meta_data jsonb default '{}');create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;grant usage on schema auth to authenticated,anon;grant execute on function auth.uid() to authenticated,anon;`,
+    `create role anon nologin;create role authenticated nologin;create schema auth;create table auth.users(id uuid primary key,raw_user_meta_data jsonb default '{}',email text unique);create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;grant usage on schema auth to authenticated,anon;grant execute on function auth.uid() to authenticated,anon;`,
   );
   await db.exec(
-    readFileSync("supabase/migrations/202611080001_core.sql", "utf8"),
+    readFileSync("supabase/migrations/202611080001_core.sql", "utf8") +
+      "\n" +
+      readFileSync(
+        "supabase/migrations/202611080002_username_accounts.sql",
+        "utf8",
+      ),
   );
   for (const id of [A, B, C])
     await db.query("insert into auth.users(id) values($1)", [id]);
@@ -77,6 +82,43 @@ afterAll(async () => {
   await db.close();
 });
 describe("PostgreSQL, RLS y flujo completo", () => {
+  it("registra usuarios sin correo personal, evita duplicados y protege el nombre de acceso", async () => {
+    await owner();
+    const id = uuid();
+    await db.query(
+      "insert into auth.users(id,email) values($1,'amigo_test@accounts.nexo.invalid')",
+      [id],
+    );
+    expect(
+      (
+        await db.query<{ username: string }>(
+          "select username from public.profiles where id=$1",
+          [id],
+        )
+      ).rows[0].username,
+    ).toBe("amigo_test");
+    await expect(
+      db.query(
+        "insert into auth.users(id,email) values($1,'amigo_test@accounts.nexo.invalid')",
+        [uuid()],
+      ),
+    ).rejects.toThrow();
+    await user(id);
+    await expect(
+      rpc("update_profile", ["otro_nombre", "Amigo", "friends", false]),
+    ).rejects.toThrow("usuario de acceso");
+    await rpc("update_profile", ["amigo_test", "Amigo", "friends", false]);
+    await rpc("delete_my_account");
+    await owner();
+    expect(
+      (
+        await db.query<{ deleted_at: string }>(
+          "select deleted_at from public.profiles where id=$1",
+          [id],
+        )
+      ).rows[0].deleted_at,
+    ).toBeTruthy();
+  });
   it("crea perfiles privados por defecto sin correo público", async () => {
     await user(A);
     const rows = await db.query<{ visibility: string }>(

@@ -21,8 +21,11 @@ test("registro accesible y conexión pendiente explícita", async ({ page }) => 
   await expect(
     page.getByRole("heading", { name: "Únete al equipo." }),
   ).toBeVisible();
-  await page.getByLabel("Tu nombre").fill("Persona de prueba");
-  await page.getByLabel("Correo electrónico").fill("fixture@example.test");
+  await page
+    .getByLabel("Nombre de usuario", { exact: true })
+    .fill("coleccionista_test");
+  await expect(page.getByLabel("Correo electrónico")).toHaveCount(0);
+  await expect(page.getByText(/No necesitas correo/)).toBeVisible();
   await page
     .getByLabel("Contraseña", { exact: true })
     .fill("SoloUnaPrueba123!");
@@ -58,7 +61,14 @@ test("inicio de sesión y recuperación", async ({ page }) => {
   await page
     .getByRole("button", { name: "Iniciar sesión", exact: true })
     .click();
+  await expect(
+    page.getByLabel("Nombre de usuario", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Correo electrónico")).toHaveCount(0);
   await page.getByRole("button", { name: "He olvidado mi contraseña" }).click();
+  await expect(
+    page.getByText(/no tienen recuperación automática/),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Recupera tu cuenta." }),
   ).toBeVisible();

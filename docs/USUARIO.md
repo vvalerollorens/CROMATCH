@@ -2,9 +2,9 @@
 
 ## Empezar
 
-Crea una cuenta, confirma el correo y entra. En Perfil elige un nombre de usuario de 3 a 24 caracteres: letras minúsculas, números y guion bajo. Tu correo no aparece en las búsquedas.
+Crea una cuenta con usuario (3–24 caracteres: letras sin acentos, números y guion bajo) y contraseña de al menos 10 caracteres. No necesitas correo. El usuario de acceso es fijo; en Perfil puedes cambiar tu nombre público. Necesita que el operador conecte Supabase.
 
-Si no puedes entrar, abre «He olvidado mi contraseña». El enlace recibido permite elegir una nueva contraseña. Google solo aparece si el operador lo ha configurado.
+Guarda bien tu contraseña: las cuentas sin correo todavía no tienen recuperación automática. «He olvidado mi contraseña» lo explica y conserva el envío de instrucciones para cuentas anteriores con correo real. Google solo aparece si el operador lo ha configurado.
 
 ## Tu álbum
 

@@ -34,6 +34,7 @@ try {
   if (!auth.ok) throw new Error(`Auth no responde correctamente (HTTP ${auth.status}).`);
   const settings = await auth.json();
   if (!settings.external?.email) throw new Error('El proveedor de correo/contraseña no está habilitado.');
+  if (settings.mailer_autoconfirm !== true) throw new Error('Auth requiere desactivar la confirmación de correo para las cuentas por usuario.');
   console.log('OK: conexión a Auth y proveedor de correo disponibles.');
   for (const table of ['user_inventory', 'trade_proposals', 'profiles']) {
     const response = await fetch(new URL(`/rest/v1/${table}?select=*&limit=0`, base), { headers, signal: AbortSignal.timeout(15000), redirect: 'error' });

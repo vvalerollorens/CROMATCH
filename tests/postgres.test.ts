@@ -40,10 +40,15 @@ describe.skipIf(!url)(
         );
       pool = new Pool({ connectionString: url, max: 8 });
       await pool.query(
-        `drop schema if exists public cascade;drop schema if exists auth cascade;create schema public;create schema auth;do $$ begin if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin;end if;if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin;end if;end $$;create table auth.users(id uuid primary key,raw_user_meta_data jsonb default '{}');create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;grant usage on schema auth to authenticated,anon;grant execute on function auth.uid() to authenticated,anon;`,
+        `drop schema if exists public cascade;drop schema if exists auth cascade;create schema public;create schema auth;do $$ begin if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin;end if;if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin;end if;end $$;create table auth.users(id uuid primary key,raw_user_meta_data jsonb default '{}',email text unique);create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;grant usage on schema auth to authenticated,anon;grant execute on function auth.uid() to authenticated,anon;`,
       );
       await pool.query(
-        readFileSync("supabase/migrations/202611080001_core.sql", "utf8"),
+        readFileSync("supabase/migrations/202611080001_core.sql", "utf8") +
+          "\n" +
+          readFileSync(
+            "supabase/migrations/202611080002_username_accounts.sql",
+            "utf8",
+          ),
       );
       await pool.query("insert into auth.users(id) values($1),($2)", [A, B]);
       c = (await pool.query("select id from public.collections")).rows[0].id;

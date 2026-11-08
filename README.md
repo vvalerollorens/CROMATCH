@@ -33,6 +33,8 @@ npm ci
 cp .env.example .env.local
 ```
 
+El acceso usa nombre de usuario y contraseña, sin correo personal. Necesita Supabase configurado y ambas migraciones aplicadas; aún no está validado con el servicio alojado.
+
 Completa las dos variables públicas con la URL y la clave publicable/anon de tu propio proyecto Supabase. La aplicación no necesita ni debe recibir una clave `service_role`.
 
 ```dotenv
@@ -41,7 +43,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=TU-CLAVE-PUBLICABLE
 NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=false
 ```
 
-Aplica la migración SQL completa en un **proyecto nuevo** desde el SQL Editor de Supabase, o utiliza el CLI:
+Aplica las dos migraciones SQL en orden (core y username_accounts) en un **proyecto nuevo** desde el SQL Editor de Supabase, o utiliza el CLI:
 
 ```sh
 supabase login
@@ -50,7 +52,7 @@ supabase db push
 npm run dev
 ```
 
-El archivo reproducible es `supabase/migrations/202611080001_core.sql`. Incluye tablas, restricciones, RLS, funciones transaccionales, índices, alta de perfiles y metadatos de la primera colección. No incluye datos de cromos sin verificar.
+Los archivos reproducibles están en `supabase/migrations/` (core y acceso por usuario). Incluye tablas, restricciones, RLS, funciones transaccionales, índices, alta de perfiles y metadatos de la primera colección. No incluye datos de cromos sin verificar.
 
 Para ejecutar con servicios locales:
 
@@ -65,9 +67,9 @@ Usa la URL y clave locales que imprime el CLI. La confirmación de correo se pue
 
 En Supabase Auth:
 
-1. Activa correo/contraseña, confirmación de email y contraseña mínima de 10 caracteres.
+1. Mantén habilitado el proveedor de contraseña y desactiva la confirmación de email para este proyecto de acceso por usuario. La app transforma el usuario en un identificador interno `usuario@accounts.nexo.invalid`; no es un buzón ni se envía correo a esa dirección. Exige al menos 10 caracteres de contraseña.
 2. Configura Site URL con la dirección pública real y añade los dominios exactos de callback autorizados. Se utiliza `/` para confirmación, recuperación y OAuth con PKCE.
-3. Configura SMTP propio, límites de envío y protección antiabuso antes de admitir registros públicos.
+3. Configura límites de acceso y protección antiabuso antes de abrir registros. Las nuevas cuentas no recogen correo personal y no tienen recuperación automática por ahora. La recuperación por email solo se conserva para cuentas anteriores que tengan un correo real.
 4. Google es opcional: configura el proveedor y su redirect en Google Cloud/Supabase y después activa `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true`.
 5. Usa proyectos y credenciales distintos para desarrollo y producción.
 

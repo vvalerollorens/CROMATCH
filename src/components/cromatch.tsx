@@ -36,6 +36,11 @@ import {
 } from "lucide-react";
 import { configured, database, download, inventoryFor } from "@/lib/supabase";
 import {
+  usernameEmail,
+  loginEmail,
+  accountUsername,
+} from "@/lib/username-auth";
+import {
   available,
   compare,
   parseCatalog,
@@ -572,6 +577,10 @@ export function Cromatch({
       const email = String(f.get("email") ?? "");
       const password = String(f.get("password") ?? "");
       if (auth === "recover") {
+        if (accountUsername(email.trim()))
+          throw new Error(
+            "Las cuentas sin correo no tienen recuperación automática en esta versión.",
+          );
         const { error } = await db.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin,
         });
@@ -583,21 +592,35 @@ export function Cromatch({
         setAuth(null);
         setMessage("Contraseña actualizada.");
       } else if (auth === "register") {
-        const { error } = await db.auth.signUp({
-          email,
+        const username = String(f.get("username") ?? "")
+          .trim()
+          .toLowerCase();
+        const { data, error } = await db.auth.signUp({
+          email: usernameEmail(username),
           password,
           options: {
-            data: { display_name: String(f.get("name")) },
-            emailRedirectTo: window.location.origin,
+            data: { display_name: username },
           },
         });
-        if (error) throw error;
-        setMessage(
-          "Revisa tu correo para verificar tu cuenta antes de entrar.",
-        );
+        if (error)
+          throw new Error(
+            "No se ha podido crear la cuenta. Prueba otro usuario o inténtalo de nuevo más tarde.",
+          );
+        if (!data.session)
+          throw new Error(
+            "No se ha podido abrir la cuenta. El administrador debe revisar que Supabase permite el registro sin confirmación de correo.",
+          );
+        setAuth(null);
+        setMessage("Tu cuenta está lista.");
       } else {
-        const { error } = await db.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const { error } = await db.auth.signInWithPassword({
+          email: loginEmail(String(f.get("username") ?? "")),
+          password,
+        });
+        if (error)
+          throw new Error(
+            "No se ha podido entrar. Revisa tu usuario y contraseña o inténtalo de nuevo.",
+          );
         setAuth(null);
       }
     });
@@ -659,12 +682,41 @@ export function Cromatch({
           </h1>
           {notices}
           {auth === "register" && (
+            <p>
+              Elige tu usuario y una contraseña. No necesitas correo. Guarda
+              bien tu contraseña: esta versión todavía no ofrece recuperación
+              automática para cuentas sin correo.
+            </p>
+          )}
+          {auth !== "reset" && auth !== "recover" && (
             <label>
-              Tu nombre
-              <input name="name" required maxLength={60} autoComplete="name" />
+              Nombre de usuario
+              <input
+                name="username"
+                required
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
+                maxLength={auth === "register" ? 24 : 254}
+                pattern={auth === "register" ? "[a-zA-Z0-9_]{3,24}" : undefined}
+                title="Entre 3 y 24 caracteres: letras, números y guion bajo"
+              />
+              {auth === "register" && (
+                <small>
+                  Entre 3 y 24 caracteres. No podrás cambiar tu usuario de
+                  acceso.
+                </small>
+              )}
             </label>
           )}
-          {auth !== "reset" && (
+          {auth === "recover" && (
+            <p>
+              Las cuentas creadas solo con usuario no tienen recuperación
+              automática por ahora. Si tenías una cuenta anterior con correo,
+              puedes solicitar instrucciones aquí.
+            </p>
+          )}
+          {auth === "recover" && (
             <label>
               Correo electrónico
               <input name="email" type="email" required autoComplete="email" />
@@ -1866,11 +1918,16 @@ export function Cromatch({
                     <input
                       name="username"
                       defaultValue={profile?.username}
+                      readOnly={Boolean(accountUsername(session?.user.email))}
                       required
                       pattern="[a-z0-9_]{3,24}"
                       title="Entre 3 y 24 caracteres: minúsculas, números y guion bajo"
                     />
-                    <small>Elige tu nombre público: 3–24 caracteres.</small>
+                    <small>
+                      {accountUsername(session?.user.email)
+                        ? "Tu usuario de acceso es fijo. Puedes cambiar el nombre público."
+                        : "Elige tu nombre público: 3–24 caracteres."}
+                    </small>
                   </label>
                   <label>
                     Visibilidad de tu colección

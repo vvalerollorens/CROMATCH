@@ -2,7 +2,7 @@
 
 ## Implementado en código
 
-- Bienvenida y formularios de registro, login, recuperación y nueva contraseña con Supabase Auth.
+- Bienvenida, registro/acceso por usuario y contraseña (identificador interno de Supabase Auth, sin correo personal). Recuperación por correo y nueva contraseña conservadas para cuentas anteriores.
 - Perfil, privacidad, nombre de usuario, exportación y eliminación de cuenta.
 - Catálogo por colecciones, importador JSON con revisión previa, fuentes y auditoría.
 - Álbum/lista, cantidades persistentes por RPC, detalle, filtros, repetidos, faltantes y exportación de listas.
@@ -23,6 +23,8 @@
 4. El responsable del servicio, contacto legal, política de retención, región, contratos y procedimientos operativos deben definirse antes de abrir registros públicos.
 
 ## Funciones aún pendientes
+
+- Recuperación automática de cuentas creadas sin correo (por ejemplo, mediante códigos de recuperación). Se informa de esta limitación antes del registro.
 
 - OCR local implementado con Tesseract.js, coincidencias por nombre y confirmación manual. Falta medir precisión con fotografías reales de distintos móviles, ángulos y ediciones; no se garantiza identificar todas las cartas.
 - Intercambios multilaterales y detección de ciclos; el modelo contempla participantes, pero los RPC actuales operan exclusivamente entre dos personas.
