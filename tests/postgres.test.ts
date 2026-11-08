@@ -53,6 +53,11 @@ describe.skipIf(!url)(
           readFileSync(
             "supabase/migrations/202611080003_catalogue_identity.sql",
             "utf8",
+          ) +
+          "\n" +
+          readFileSync(
+            "supabase/migrations/202611080005_bulk_quantities.sql",
+            "utf8",
           ),
       );
       await pool.query("insert into auth.users(id) values($1),($2)", [A, B]);

@@ -66,6 +66,11 @@ beforeAll(async () => {
       readFileSync(
         "supabase/migrations/202611080003_catalogue_identity.sql",
         "utf8",
+      ) +
+      "\n" +
+      readFileSync(
+        "supabase/migrations/202611080005_bulk_quantities.sql",
+        "utf8",
       ),
   );
   for (const id of [A, B, C])
@@ -87,6 +92,22 @@ afterAll(async () => {
   await db.close();
 });
 describe("PostgreSQL, RLS y flujo completo", () => {
+  it("añade un primer repetido y cantidades OCR de forma atómica e idempotente", async () => {
+    await user(B);
+    const op = uuid();
+    expect(await rpc("change_quantity", [S1, 2, op])).toBe(2);
+    expect(await rpc("change_quantity", [S1, 2, op])).toBe(2);
+    expect(await rpc("change_quantity", [S1, 9, uuid()])).toBe(11);
+    for (const invalid of [-2, 0, 10, null])
+      await expect(
+        rpc("change_quantity", [S1, invalid, uuid()]),
+      ).rejects.toThrow("Incremento");
+    await owner();
+    await db.query(
+      "delete from public.user_inventory where user_id=$1 and sticker_id=$2",
+      [B, S1],
+    );
+  });
   it("registra usuarios sin correo personal, evita duplicados y protege el nombre de acceso", async () => {
     await owner();
     const id = uuid();
