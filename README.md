@@ -71,7 +71,7 @@ En Supabase Auth:
 4. Google es opcional: configura el proveedor y su redirect en Google Cloud/Supabase y después activa `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true`.
 5. Usa proyectos y credenciales distintos para desarrollo y producción.
 
-Las sesiones son gestionadas por Supabase Auth. El navegador conserva su sesión; **los inventarios, amistades e intercambios se guardan exclusivamente en PostgreSQL**. No se utiliza localStorage como base de datos de la colección.
+Las sesiones son gestionadas por Supabase Auth. El navegador conserva su sesión; **los inventarios, amistades e intercambios se guardan exclusivamente en PostgreSQL**. Las cuentas no utilizan localStorage como base de datos del inventario; la visita sin cuenta conserva un álbum local separado.
 
 ## Administrar el catálogo
 
@@ -103,7 +103,7 @@ Playwright comprueba bienvenida, formularios, recuperación, navegación por tec
 
 Importa este repositorio en Vercel como proyecto Next.js. Usa `npm ci` y `npm run build`, Node.js 22 y las variables de `.env.example`. No requiere `vercel.json`. Configura Preview con un Supabase de desarrollo, y Production con el de producción; ajusta en cada proyecto los callbacks de Auth. Nunca reutilices una base de producción para pruebas destructivas.
 
-No se ha creado ningún despliegue ni servicio de pago automáticamente. Las claves públicas se incorporan al build: reconstruye tras cambiarlas. El sitio muestra claramente el estado de conexión pendiente cuando no existen.
+El repositorio está desplegado en https://cromatch-six.vercel.app/. No se ha provisionado Supabase ni contratado servicios de pago. Las claves públicas se incorporan al build: reconstruye tras cambiarlas. El sitio muestra claramente el estado de conexión pendiente cuando no existen.
 
 ## Documentación
 
@@ -112,6 +112,7 @@ No se ha creado ningún despliegue ni servicio de pago automáticamente. Las cla
 - [Catálogo, formato y fuentes consultadas](docs/CATALOGO.md)
 - [Dirección visual y tipografías](docs/DISENO.md)
 - [Guía de uso](docs/USUARIO.md)
+- [Conectar cuentas y comprobar Supabase](docs/CONEXION.md)
 - [Pruebas y evidencia](docs/VERIFICACION.md)
 - [Limitaciones y siguientes fases](docs/ESTADO.md)
 

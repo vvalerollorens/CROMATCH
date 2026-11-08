@@ -8,7 +8,7 @@ Dos personas autenticadas registran cromos propios, autorizan su comparación, p
 
 - `npm run typecheck`: comprobación estática de TypeScript.
 - `npm run build`: compilación de producción Next.js.
-- `npm test`: 20 pruebas locales de dominio y PostgreSQL embebido; 4 pruebas de concurrencia se omiten sin `TEST_DATABASE_URL`.
+- `npm test`: 38 pruebas locales de dominio, álbum, fotos, OCR y PostgreSQL embebido; 4 pruebas de concurrencia se omiten sin `TEST_DATABASE_URL`.
 - El esquema se aplica de cero en PGlite. Se utiliza `SET ROLE authenticated` y claims de identidad, de modo que la prueba no se limita a comprobar cadenas de texto de las políticas.
 
 Las pruebas de dominio cubren repetidos y reservas, identidad exacta, aislamiento por catálogo proporcionado, variantes, posiciones físicas, validación y duplicados del importador.
@@ -19,7 +19,7 @@ Las de base de datos cubren privacidad inicial, denegación a anónimos, ausenci
 
 El workflow levanta PostgreSQL 17 en una base desechable y ejecuta cuatro pruebas con conexiones independientes: dos aceptaciones por la misma unidad, confirmaciones simultáneas, reintento simultáneo de una operación y ocho incrementos concurrentes. No se deben describir como pasadas hasta comprobar el resultado de CI.
 
-Después instala Chromium y ejecuta ocho casos Playwright (cuatro historias en dos tamaños), incluidos diálogo/foco/teclado y desbordamiento móvil. El entorno de desarrollo no expone la herramienta `cua_repl.js` requerida por Sites para la inspección visual; no se ha sustituido por otro mecanismo ni se afirma inspección visual local.
+Después instala Chromium y ejecuta 30 casos Playwright en escritorio y móvil, incluidos diálogo/foco/teclado y desbordamiento móvil. El entorno de desarrollo no expone la herramienta `cua_repl.js` requerida por Sites para la inspección visual; no se ha sustituido por otro mecanismo ni se afirma inspección visual local.
 
 ## Resultado de GitHub Actions
 
@@ -46,3 +46,9 @@ Usa dos cuentas distintas y un catálogo **real y verificado** en staging. Compr
 Repite las consultas directamente a PostgREST con el JWT de una tercera cuenta y con la clave anon sin JWT. No deben aparecer inventarios privados, correos ni intercambios ajenos. Comprueba bloqueo y revocación después de haber abierto la pantalla previamente. Prueba una interrupción de red después de guardar y reintenta conservando el mismo ID.
 
 Completa revisión de VoiceOver/TalkBack, contraste, zoom al 200%, navegación con teclado y pruebas en iPhone/Android reales. No se afirma certificación WCAG ni rendimiento a escala sin esas comprobaciones.
+
+## Última verificación de NEXO
+
+La [ejecución 42520084800](https://github.com/vvalerollorens/CROMATCH/actions/runs/42520084800), sobre `f0892a6`, pasó TypeScript, compilación, 42 pruebas de lógica/base de datos y 30 pruebas de navegador. Incluye concurrencia en PostgreSQL 17, entrada a Repetidos mediante su botón real en móvil, conservación de la copia del álbum, persistencia local, celebración al completar equipo y OCR real de una imagen de prueba con tres nombres. La comprobación de ancho usa el viewport de diseño para detectar desbordamiento móvil.
+
+La imagen de OCR es una prueba controlada, no una medición de precisión con fotografías de cromos reales. Tampoco se ha verificado todavía Supabase alojado con dos cuentas: Vercel no tiene variables configuradas. Consulta [CONEXION.md](CONEXION.md).
