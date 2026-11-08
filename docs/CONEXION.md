@@ -1,6 +1,6 @@
 # Conectar NEXO a Supabase
 
-Comprobación del 8 de noviembre de 2026: Supabase está vinculado a `cromatch` mediante Vercel Marketplace (plan gratuito). Las variables están protegidas en Vercel. El primer intento de migración falló con `SELF_SIGNED_CERT_IN_CHAIN`; se ha añadido la CA pública oficial de Supabase, conservando la validación TLS y del nombre del servidor. Falta confirmar el despliegue y el acceso alojado; el modo visita guarda únicamente en este navegador.
+Comprobación del 8 de noviembre de 2026: Supabase está vinculado a `cromatch` mediante Vercel Marketplace (plan gratuito). Las variables están protegidas en Vercel. El fallo `SELF_SIGNED_CERT_IN_CHAIN` quedó resuelto con la CA pública oficial de Supabase, conservando la validación TLS y del nombre del servidor. El despliegue `b8823f0` terminó READY tras aplicar las migraciones. Se verificó Auth (HTTP 200) y denegación de acceso anónimo al inventario (HTTP 401). Auth todavía exige confirmar correo: hay que desactivar «Confirm email» para habilitar el registro solo por usuario. Falta probar sesiones reales entre cuentas. El modo visita guarda únicamente en este navegador.
 
 ## Preparar el servicio
 

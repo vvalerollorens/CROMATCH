@@ -52,3 +52,7 @@ Completa revisión de VoiceOver/TalkBack, contraste, zoom al 200%, navegación c
 La [ejecución 42520084800](https://github.com/vvalerollorens/CROMATCH/actions/runs/42520084800), sobre `f0892a6`, pasó TypeScript, compilación, 42 pruebas de lógica/base de datos y 30 pruebas de navegador. Incluye concurrencia en PostgreSQL 17, entrada a Repetidos mediante su botón real en móvil, conservación de la copia del álbum, persistencia local, celebración al completar equipo y OCR real de una imagen de prueba con tres nombres. La comprobación de ancho usa el viewport de diseño para detectar desbordamiento móvil.
 
 La imagen de OCR es una prueba controlada, no una medición de precisión con fotografías de cromos reales. Tampoco se ha verificado todavía Supabase alojado con dos cuentas: Vercel no tiene variables configuradas. Consulta [CONEXION.md](CONEXION.md).
+
+## Conexión Supabase y TLS
+
+El despliegue `b8823f0` terminó READY con migraciones activadas en Vercel. Se corrigió el error real `SELF_SIGNED_CERT_IN_CHAIN` mediante la CA pública oficial de Supabase; una prueba comprueba que pg no sustituye esa CA por los parámetros SSL de la URL y mantiene `rejectUnauthorized: true`. Desde el sitio publicado se consultó Auth (200, proveedor habilitado) y el inventario sin sesión (401). La confirmación de email seguía activada; se ha solicitado desactivarla antes de probar el registro solo por usuario. Estas consultas no certifican aún el flujo de dos cuentas ni los intercambios.
