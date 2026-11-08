@@ -1241,3 +1241,53 @@ textarea::placeholder {
     height: 38px;
   }
 }
+/* Keep the first sticker row clear of the floating navigation on compact phones. */
+@media (max-width: 600px) {
+  .section-album .workspace {
+    padding-top: 14px;
+  }
+  .section-album .page-heading {
+    margin-bottom: 4px;
+  }
+  .album-groups {
+    padding: 3px;
+    margin-top: 8px;
+  }
+  .album-groups button {
+    min-height: 32px;
+    padding-block: 6px;
+  }
+  .section-album .team-choice {
+    min-height: 68px;
+    padding-block: 5px;
+  }
+  .section-album .team-strip {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+  .section-album .album-team-heading {
+    margin-bottom: 5px;
+  }
+  .section-album .album-progress {
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .album-progress > span > strong {
+    font-size: 25px;
+    line-height: 1;
+  }
+  .section-album .album-preview-note {
+    margin-bottom: 9px;
+  }
+  .mobile-nav {
+    padding: 5px;
+  }
+  .mobile-nav button {
+    padding-block: 6px;
+    gap: 4px;
+  }
+  .mobile-nav button svg {
+    width: 20px;
+    height: 20px;
+  }
+}
