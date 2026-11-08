@@ -1,5 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./dark.css";
+export const viewport: Viewport = {
+  themeColor: "#100b1d",
+  colorScheme: "dark",
+};
 export const metadata: Metadata = {
   title: "CROMATCH · Tu colección, en juego",
   description:

@@ -83,11 +83,17 @@ const titles: Record<Section, string> = {
 import { Empty, Logo, Legal } from "./ui";
 import { Dialog } from "./dialog";
 import { Landing } from "./landing";
+import { VisualAlbum } from "./visual-album";
+import { HomeOverview } from "./home-overview";
 export function Cromatch({
   initialVisitor = false,
 }: {
   initialVisitor?: boolean;
 }) {
+  useEffect(() => {
+    if (initialVisitor && window.location.hash === "#album")
+      setSection("album");
+  }, [initialVisitor]);
   const activeUser = useRef<string | null>(null);
   const pendingQuantity = useRef<
     Record<string, { operation: string; delta: number }>
@@ -549,7 +555,7 @@ export function Cromatch({
   }
   const notices = (
     <>
-      {!configured && (
+      {!configured && !visitor && (
         <div className="notice">
           <ShieldCheck size={18} />
           <span>
@@ -861,20 +867,8 @@ export function Cromatch({
               <ShieldCheck size={20} />
               <div>
                 <strong>Modo visita · Sin cuenta</strong>
-                <p>
-                  Recorre las pantallas. No hay datos de usuarios ni cromos de
-                  ejemplo y no se guardan cambios.
-                </p>
+                <p>Explora y prueba el álbum.</p>
               </div>
-              <button
-                className="secondary"
-                onClick={() => {
-                  setVisitor(false);
-                  setAuth("register");
-                }}
-              >
-                Crear cuenta
-              </button>
               <button
                 className="text-button"
                 onClick={() => {
@@ -893,7 +887,9 @@ export function Cromatch({
               Sincronizando tu colección…
             </div>
           )}
-          <div className="page-heading">
+          <div
+            className={`page-heading ${section === "album" ? "album-page-heading" : ""}`}
+          >
             <div>
               <span className="eyebrow">
                 {section === "inicio"
@@ -907,16 +903,6 @@ export function Cromatch({
                   : current?.name}
               </p>
             </div>
-            {section === "inicio" && (
-              <button onClick={() => go("album")}>
-                <Plus size={18} /> Añadir cromos
-              </button>
-            )}
-            {["album", "repetidos", "faltantes"].includes(section) && (
-              <button className="secondary" onClick={() => go("escaner")}>
-                <Camera size={18} /> Añadir con cámara
-              </button>
-            )}
           </div>
           {sharedRows && (
             <section className="panel">
@@ -946,171 +932,27 @@ export function Cromatch({
             </section>
           )}
           {section === "inicio" && (
-            <>
-              <section className="dashboard-hero">
-                <div>
-                  <span className="pill">TU ÁLBUM DIGITAL</span>
-                  <h2>
-                    La emoción de completar
-                    <br />
-                    una página más.
-                  </h2>
-                  <p>
-                    Registra lo que tienes. Descubre lo que falta.
-                    <br />
-                    Encuentra a quien tiene tu próximo cromo.
-                  </p>
-                  <button className="yellow" onClick={() => go("album")}>
-                    Ir a mi álbum <ArrowRight size={18} />
-                  </button>
-                </div>
-                <div className="dashboard-album" aria-hidden="true">
-                  <span>CROMATCH</span>
-                  <Album size={70} />
-                  <strong>26 / 27</strong>
-                  <small>MI LIGA DE CROMOS</small>
-                </div>
-              </section>
-              <section className="stat-grid">
-                {[
-                  {
-                    label: "Conseguidos",
-                    value: stats.owned,
-                    icon: Album,
-                    cls: "purple",
-                    action: "album",
-                  },
-                  {
-                    label: "Me faltan",
-                    value: stats.missing,
-                    icon: Search,
-                    cls: "orange",
-                    action: "faltantes",
-                  },
-                  {
-                    label: "Repetidos disponibles",
-                    value: stats.available,
-                    icon: Copy,
-                    cls: "green",
-                    action: "repetidos",
-                  },
-                  {
-                    label: "Intercambios completados",
-                    value: trades.filter((t) => t.status === "completed")
-                      .length,
-                    icon: ArrowDownUp,
-                    cls: "blue",
-                    action: "intercambios",
-                  },
-                ].map((s) => (
-                  <button
-                    key={s.label}
-                    className="stat-card"
-                    onClick={() => go(s.action as Section)}
-                  >
-                    <span className={`stat-icon ${s.cls}`}>
-                      <s.icon size={22} />
-                    </span>
-                    <strong>{s.value}</strong>
-                    <span>{s.label}</span>
-                    <ChevronRight className="stat-arrow" size={17} />
-                  </button>
-                ))}
-              </section>
-              <div className="dashboard-columns">
-                <section className="panel">
-                  <div className="section-heading">
-                    <div>
-                      <span className="eyebrow">
-                        PASO A PASO, CROMO A CROMO
-                      </span>
-                      <h2>Tu álbum va tomando forma</h2>
-                    </div>
-                    <button
-                      className="text-button"
-                      onClick={() => go("estadisticas")}
-                    >
-                      Ver estadísticas <ArrowRight size={16} />
-                    </button>
-                  </div>
-                  <div className="progress-overview">
-                    <div
-                      className="progress-ring"
-                      style={{
-                        background: `conic-gradient(var(--purple) ${stats.percent}%, #eeebf6 0)`,
-                      }}
-                    >
-                      <div>
-                        <strong>
-                          {stats.total ? `${stats.percent}%` : "—"}
-                        </strong>
-                        <span>completado</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h3>{current?.name ?? "Tu colección"}</h3>
-                      <p>
-                        {stats.owned} de {stats.total} cromos publicados
-                        verificados
-                      </p>
-                      <span className="tag">
-                        {stats.total
-                          ? "Cada cromo suma"
-                          : "Catálogo pendiente de verificación"}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="panel-footnote">
-                    El progreso cuenta cromos distintos. Las posiciones del
-                    álbum se calculan por separado.
-                  </p>
-                </section>
-                <section className="panel match-panel">
-                  <span className="sparkle-icon">
-                    <Sparkles size={25} />
-                  </span>
-                  <span className="eyebrow">TU SIGUIENTE GRAN FICHAJE</span>
-                  <h2>
-                    Los repetidos de alguien
-                    <br />
-                    son tus próximos favoritos.
-                  </h2>
-                  <p>Añade amigos y descubre qué cromos podéis intercambiar.</p>
-                  <button className="secondary" onClick={() => go("amigos")}>
-                    Buscar coleccionistas <ArrowRight size={17} />
-                  </button>
-                </section>
-              </div>
-              <section className="panel">
-                <div className="section-heading">
-                  <h2>Lo último en tu equipo</h2>
-                  <button
-                    className="text-button"
-                    onClick={() => go("notificaciones")}
-                  >
-                    Ver todo <ArrowRight size={16} />
-                  </button>
-                </div>
-                {notifications.length ? (
-                  notifications.slice(0, 3).map((n) => (
-                    <div className="notification-row" key={n.id}>
-                      <Bell size={18} />
-                      <span>{n.message}</span>
-                      <small>
-                        {new Date(n.created_at).toLocaleDateString("es-ES")}
-                      </small>
-                    </div>
-                  ))
-                ) : (
-                  <Empty title="El principio de una buena temporada">
-                    Tus solicitudes y propuestas aparecerán aquí. Empieza
-                    añadiendo tus primeros cromos.
-                  </Empty>
-                )}
-              </section>
-            </>
+            <HomeOverview
+              owned={stats.owned}
+              total={stats.total}
+              duplicates={stats.available}
+              friends={friends.filter((f) => f.status === "accepted").length}
+              go={go}
+            />
           )}
-          {["album", "repetidos", "faltantes"].includes(section) && (
+          {section === "album" && (
+            <VisualAlbum
+              stickers={stickers}
+              inventory={inventory}
+              visitor={visitor}
+              busy={busy}
+              collectionName={current?.name}
+              onQuantity={quantity}
+              onDetail={setSelected}
+              onNavigate={go}
+            />
+          )}
+          {["repetidos", "faltantes"].includes(section) && (
             <>
               <div className="tabs">
                 {[
@@ -2005,6 +1847,22 @@ export function Cromatch({
                 ) : (
                   <p>No has bloqueado a nadie.</p>
                 )}
+              </section>
+              <section className="panel">
+                <details className="profile-tools">
+                  <summary>Más opciones</summary>
+                  <div className="export-actions">
+                    <button
+                      className="secondary"
+                      onClick={() => go("estadisticas")}
+                    >
+                      Estadísticas
+                    </button>
+                    <button className="secondary" onClick={() => go("escaner")}>
+                      Cámara y entrada manual
+                    </button>
+                  </div>
+                </details>
               </section>
               <section className="panel">
                 <h2>Tu cuenta, bajo tu control</h2>

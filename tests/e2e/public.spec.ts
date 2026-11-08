@@ -4,8 +4,9 @@ test("bienvenida en español y sin datos ficticios", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "Ese cromo",
   );
+  await page.locator(".welcome-catalog summary").click();
   await expect(
-    page.getByText("Catálogo pendiente de verificación."),
+    page.getByText(/Catálogo pendiente de verificación\./),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -92,7 +93,9 @@ test("visita sin correo recorre pantallas sin peticiones de datos", async ({
     page.getByRole("heading", { name: "Mi álbum", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText("El catálogo está esperando su primer cromo verificado"),
+    page.getByText(
+      "Prueba visual · Sin numeración oficial. Se reinicia al salir.",
+    ),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Mis repetidos · 0", exact: true })
@@ -142,4 +145,106 @@ test("ruta directa de visita abre el interior sin formulario", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+});
+
+test("álbum por equipos: casilleros táctiles y estado separado por club", async ({
+  page,
+}, testInfo) => {
+  const requests: string[] = [];
+  page.on("request", (r) => {
+    if (/supabase\.co.*\/(rest|auth)\//.test(r.url())) requests.push(r.url());
+  });
+  await page.goto("/visita");
+  await page
+    .getByRole("button", { name: "Ir a mi álbum", exact: true })
+    .click();
+  const teams = page.getByRole("group", { name: "Equipos del álbum" });
+  await expect(teams.getByRole("button")).toHaveCount(20);
+  await teams
+    .getByRole("button", { name: "Ver FC Barcelona", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "FC Barcelona", exact: true }),
+  ).toBeVisible();
+  const slot = page.getByRole("button", {
+    name: "Casillero de prueba 1, bloqueado",
+    exact: true,
+  });
+  await slot.click();
+  await expect(
+    page.getByRole("button", {
+      name: "Casillero de prueba 1, desbloqueado",
+      exact: true,
+    }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
+  ).toHaveAttribute("value", "1");
+  await page.getByRole("button", { name: "Los tengo", exact: true }).click();
+  await expect(page.locator(".preview-slot")).toHaveCount(1);
+  await teams
+    .getByRole("button", { name: "Ver Real Madrid", exact: true })
+    .click();
+  await expect(page.locator(".preview-slot")).toHaveCount(12);
+  await expect(
+    page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
+  ).toHaveAttribute("value", "0");
+  await teams
+    .getByRole("button", { name: "Ver FC Barcelona", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Casillero de prueba 1, desbloqueado",
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: testInfo.outputPath("album.png"),
+    fullPage: true,
+  });
+  await page
+    .getByRole("button", {
+      name: "Casillero de prueba 1, desbloqueado",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
+  ).toHaveAttribute("value", "0");
+  expect(requests).toEqual([]);
+  await page.reload();
+  await page
+    .getByRole("button", { name: "Ir a mi álbum", exact: true })
+    .click();
+  await expect(
+    page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
+  ).toHaveAttribute("value", "0");
+});
+test("diseño móvil: inicio oscuro y navegación sin desbordamiento", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/visita");
+  await expect(page.locator(".glow-hero")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Mis amigos", exact: true }),
+  ).toBeVisible();
+  expect(
+    await page
+      .locator("body")
+      .evaluate((el) => getComputedStyle(el).backgroundColor),
+  ).not.toBe("rgb(255, 255, 255)");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: testInfo.outputPath("inicio.png"),
+    fullPage: true,
+  });
 });

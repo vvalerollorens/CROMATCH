@@ -39,3 +39,9 @@ La validación local no publica. Tras revisar los errores y contrastar las fuent
 La identidad natural es colección + código + edición + variante; cada cromo tiene además un UUID interno. Corregir su nombre o posición conserva su UUID. Cambiar la identidad crea otra fila, nunca reutiliza silenciosamente los inventarios. Las fusiones, retirada de datos erróneos y migraciones de identidad requieren una migración explícita y auditada; no hay botón de borrado.
 
 El importador no descarga imágenes. Las fotografías y escudos quedan fuera hasta contar con licencia verificable. Los diseños genéricos de la interfaz son originales y no representan cromos oficiales.
+
+## Equipos de la barra visual
+
+Los nombres de los veinte clubes de la temporada 2026/27 se contrastaron con el [directorio de clubes de LaLiga](https://www.laliga.com/es-NG/laliga-easports/clubes), consultado el 8 de noviembre de 2026. Se versionan en `src/lib/teams.ts`; esto no acredita los cromos publicados por Panini. Los escudos son formas y monogramas originales, sin descargar logotipos. Los equipos de otras colecciones se derivan de su catálogo.
+
+En modo visita, los doce casilleros por equipo son exclusivamente controles de prueba del diseño, sin numeración ni nombres oficiales. No se publican como catálogo ni se mezclan con el inventario.

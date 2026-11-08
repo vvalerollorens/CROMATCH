@@ -8,6 +8,14 @@ Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js,
 
 Abre directamente **`/visita`**, o en la bienvenida pulsa **Ver por dentro sin cuenta**. El modo visita permite recorrer las pantallas sin crear una sesión ni consultar inventarios privados. No contiene cromos, usuarios ni intercambios ficticios. Las operaciones de datos exigen iniciar sesión. Puedes volver con **Salir de la visita**.
 
+## Álbum visual para móvil
+
+La interfaz utiliza fondo oscuro, luces moradas y acentos amarillos. Mi álbum muestra una barra horizontal de equipos y casilleros táctiles: toca uno que te falta para añadir una unidad; si ya lo tienes, abre su detalle. Los controles +/− ajustan repetidos y respetan las reservas.
+
+En la visita, doce casilleros de diseño por equipo permiten probar el gesto. No tienen códigos oficiales ni representan cromos publicados; se guardan solo en la memoria de esa vista y se reinician al abandonarla. La cuenta real utiliza exclusivamente el catálogo verificado y PostgreSQL. Los símbolos de equipo son escudos originales con iniciales, no logotipos oficiales.
+
+Acceso directo al álbum de prueba: `/visita#album`.
+
 ## Instalar
 
 Requisitos: Node.js 22 y npm. Para Supabase local, también Supabase CLI y Docker.
