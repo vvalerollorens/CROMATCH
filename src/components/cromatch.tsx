@@ -771,7 +771,7 @@ export function Cromatch({
     );
   };
   return (
-    <div className="app-shell">
+    <div className={`app-shell section-${section}`}>
       <aside className="sidebar">
         <a href="#inicio" onClick={() => go("inicio")}>
           <Logo />
@@ -825,25 +825,28 @@ export function Cromatch({
       <div className="app-main">
         <header className="app-header">
           <div className="breadcrumb">
-            Tu zona de juego <ChevronRight size={14} />{" "}
+            <span className="header-brand">CROMATCH</span>
+            <ChevronRight size={14} />{" "}
             <strong>{section === "inicio" ? "Inicio" : titles[section]}</strong>
           </div>
           <div className="header-actions">
-            <select
-              aria-label="Colección activa"
-              value={collection}
-              onChange={(e) => {
-                setCollection(e.target.value);
-                setOther(null);
-              }}
-            >
-              {visitor && <option value="">Vista de pantallas</option>}
-              {collections.map((c) => (
-                <option value={c.id} key={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            {!visitor && (
+              <select
+                aria-label="Colección activa"
+                value={collection}
+                onChange={(e) => {
+                  setCollection(e.target.value);
+                  setOther(null);
+                }}
+              >
+                {visitor && <option value="">Vista de pantallas</option>}
+                {collections.map((c) => (
+                  <option value={c.id} key={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <button
               className="icon-button notification-button"
               aria-label={`Notificaciones: ${unread} pendientes`}

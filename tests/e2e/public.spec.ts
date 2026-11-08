@@ -218,9 +218,9 @@ test("álbum por equipos: casilleros táctiles y estado separado por club", asyn
   ).toHaveAttribute("value", "0");
   expect(requests).toEqual([]);
   await page.reload();
-  await page
-    .getByRole("button", { name: "Ir a mi álbum", exact: true })
-    .click();
+  await expect(
+    page.getByRole("heading", { name: "Mi álbum", exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("progressbar", { name: "Casilleros abiertos en la prueba" }),
   ).toHaveAttribute("value", "0");
@@ -246,5 +246,29 @@ test("diseño móvil: inicio oscuro y navegación sin desbordamiento", async ({
   await page.screenshot({
     path: testInfo.outputPath("inicio.png"),
     fullPage: true,
+  });
+});
+
+test("entrada al álbum y primer casillero visibles en móvil", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/visita#album");
+  await expect(
+    page.getByRole("heading", { name: "Mi álbum", exact: true }),
+  ).toBeVisible();
+  const slot = page.getByRole("button", {
+    name: "Casillero de prueba 1, bloqueado",
+    exact: true,
+  });
+  await expect(slot).toBeVisible();
+  if (testInfo.project.name === "mobile") {
+    const b = await slot.boundingBox();
+    const nav = await page
+      .getByRole("navigation", { name: "Navegación principal" })
+      .boundingBox();
+    expect(b!.y + b!.height).toBeLessThan(nav!.y);
+  }
+  await page.screenshot({
+    path: testInfo.outputPath("album-primer-pantalla.png"),
   });
 });

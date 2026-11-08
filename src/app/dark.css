@@ -2192,3 +2192,84 @@ progress {
     touch-action: manipulation;
   }
 }
+/* Decorative lights must never intercept a touch target. */
+.welcome-art,
+.glow-orbit {
+  pointer-events: none;
+}
+.landing-header {
+  position: relative;
+  z-index: 1;
+}
+.header-brand {
+  font-size: 12px;
+  color: #e4d8fa;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+@media (max-width: 600px) {
+  .section-album .app-header {
+    display: none;
+  }
+  .section-album .workspace {
+    padding-top: 12px;
+  }
+  .section-album .visitor-banner {
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+  }
+  .section-album .page-heading h1 {
+    font-size: 26px;
+    margin: 4px 0;
+  }
+  .section-album .album-topline {
+    margin-bottom: 12px;
+  }
+  .section-album .team-strip {
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+  }
+  .section-album .team-choice {
+    min-height: 83px;
+    padding-top: 7px;
+    gap: 4px;
+  }
+  .section-album .team-choice > .team-badge {
+    width: 31px;
+    height: 37px;
+  }
+  .section-album .album-team-heading {
+    margin-bottom: 13px;
+  }
+  .section-album .album-team-heading .eyebrow,
+  .section-album .album-team-heading p {
+    display: none;
+  }
+  .section-album .album-team-heading h2 {
+    font-size: 25px;
+    margin: 3px 0;
+  }
+  .section-album .album-team-heading > .team-badge {
+    width: 31px;
+    height: 38px;
+  }
+  .section-album .album-team-heading > .team-badge > span {
+    font-size: 9px;
+  }
+  .section-album .album-progress {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+  .section-album .album-controls {
+    margin-bottom: 10px;
+  }
+  .section-album .album-preview-note {
+    margin-bottom: 11px;
+  }
+  .section-inicio .page-heading p {
+    display: none;
+  }
+  .section-inicio .page-heading {
+    margin-bottom: 19px;
+  }
+}
