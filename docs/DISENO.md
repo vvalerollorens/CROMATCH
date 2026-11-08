@@ -16,7 +16,7 @@ Las fotos que faltan aparecen desenfocadas y atenuadas mediante CSS. Al consegui
 
 ## Cantidades y lector de fotos
 
-La versión sin cuenta conserva cantidades en `nexo.album.v1` dentro de localStorage. La primera copia llena el casillero y las siguientes son repetidos. La búsqueda global permite añadir y quitar por nombre, equipo o número. Perfil exporta una copia JSON del álbum local. Cada cambio confirma primero la escritura local; un fallo no se presenta como guardado.
+La versión sin cuenta conserva cantidades en `nexo.album.v1` dentro de localStorage. La plantilla solo marca si se tiene el cromo y no muestra contadores ni controles +1. Repetidos es un apartado propio en la navegación; allí se buscan nombres y se añaden o quitan copias, conservando la copia del álbum. Al registrar un primer repetido sin casilla marcada se informa antes de guardar una copia para el álbum y una repetida. Perfil exporta una copia JSON del álbum local. Cada cambio confirma primero la escritura local; un fallo no se presenta como guardado.
 
 El OCR usa Tesseract.js y un modelo español servidos desde el propio origen, bajo demanda. Las fotos no se suben ni se almacenan. Se reconocen nombres y se muestran candidatos del catálogo: números sueltos no identifican cartas. Las ediciones/series ambiguas requieren elegir la carta. La aplicación muestra cantidades actuales y exige confirmar antes de sumar copias. La revisión marca individualmente las ya aplicadas para que un reintento tras un error no duplique las anteriores. Falta medir la precisión con fotografías reales de distintos dispositivos y condiciones.
 

@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { Camera, Minus, Plus, Search, X } from "lucide-react";
-import type { Inventory, Sticker } from "@/lib/domain";
+import { available, type Inventory, type Sticker } from "@/lib/domain";
 import { Dialog } from "./dialog";
 import { playerPhoto } from "@/lib/player-photos";
 const clean = (s: string) =>
@@ -15,16 +15,19 @@ export function QuickAdd({
   onAdd,
   close,
   scan,
+  duplicates = false,
 }: {
   stickers: Sticker[];
   inventory: Inventory[];
   onAdd: (s: Sticker, delta: number) => Promise<void>;
   close: () => void;
   scan: () => void;
+  duplicates?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [pending, setPending] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const rows = new Map(inventory.map((i) => [i.sticker_id, i]));
   const own = new Map(inventory.map((i) => [i.sticker_id, i.quantity]));
   const results = useMemo(
     () =>
@@ -63,10 +66,13 @@ export function QuickAdd({
         <X />
       </button>
       <span className="eyebrow">Tu próxima pieza</span>
-      <h2 id="quick-add-title">Añadir cromos</h2>
+      <h2 id="quick-add-title">
+        {duplicates ? "Añadir repetidos" : "Añadir cromos"}
+      </h2>
       <p>
-        Busca el nombre. La primera copia va al álbum; las siguientes son
-        repetidos.
+        {duplicates
+          ? "Busca el nombre y registra las copias que tienes para cambiar. Tu copia del álbum se conserva."
+          : "Busca el nombre. La primera copia va al álbum; las siguientes son repetidos."}
       </p>
       <label className="quick-search">
         <Search size={19} />
@@ -111,27 +117,32 @@ export function QuickAdd({
                 <span>
                   {q
                     ? `${q} en total · ${Math.max(0, q - 1)} repetidos`
-                    : "Te falta"}
+                    : duplicates
+                      ? "Se guardará 1 para el álbum y 1 repetido"
+                      : "Te falta"}
                 </span>
               </div>
               <div className="quick-stepper">
                 <button
                   className="secondary"
-                  aria-label={`Quitar una unidad de ${s.name}, ${s.official_code}`}
-                  disabled={!q || pending !== null}
+                  aria-label={`${duplicates ? "Quitar un repetido" : "Quitar una unidad"} de ${s.name}, ${s.official_code}`}
+                  disabled={
+                    pending !== null ||
+                    (duplicates ? available(rows.get(s.id)) < 1 : !q)
+                  }
                   onClick={() => void add(s, -1)}
                 >
                   <Minus size={16} />
                 </button>
                 <output
-                  aria-label={`Cantidad de ${s.name}, ${s.official_code}`}
+                  aria-label={`${duplicates ? "Repetidos" : "Cantidad"} de ${s.name}, ${s.official_code}`}
                 >
-                  {q}
+                  {duplicates ? Math.max(0, q - 1) : q}
                 </output>
                 <button
-                  aria-label={`Añadir una unidad de ${s.name}, ${s.official_code}`}
+                  aria-label={`${duplicates ? "Añadir un repetido" : "Añadir una unidad"} de ${s.name}, ${s.official_code}`}
                   disabled={pending !== null || q >= 999}
-                  onClick={() => void add(s, 1)}
+                  onClick={() => void add(s, duplicates && !q ? 2 : 1)}
                 >
                   <Plus size={16} />
                 </button>

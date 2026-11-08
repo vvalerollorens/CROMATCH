@@ -22,7 +22,7 @@ Acceso directo: `/visita#album`. El enlace de visita sigue siendo público por U
 
 `/visita#escaner` permite fotografiar varias cartas o seleccionar una imagen. Tesseract.js y el modelo español se sirven desde el propio sitio y procesan la foto en un Worker local. Se comparan nombres contra el listado; los números por sí solos nunca identifican cartas. Las variantes se muestran para elegirlas y se exige confirmar las coincidencias antes de sumar copias. Cada carta muestra si ya estaba en el álbum. No se almacenan ni suben las fotos. Es una ayuda OCR, con revisión manual, no reconocimiento visual garantizado de cualquier edición o fotografía.
 
-La primera copia llena una casilla; las siguientes cuentan como repetidos. Las páginas completas y las cartas de series especiales activan celebraciones suaves. La animación respeta la preferencia de movimiento reducido y no se dispara por abrir una página ya completada. Perfil permite exportar el álbum local.
+La plantilla solo permite marcar la posesión del cromo. El apartado Repetidos tiene acceso propio en la navegación: allí se buscan nombres y se gestionan las copias adicionales, conservando siempre una para el álbum. Si se registra un repetido sin tener todavía la casilla marcada, el buscador informa de que guardará una copia para el álbum y otra repetida. Las páginas completas y las cartas de series especiales activan celebraciones suaves. La animación respeta la preferencia de movimiento reducido y no se dispara por abrir una página ya completada. Perfil permite exportar el álbum local.
 
 ## Instalar
 

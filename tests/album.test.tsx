@@ -38,7 +38,7 @@ describe("álbum visual", () => {
     expect(html).toContain("Marcar Sivera, número 3");
     expect(html).not.toContain("Casillero de prueba");
   });
-  it("los cromos reales muestran cantidades y protegen las reservas", () => {
+  it("la plantilla no tiene controles de cantidades ni de repetidos", () => {
     const sticker = {
       id: "fixture",
       name: "Fixture de pruebas",
@@ -58,7 +58,9 @@ describe("álbum visual", () => {
       />,
     );
     expect(html).toContain("Ver Fixture de pruebas, 2 unidades");
-    expect(html).toMatch(/disabled=""[^>]*aria-label="Quitar una unidad/);
+    expect(html).not.toContain("Quitar una unidad");
+    expect(html).not.toContain("Añadir una unidad");
+    expect(html).not.toContain("slot-counter");
     expect(html).not.toContain("preview-slot");
   });
 });

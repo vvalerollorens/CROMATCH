@@ -66,11 +66,12 @@ import {
   SwapIcon,
   FriendsIcon,
   ProfileIcon,
+  CardsIcon,
 } from "./app-icons";
 const nav = [
   { id: "inicio", label: "Inicio", icon: HomeIcon },
   { id: "album", label: "Mi álbum", icon: AlbumIcon },
-  { id: "intercambios", label: "Intercambios", icon: SwapIcon },
+  { id: "repetidos", label: "Repetidos", icon: CardsIcon },
   { id: "amigos", label: "Amigos", icon: FriendsIcon },
   { id: "perfil", label: "Mi perfil", icon: ProfileIcon },
 ] as const;
@@ -96,6 +97,7 @@ import { playerPhoto } from "@/lib/player-photos";
 import { referenceStickers } from "@/lib/catalogue";
 import { useLocalAlbum } from "@/lib/use-local-album";
 import { QuickAdd } from "./quick-add";
+import { DuplicatesList } from "./duplicates-list";
 import { useCollectionCelebration } from "@/lib/use-collection-celebration";
 import { CollectionCelebration } from "./collection-celebration";
 import dynamic from "next/dynamic";
@@ -463,7 +465,7 @@ export function Cromatch({
       (!team || s.teams?.name === team) &&
       (!series || s.sticker_series?.name === series) &&
       (!edition || s.edition === edition) &&
-      (section !== "repetidos" || available(own.get(s.id)) > 0) &&
+      (section !== "repetidos" || (own.get(s.id)?.quantity ?? 0) > 1) &&
       (section !== "faltantes" || !own.get(s.id)?.quantity),
   );
   const [page, setPage] = useState(0);
@@ -833,10 +835,6 @@ export function Cromatch({
             >
               <n.icon size={20} />
               {n.label}
-              {n.id === "intercambios" &&
-                trades.some(
-                  (t) => t.status === "proposed" && t.receiver_id === viewerId,
-                ) && <span className="dot" />}
             </button>
           ))}
         </nav>
@@ -1002,7 +1000,6 @@ export function Cromatch({
               visitor={visitor}
               busy={busy || (visitor && !localAlbum.ready)}
               local={visitor}
-              onAdd={() => setQuickAddOpen(true)}
               onScan={() => go("escaner")}
               collectionName={current?.name}
               onQuantity={quantity}
@@ -1017,7 +1014,10 @@ export function Cromatch({
                   className="glow-cta"
                   onClick={() => setQuickAddOpen(true)}
                 >
-                  <Plus size={18} /> Añadir cromos
+                  <Plus size={18} />{" "}
+                  {section === "repetidos"
+                    ? "Añadir repetidos"
+                    : "Añadir cromos"}
                 </button>
                 <button className="secondary" onClick={() => go("escaner")}>
                   <Camera size={18} /> Escanear foto
@@ -1028,7 +1028,7 @@ export function Cromatch({
                   { id: "album", label: "Todos los cromos" },
                   {
                     id: "repetidos",
-                    label: `Mis repetidos · ${stats.available}`,
+                    label: `Mis repetidos · ${stats.duplicates}`,
                   },
                   { id: "faltantes", label: `Me faltan · ${stats.missing}` },
                 ].map((x) => (
@@ -1144,9 +1144,18 @@ export function Cromatch({
               </p>
               {filtered.length ? (
                 <>
-                  <div className={list ? "sticker-list" : "sticker-grid"}>
-                    {filtered.slice(page * 48, (page + 1) * 48).map(card)}
-                  </div>
+                  {section === "repetidos" ? (
+                    <DuplicatesList
+                      stickers={filtered.slice(page * 48, (page + 1) * 48)}
+                      inventory={inventory}
+                      busy={busy}
+                      onChange={quantity}
+                    />
+                  ) : (
+                    <div className={list ? "sticker-list" : "sticker-grid"}>
+                      {filtered.slice(page * 48, (page + 1) * 48).map(card)}
+                    </div>
+                  )}
                   <div className="pagination">
                     <button
                       className="secondary"
@@ -1171,14 +1180,18 @@ export function Cromatch({
                 <section className="panel">
                   <Empty
                     title={
-                      stickers.length
-                        ? "No hay cromos con estos filtros"
-                        : "El catálogo está esperando su primer cromo verificado"
+                      section === "repetidos" && !search
+                        ? "Todavía no tienes repetidos"
+                        : stickers.length
+                          ? "No hay cromos con estos filtros"
+                          : "El catálogo está esperando su primer cromo verificado"
                     }
                   >
-                    {stickers.length
-                      ? "Prueba otra búsqueda o filtro."
-                      : "El administrador debe importar un listado contrastado. No añadimos jugadores, códigos ni cantidades inventadas."}
+                    {section === "repetidos" && !search
+                      ? "Busca un nombre en Añadir repetidos y registra las copias que tienes para cambiar."
+                      : stickers.length
+                        ? "Prueba otra búsqueda o filtro."
+                        : "El administrador debe importar un listado contrastado. No añadimos jugadores, códigos ni cantidades inventadas."}
                   </Empty>
                 </section>
               )}
@@ -1499,17 +1512,6 @@ export function Cromatch({
           )}
           {section === "intercambios" && (
             <>
-              <div className="collection-add-actions">
-                <button
-                  className="glow-cta"
-                  onClick={() => setQuickAddOpen(true)}
-                >
-                  <Plus size={18} /> Añadir cromos
-                </button>
-                <button className="secondary" onClick={() => go("escaner")}>
-                  <Camera size={18} /> Escanear foto
-                </button>
-              </div>
               <div className="tabs">
                 {[
                   { id: "all", label: "Todos" },
@@ -2218,6 +2220,7 @@ export function Cromatch({
         <QuickAdd
           stickers={stickers}
           inventory={inventory}
+          duplicates={section === "repetidos"}
           onAdd={quantity}
           close={() => setQuickAddOpen(false)}
           scan={() => {
@@ -2268,24 +2271,15 @@ export function Cromatch({
               {own.get(selected.id)?.reserved ?? 0} reservadas
             </p>
           )}
-          {(!selected.catalog_reference || visitor) && (
-            <div className="detail-quantity">
-              <button
-                className="secondary"
-                disabled={busy || !own.get(selected.id)?.quantity}
-                onClick={() => void quantity(selected, -1).catch(() => {})}
-              >
-                Quitar una
-              </button>
-              <button
-                className="glow-cta"
-                disabled={busy}
-                onClick={() => void quantity(selected, 1).catch(() => {})}
-              >
-                <Plus size={16} /> Añadir una copia
-              </button>
-            </div>
-          )}
+          <button
+            className="secondary"
+            onClick={() => {
+              setSelected(null);
+              go("repetidos");
+            }}
+          >
+            Gestionar en Repetidos
+          </button>
           {selected.catalog_reference && (
             <div className="reference-detail">
               <strong>

@@ -83,7 +83,6 @@ export function VisualAlbum({
   busy,
   collectionName,
   local = false,
-  onAdd,
   onScan,
   onQuantity,
   onDetail,
@@ -95,7 +94,6 @@ export function VisualAlbum({
   busy: boolean;
   collectionName?: string;
   local?: boolean;
-  onAdd?: () => void;
   onScan?: () => void;
   onQuantity: (s: Sticker, d: number) => Promise<void>;
   onDetail: (s: Sticker) => void;
@@ -367,15 +365,6 @@ export function VisualAlbum({
         >
           <Search size={18} />
         </button>
-        {onAdd && (
-          <button
-            className="album-add-button secondary"
-            aria-label="Añadir cromos por nombre"
-            onClick={onAdd}
-          >
-            <Plus size={19} />
-          </button>
-        )}
         {onScan && (
           <button
             className="album-camera-button secondary"
@@ -426,7 +415,9 @@ export function VisualAlbum({
                 disabled={busy && (!reference || local)}
                 aria-label={
                   reference
-                    ? `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
+                    ? q > 1
+                      ? `Ver ${s.name}, ${q} unidades`
+                      : `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
                     : q
                       ? `Ver ${s.name}, ${q} unidades`
                       : `Desbloquear ${s.name}, código ${s.official_code}`
@@ -463,7 +454,11 @@ export function VisualAlbum({
                 )}
                 <span className="slot-caption">{s.name}</span>
                 <span className="slot-corner">
-                  {q ? <Check size={13} /> : <Plus size={13} />}
+                  {q ? (
+                    <Check size={13} />
+                  ) : (
+                    <span className="slot-empty-dot" />
+                  )}
                 </span>
                 {review && <span className="slot-review">Revisar</span>}
               </button>
@@ -479,28 +474,6 @@ export function VisualAlbum({
                   </span>
                 </button>
               ) : null}
-              {(!reference || local) && q > 0 && (
-                <div className="slot-counter">
-                  <button
-                    disabled={busy || (i?.reserved ?? 0) > Math.max(q - 2, 0)}
-                    onClick={() => void onQuantity(s, -1).catch(() => {})}
-                    aria-label={`Quitar una unidad de ${s.name}`}
-                  >
-                    <Minus size={14} />
-                  </button>
-                  <span>
-                    {q}
-                    <small>{q > 1 ? ` · ${available(i)} libres` : ""}</small>
-                  </span>
-                  <button
-                    disabled={busy}
-                    onClick={() => void onQuantity(s, 1).catch(() => {})}
-                    aria-label={`Añadir una unidad de ${s.name}`}
-                  >
-                    <Plus size={14} />
-                  </button>
-                </div>
-              )}
             </article>
           );
         })}

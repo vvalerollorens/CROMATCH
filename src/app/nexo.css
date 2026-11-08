@@ -1254,3 +1254,116 @@ textarea::placeholder {
   --foil: #dca080;
   --foil-bg: #40212b;
 }
+.slot-empty-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #c5a3b550;
+}
+.duplicates-list {
+  display: grid;
+  gap: 12px;
+}
+.duplicate-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid #ffffff20;
+  border-radius: 26px;
+  background: linear-gradient(135deg, #251b2566, #17131b);
+}
+.duplicate-portrait {
+  flex-shrink: 0;
+  width: 62px;
+  height: 76px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #ffffff05;
+}
+.duplicate-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.duplicate-name {
+  flex: 1;
+  min-width: 0;
+}
+.duplicate-name strong {
+  font-size: 17px;
+  font-weight: 500;
+  color: #ead8df;
+  display: block;
+}
+.duplicate-name small,
+.duplicate-name > span {
+  display: block;
+  font-size: 11px;
+  color: #ad94a6;
+  line-height: 1.6;
+}
+.duplicate-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.duplicate-stepper button {
+  width: 44px;
+  height: 44px;
+  padding: 9px;
+}
+.duplicate-stepper output {
+  min-width: 52px;
+  text-align: center;
+}
+.duplicate-stepper output strong {
+  display: block;
+  color: #e6bd90;
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+.duplicate-stepper output small {
+  font-size: 9px;
+  color: #b39aac;
+}
+@media (max-width: 600px) {
+  .duplicate-row {
+    padding: 14px 12px;
+    gap: 10px;
+    border-radius: 22px;
+  }
+  .duplicate-portrait {
+    width: 42px;
+    height: 61px;
+    border-radius: 12px;
+  }
+  .duplicate-name strong {
+    font-size: 13px;
+  }
+  .duplicate-name small,
+  .duplicate-name > span {
+    font-size: 9px;
+  }
+  .duplicate-stepper {
+    gap: 3px;
+  }
+  .duplicate-stepper button {
+    width: 36px;
+    min-width: 36px;
+    height: 44px;
+    padding: 7px;
+  }
+  .duplicate-stepper output {
+    min-width: 37px;
+  }
+  .duplicate-stepper output strong {
+    font-size: 22px;
+  }
+  .duplicate-stepper output small {
+    font-size: 8px;
+  }
+}

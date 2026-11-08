@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { readFileSync } from "node:fs";
 test("bienvenida en español y sin datos ficticios", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
@@ -372,45 +373,73 @@ test("retratos locales de FootyLogos: desenfocados al faltar y nítidos al conse
   ).toHaveAttribute("value", "0");
 });
 
-test("añadir por nombre, repetidos y conservación en el dispositivo", async ({
+test("apartado Repetidos: buscar, añadir copias y mantener la plantilla limpia", async ({
   page,
 }) => {
   await page.goto("/visita#album");
-  await page.getByRole("button", { name: "Añadir cromos por nombre" }).click();
-  await page.getByLabel("Buscar para añadir").fill("sivera");
-  await page
-    .getByRole("button", {
-      name: "Añadir una unidad de Sivera, 3",
-      exact: true,
-    })
-    .click();
+  await expect(page.locator(".slot-counter")).toHaveCount(0);
   await expect(
-    page.getByLabel("Cantidad de Sivera, 3", { exact: true }),
-  ).toHaveText("1");
+    page.getByRole("button", { name: "Añadir cromos por nombre" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "Repetidos", exact: true }).click();
   await page
-    .getByRole("button", {
-      name: "Añadir una unidad de Sivera, 3",
-      exact: true,
-    })
+    .getByRole("button", { name: "Añadir repetidos", exact: true })
     .click();
-  await expect(
-    page.getByLabel("Cantidad de Sivera, 3", { exact: true }),
-  ).toHaveText("2");
-  await expect(page.getByRole("dialog")).toContainText(
-    "2 en total · 1 repetidos",
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Buscar para añadir").fill("sivera");
+  await expect(dialog).toContainText(
+    "Se guardará 1 para el álbum y 1 repetido",
   );
-  await page.getByRole("button", { name: "Cerrar búsqueda" }).click();
-  await page
-    .getByRole("button", { name: "Mis repetidos · 1", exact: true })
+  await dialog
+    .getByRole("button", {
+      name: "Añadir un repetido de Sivera, 3",
+      exact: true,
+    })
     .click();
-  await expect(page.locator(".sticker-card")).toHaveCount(1);
-  await expect(page.locator(".sticker-card")).toContainText("Sivera");
+  await expect(
+    dialog.getByLabel("Repetidos de Sivera, 3", { exact: true }),
+  ).toHaveText("1");
+  await dialog
+    .getByRole("button", {
+      name: "Añadir un repetido de Sivera, 3",
+      exact: true,
+    })
+    .click();
+  await expect(
+    dialog.getByLabel("Repetidos de Sivera, 3", { exact: true }),
+  ).toHaveText("2");
+  await dialog.getByRole("button", { name: "Cerrar búsqueda" }).click();
+  await expect(page.locator(".duplicate-row")).toHaveCount(1);
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Mis repetidos", exact: true }),
-  ).toBeVisible();
-  await expect(page.locator(".sticker-card")).toHaveCount(1);
-  await expect(page.getByLabel("2 unidades", { exact: true })).toBeVisible();
+    page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
+  ).toContainText("2");
+  await page
+    .getByRole("button", {
+      name: "Quitar un repetido de Sivera, 3",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
+  ).toContainText("1");
+  await page
+    .getByRole("button", {
+      name: "Quitar un repetido de Sivera, 3",
+      exact: true,
+    })
+    .click();
+  await expect(page.locator(".duplicate-row")).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Todos los cromos", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Desmarcar Sivera, número 3",
+      exact: true,
+    }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".slot-counter")).toHaveCount(0);
 });
 
 test("colores por equipo, campo sutil y una carta especial al conseguirla", async ({
@@ -460,8 +489,9 @@ test("completar un equipo ilumina su página y no se celebra al recargar", async
   page,
 }) => {
   await page.goto("/visita#album");
-  const { default: catalogue } =
-    await import("../../src/data/catalogue-2026-27.json");
+  const catalogue = JSON.parse(
+    readFileSync("src/data/catalogue-2026-27.json", "utf8"),
+  ) as { sections: { id: string; entries: { id: string }[] }[] };
   const team = catalogue.sections.find((s) => s.id === "alaves")!.entries;
   await page.evaluate(
     (ids) =>
