@@ -21,6 +21,12 @@ El workflow levanta PostgreSQL 17 en una base desechable y ejecuta cuatro prueba
 
 Después instala Chromium y ejecuta ocho casos Playwright (cuatro historias en dos tamaños), incluidos diálogo/foco/teclado y desbordamiento móvil. El entorno de desarrollo no expone la herramienta `cua_repl.js` requerida por Sites para la inspección visual; no se ha sustituido por otro mecanismo ni se afirma inspección visual local.
 
+## Resultado de GitHub Actions
+
+La [ejecución inicial](https://github.com/vvalerollorens/CROMATCH/actions/runs/42492029798) terminó correctamente el 8 de noviembre de 2026: **24 pruebas de dominio/base de datos, incluidas las 4 de concurrencia en PostgreSQL 17, y 8 pruebas Playwright de escritorio/móvil**. También pasaron TypeScript y el compilado de producción. La auditoría local de dependencias de ejecución devolvió cero vulnerabilidades conocidas.
+
+La limpieza de datos en cambios de cuenta y el descarte de respuestas de sesiones anteriores se incluyen en una revisión posterior del controlador de interfaz. Las pruebas públicas no ejercitan un cambio de cuenta con Supabase alojado; esa frontera sigue pendiente de configuración.
+
 ## Fronteras que requieren Supabase configurado
 
 | Frontera                                       | Situación                                                               |

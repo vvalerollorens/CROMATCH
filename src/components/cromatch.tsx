@@ -84,6 +84,7 @@ import { Empty, Logo, Legal } from "./ui";
 import { Dialog } from "./dialog";
 import { Landing } from "./landing";
 export function Cromatch() {
+  const activeUser = useRef<string | null>(null);
   const pendingQuantity = useRef<
     Record<string, { operation: string; delta: number }>
   >({});
@@ -163,20 +164,22 @@ export function Cromatch() {
     window.history.replaceState(null, "", `#${s}`);
   };
   const act = async (fn: () => Promise<void>, success?: string) => {
+    const requestedBy = activeUser.current;
     setBusy(true);
     setError("");
     setMessage("");
     try {
       await fn();
-      if (success) setMessage(success);
+      if (success && requestedBy === activeUser.current) setMessage(success);
     } catch (e) {
+      if (requestedBy !== activeUser.current) return;
       setError(
         e instanceof Error
           ? e.message
           : "No se pudo guardar. Vuelve a intentarlo.",
       );
     } finally {
-      setBusy(false);
+      if (requestedBy === activeUser.current) setBusy(false);
     }
   };
   const rpc = async (name: string, args: Record<string, unknown> = {}) => {
@@ -189,13 +192,50 @@ export function Cromatch() {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     if (!configured) return;
     const db = database();
+    const acceptSession = (next: Session | null) => {
+      const id = next?.user.id ?? null;
+      if (activeUser.current !== id) {
+        setBusy(false);
+        setProfile(null);
+        setCollections([]);
+        setCollection("");
+        setStickers([]);
+        setInventory([]);
+        setTrades([]);
+        setTradeItems([]);
+        setNotifications([]);
+        setFriends([]);
+        setPeople([]);
+        setOther(null);
+        setTheirInventory([]);
+        setSelected(null);
+        setSelection({});
+        setShared([]);
+        setSharedRows(null);
+        setBlocks([]);
+        setHistory([]);
+        setRankedMatches([]);
+        setDraft(null);
+        setDraftId(null);
+        setAdminInput("");
+        setValidated(null);
+        setVisibility("private");
+        setMatchNotify(false);
+        setMessage("");
+        setError("");
+        setSection("inicio");
+        pendingQuantity.current = {};
+      }
+      activeUser.current = id;
+      setSession(next);
+    };
     db.auth.getSession().then(({ data, error }) => {
       if (error) setError(error.message);
-      setSession(data.session);
+      acceptSession(data.session);
       setBoot(false);
     });
     const { data } = db.auth.onAuthStateChange((event, s) => {
-      setSession(s);
+      acceptSession(s);
       if (event === "PASSWORD_RECOVERY") setAuth("reset");
     });
     return () => data.subscription.unsubscribe();
@@ -239,6 +279,7 @@ export function Cromatch() {
           .order("created_at", { ascending: false })
           .limit(100),
       ]);
+      if (activeUser.current !== session.user.id) return;
       for (const res of [p, c, inv, f, t, ti, n, pr, sh, b, h])
         if (res.error) throw new Error(res.error.message);
       setProfile(p.data);
@@ -337,9 +378,10 @@ export function Cromatch() {
     if (!session) return;
     const token = new URLSearchParams(window.location.search).get("lista");
     if (token)
-      void act(async () =>
-        setSharedRows(await rpc("read_shared_list", { p_id: token })),
-      );
+      void act(async () => {
+        const data = await rpc("read_shared_list", { p_id: token });
+        if (activeUser.current === session.user.id) setSharedRows(data);
+      });
   }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!session || !collection) return;
@@ -347,7 +389,7 @@ export function Cromatch() {
     void database()
       .rpc("find_matches", { p_collection: collection })
       .then(({ data, error }) => {
-        if (active) {
+        if (active && activeUser.current === session.user.id) {
           if (error) setError(error.message);
           else setRankedMatches(data ?? []);
         }
@@ -379,6 +421,7 @@ export function Cromatch() {
     [search, team, series, edition, section, collection],
   );
   async function quantity(s: Sticker, delta: number) {
+    const requestedBy = activeUser.current;
     await act(async () => {
       const pending = pendingQuantity.current[s.id];
       if (pending && pending.delta !== delta)
@@ -395,6 +438,7 @@ export function Cromatch() {
           p_operation: operation,
         });
       } catch (e) {
+        if (requestedBy !== activeUser.current) return;
         if (
           e instanceof Error &&
           !/fetch|network|connection|timeout|failed/i.test(e.message)
@@ -402,6 +446,7 @@ export function Cromatch() {
           delete pendingQuantity.current[s.id];
         throw e;
       }
+      if (requestedBy !== activeUser.current) return;
       delete pendingQuantity.current[s.id];
       setInventory((v) => [
         ...v.filter((i) => i.sticker_id !== s.id),
@@ -432,7 +477,9 @@ export function Cromatch() {
   }
   async function openComparison(p: Profile) {
     await act(async () => {
+      const requestedBy = activeUser.current;
       const data = await inventoryFor(p.id);
+      if (activeUser.current !== requestedBy) return;
       setTheirInventory(data ?? []);
       setOther(p);
       setSelection({});
