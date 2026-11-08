@@ -1,5 +1,6 @@
 import pg from "pg";
 import { applyMigrations, migrationsFrom } from "./migrations.mjs";
+import { postgresTLS } from "./postgres-tls.mjs";
 
 if (process.env.NEXO_APPLY_MIGRATIONS !== "true") {
   console.log(
@@ -12,7 +13,7 @@ if (process.env.NEXO_APPLY_MIGRATIONS !== "true") {
     process.exit(1);
   }
   const client = new pg.Client({
-    connectionString,
+    ...postgresTLS(connectionString),
     connectionTimeoutMillis: 20000,
     statement_timeout: 60000,
   });

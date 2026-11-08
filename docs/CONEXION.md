@@ -1,6 +1,6 @@
 # Conectar NEXO a Supabase
 
-Comprobación del 8 de noviembre de 2026: el proyecto Vercel `cromatch` existe y su último despliegue está listo. Su lista de variables está vacía y no aparece una integración Supabase. Por tanto, las cuentas y la sincronización alojadas siguen pendientes; el modo visita guarda únicamente en este navegador.
+Comprobación del 8 de noviembre de 2026: Supabase está vinculado a `cromatch` mediante Vercel Marketplace (plan gratuito). Las variables están protegidas en Vercel. El primer intento de migración falló con `SELF_SIGNED_CERT_IN_CHAIN`; se ha añadido la CA pública oficial de Supabase, conservando la validación TLS y del nombre del servidor. Falta confirmar el despliegue y el acceso alojado; el modo visita guarda únicamente en este navegador.
 
 ## Preparar el servicio
 
@@ -16,6 +16,10 @@ El álbum local de visita no se transfiere automáticamente a una cuenta: sus id
 
 ## Requisitos vigentes
 
-El documento recibido establece los requisitos funcionales de cuentas, catálogo, privacidad e intercambios. Hay diferencias con decisiones posteriores de diseño: NEXO oscuro con naranja/rosa/amarillo, colores de cada equipo y gestión de copias en Repetidos, sin contadores en la plantilla. Se conserva la implementación actual hasta resolver esa diferencia con el usuario. El uso privado del grupo y la apertura pública de registros también requieren decidir el alcance antes de habilitar el servicio.
+El documento recibido establece los requisitos funcionales de cuentas, catálogo, privacidad e intercambios. Hay diferencias con decisiones posteriores de diseño: NEXO oscuro con naranja/rosa/amarillo, colores de cada equipo y gestión de copias en Repetidos, sin contadores en la plantilla. El usuario ha confirmado que se mantienen el diseño actual y Repetidos separado de la plantilla. El uso privado del grupo y la apertura pública de registros también requieren decidir el alcance antes de habilitar el servicio.
 
 La decisión actual es acceder con nombre de usuario y contraseña, sin correo personal. El formulario y la segunda migración implementan la adaptación. La contraseña y las sesiones las gestiona Supabase Auth; no se guardan contraseñas en perfiles. La recuperación automática de estas cuentas está pendiente y se informa antes del registro. Las cuentas antiguas conservan el acceso y recuperación por su correo real.
+
+## Migraciones desde Vercel
+
+`prebuild` ejecuta las migraciones solo cuando `NEXO_APPLY_MIGRATIONS=true`, activado en Production. Usa `POSTGRES_URL` dentro de Vercel; las credenciales no se descargan ni se publican. Las migraciones son transaccionales, con bloqueo y comprobación de hashes para impedir repeticiones o cambios silenciosos. Una base con tablas de NEXO sin historial requiere revisión manual. La CA pública está documentada en `scripts/certs/README.md`.
