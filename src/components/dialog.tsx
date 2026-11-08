@@ -1,15 +1,17 @@
 "use client";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode, type CSSProperties } from "react";
 export function Dialog({
   children,
   titleId,
   close,
   className = "",
+  style,
 }: {
   children: ReactNode;
   titleId: string;
   close: () => void;
   className?: string;
+  style?: CSSProperties;
 }) {
   const ref = useRef<HTMLElement>(null);
   const closeRef = useRef(close);
@@ -54,6 +56,7 @@ export function Dialog({
     <div className="overlay">
       <article
         ref={ref}
+        style={style}
         className={`modal ${className}`}
         role="dialog"
         aria-modal="true"

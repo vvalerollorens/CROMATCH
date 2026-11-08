@@ -12,7 +12,7 @@ Los 641 registros con jugador o entrenador del catálogo de consulta tienen imag
 
 `public/players/sources.json` y `additional-sources.json` registran identidad, URL, fecha de consulta, tamaño y SHA-256. `src/data/player-photos.json` contiene solo los datos necesarios para el cliente. Las imágenes cargan de forma diferida. Una descarga fallida muestra el estado pendiente sin iconos rotos.
 
-Las fotos que faltan aparecen desenfocadas y atenuadas mediante CSS. Al conseguirlas se enfocan y recuperan el color; los nombres y números permanecen siempre nítidos. Las series especiales abren una carta con brillo y movimiento; completar un equipo muestra una celebración con iluminación ambiental. No se repite al abrir un equipo ya completado. El movimiento reducido elimina transiciones, inclinaciones y destellos animados.
+Las fotos que faltan aparecen desenfocadas y atenuadas mediante CSS. Al conseguirlas se enfocan y recuperan el color; los nombres y números permanecen siempre nítidos. Cada equipo tiene un jugador «Destacado NEXO», una selección editorial de la app que no atribuye rareza oficial al cromo impreso. Al conseguirlo, igual que las series especiales, se abre una carta con brillo y movimiento; completar un equipo muestra una celebración con iluminación ambiental. No se repite al abrir un equipo ya completado. El movimiento reducido elimina transiciones, inclinaciones y destellos animados.
 
 ## Cantidades y lector de fotos
 

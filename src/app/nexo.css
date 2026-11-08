@@ -1233,3 +1233,24 @@ textarea::placeholder {
     animation: none;
   }
 }
+.finish-featured {
+  --foil: var(--club-b, #e9c99b);
+  --foil-bg: color-mix(in srgb, var(--club-a, #a76a81) 35%, #18131c);
+}
+.celebration-aura {
+  background:
+    radial-gradient(
+      ellipse at 40% 40%,
+      color-mix(in srgb, var(--award-a, #eaa13f) 17%, transparent),
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 65% 60%,
+      color-mix(in srgb, var(--award-b, #b64374) 17%, transparent),
+      transparent 40%
+    );
+}
+.finish-transfer {
+  --foil: #dca080;
+  --foil-bg: #40212b;
+}

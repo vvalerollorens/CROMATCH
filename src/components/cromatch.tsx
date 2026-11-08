@@ -2211,7 +2211,7 @@ export function Cromatch({
           </button>
         ))}
       </nav>
-      {award.event && !quickAddOpen && !scanBusy && (
+      {award.event && !quickAddOpen && !scanBusy && !selected && !legal && (
         <CollectionCelebration event={award.event} close={award.close} />
       )}
       {quickAddOpen && (

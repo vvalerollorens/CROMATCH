@@ -429,6 +429,15 @@ test("colores por equipo, campo sutil y una carta especial al conseguirla", asyn
     .evaluate((el) => getComputedStyle(el).getPropertyValue("--club-a"));
   expect(after).not.toBe(before);
   await expect(page.locator(".team-pitch")).toHaveCount(1);
+  await page
+    .getByRole("button", { name: "Buscar en este apartado", exact: true })
+    .click();
+  await page.getByLabel("Buscar cromo", { exact: true }).fill("Lamine");
+  const featured = page.locator(".album-slot.finish-featured");
+  await expect(featured).toHaveCount(1);
+  await featured.locator(".slot-main").click();
+  await expect(page.getByRole("dialog")).toContainText("Destacado NEXO");
+  await page.getByRole("button", { name: "Seguir coleccionando" }).click();
   await page.getByRole("button", { name: "Especiales 9", exact: true }).click();
   await page
     .getByRole("button", { name: "Ver Extra Sticker Oro", exact: true })
@@ -451,8 +460,9 @@ test("completar un equipo ilumina su página y no se celebra al recargar", async
   page,
 }) => {
   await page.goto("/visita#album");
-  const { referenceStickers } = await import("../../src/lib/catalogue");
-  const team = referenceStickers.filter((s) => s.catalog_section === "alaves");
+  const { default: catalogue } =
+    await import("../../src/data/catalogue-2026-27.json");
+  const team = catalogue.sections.find((s) => s.id === "alaves")!.entries;
   await page.evaluate(
     (ids) =>
       localStorage.setItem(
@@ -513,8 +523,11 @@ test("OCR real de tres cartas y confirmación antes de actualizar el álbum", as
     .getByRole("button", { name: "Analizar foto", exact: true })
     .click();
   await expect(
+    page.getByRole("button", { name: "Analizar foto", exact: true }),
+  ).toBeEnabled({ timeout: 60000 });
+  await expect(
     page.getByRole("heading", { name: "Revisa lo que hemos leído" }),
-  ).toBeVisible({ timeout: 60000 });
+  ).toBeVisible();
   await expect(page.locator(".scan-match")).toHaveCount(3);
   const first = page.locator(".scan-match").filter({ hasText: "Sivera" });
   await expect(first).toContainText("Te falta");

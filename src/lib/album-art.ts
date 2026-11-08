@@ -1,4 +1,5 @@
 import type { Sticker } from "./domain";
+import { teamKey } from "./teams";
 import { albumSectionKey } from "./catalogue";
 export const clubColours: Record<string, [string, string]> = {
   alaves: ["#2774d8", "#f5f5f5"],
@@ -22,6 +23,40 @@ export const clubColours: Record<string, [string, string]> = {
   valencia: ["#ef945a", "#f0eee4"],
   villarreal: ["#f0d54a", "#4295ca"],
 };
+// Editorial NEXO highlights; these do not change the printed sticker's rarity.
+const featured: Record<string, string> = {
+  alaves: "Toni Martínez",
+  athletic: "Nico Williams",
+  atletico: "Julián Alvarez",
+  barcelona: "Lamine Yamal",
+  betis: "Isco",
+  celta: "Iago Aspas",
+  deportivo: "Yeremay",
+  elche: "Germán Valera",
+  espanyol: "Puado",
+  getafe: "Borja Mayoral",
+  levante: "Carlos Álvarez",
+  madrid: "Mbappé",
+  malaga: "Larrubia",
+  osasuna: "Budimir",
+  racing: "Íñigo Vicente",
+  rayo: "Isi",
+  sociedad: "Oyarzabal",
+  sevilla: "Isaac Romero",
+  valencia: "Hugo Duro",
+  villarreal: "Gerard Moreno",
+};
+const normal = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+export function isFeatured(s: Sticker) {
+  return (
+    !!s.teams &&
+    normal(featured[teamKey(s.teams.name)] ?? "") === normal(s.name)
+  );
+}
 export function cardFinish(s: Sticker) {
   const section =
     s.catalog_section ??
@@ -35,8 +70,12 @@ export function cardFinish(s: Sticker) {
   if (section.includes("fantasy")) return "fantasy";
   if (section.includes("draft")) return "draft";
   if (section.includes("top-fichajes")) return "signing";
-  return "base";
+  if (section.includes("ultimos-fichajes")) return "transfer";
+  return isFeatured(s) ? "featured" : "base";
 }
 export function finishLabel(s: Sticker) {
-  return s.sticker_series?.name ?? "NEXO · LaLiga";
+  return (
+    s.sticker_series?.name ??
+    (isFeatured(s) ? "Destacado NEXO" : "NEXO · LaLiga")
+  );
 }

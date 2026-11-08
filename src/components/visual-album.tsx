@@ -23,7 +23,7 @@ import {
 import { playerPhoto } from "@/lib/player-photos";
 import { PlayerPortrait } from "./player-portrait";
 import type { CSSProperties } from "react";
-import { clubColours, cardFinish } from "@/lib/album-art";
+import { clubColours, cardFinish, isFeatured } from "@/lib/album-art";
 
 export function TeamBadge({
   short,
@@ -435,6 +435,9 @@ export function VisualAlbum({
                 onClick={() => open(s)}
               >
                 <span className="slot-kicker">
+                  {isFeatured(s) && (
+                    <span className="slot-series">Destacado NEXO</span>
+                  )}
                   {s.sticker_series?.name ? (
                     <span className="slot-series">{s.sticker_series.name}</span>
                   ) : null}

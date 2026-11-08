@@ -106,7 +106,7 @@ export function ScanAlbum({
         return;
       }
       worker.current = w;
-      await w.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
+      await w.setParameters({ tessedit_pageseg_mode: PSM.AUTO });
       const bitmap = await createImageBitmap(file);
       const scale = Math.min(1, 2200 / Math.max(bitmap.width, bitmap.height));
       const canvas = document.createElement("canvas");
@@ -118,7 +118,13 @@ export function ScanAlbum({
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
       bitmap.close();
-      const { data } = await w.recognize(canvas);
+      let { data } = await w.recognize(canvas);
+      if (!matchScanText(data.text, stickers).length) {
+        setStatus("Buscando nombres en las cartas…");
+        await w.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
+        const fallback = await w.recognize(canvas);
+        data = fallback.data;
+      }
       if (run.current !== job) return;
       setText(data.text);
       setReviewText(data.text);

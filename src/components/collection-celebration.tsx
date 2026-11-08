@@ -1,9 +1,10 @@
 "use client";
-import { useRef } from "react";
+import { useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
 import type { Sticker } from "@/lib/domain";
 import { playerPhoto } from "@/lib/player-photos";
-import { cardFinish, finishLabel } from "@/lib/album-art";
+import { cardFinish, finishLabel, clubColours } from "@/lib/album-art";
+import { teamKey } from "@/lib/teams";
 import { Dialog } from "./dialog";
 export type Celebration =
   | { type: "team"; name: string; short: string; total: number }
@@ -18,10 +19,20 @@ export function CollectionCelebration({
   const card = useRef<HTMLDivElement>(null);
   const special = event.type === "special" ? event.sticker : null;
   const photo = special ? playerPhoto(special) : undefined;
+  const colourName = event.type === "team" ? event.name : special?.teams?.name;
+  const colours = colourName ? clubColours[teamKey(colourName)] : undefined;
   return (
     <Dialog
       titleId="celebration-title"
       close={close}
+      style={
+        {
+          "--award-a": colours?.[0] ?? "#eaa13f",
+          "--award-b": colours?.[1] ?? "#b64374",
+          "--club-a": colours?.[0] ?? "#bc759b",
+          "--club-b": colours?.[1] ?? "#e7bf8c",
+        } as CSSProperties
+      }
       className={`collection-celebration celebration-${event.type}`}
     >
       <div className="celebration-aura" aria-hidden="true" />
