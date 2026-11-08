@@ -693,6 +693,7 @@ export function Cromatch({
               Nombre de usuario
               <input
                 name="username"
+                aria-label="Nombre de usuario"
                 required
                 autoComplete="username"
                 autoCapitalize="none"
