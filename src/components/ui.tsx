@@ -1,5 +1,7 @@
 "use client";
-import { Album, Copy, X } from "lucide-react";
+import Image from "next/image";
+import { X } from "lucide-react";
+import { AlbumIcon as Album, CardsIcon as Copy } from "./app-icons";
 import { Dialog } from "./dialog";
 export function Empty({
   title,
@@ -18,11 +20,15 @@ export function Empty({
 }
 export function Logo() {
   return (
-    <span className="brand">
-      <span className="brand-mark">
-        <Copy size={22} />
-      </span>
-      CRO<span>MATCH</span>
+    <span className="brand brand-image">
+      <Image
+        src="/brand/cromatch.png"
+        alt="CROMATCH"
+        width={2172}
+        height={724}
+        sizes="(max-width: 600px) 190px, 220px"
+        priority
+      />
     </span>
   );
 }
@@ -36,8 +42,8 @@ export function Legal({ close }: { close: () => void }) {
       <p>
         CROMATCH es un proyecto independiente, sin afiliación con LaLiga ni
         Panini. Las marcas mencionadas identifican las colecciones. Los escudos
-        de clubes proceden de FootyLogos y pertenecen a sus respectivos
-        titulares.
+        de clubes y los retratos de jugadores proceden de FootyLogos y
+        pertenecen a sus respectivos titulares.
       </p>
       <h3>Tus datos</h3>
       <p>

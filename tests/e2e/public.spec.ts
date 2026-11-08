@@ -322,3 +322,52 @@ test("índice completo de consulta, numeración y fuentes visibles", async ({
     }),
   ).toBeVisible();
 });
+
+test("retratos locales de FootyLogos: desenfocados al faltar y nítidos al conseguir", async ({
+  page,
+}, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/visita#album");
+  const missing = page.getByRole("button", {
+    name: "Marcar Sivera, número 3",
+    exact: true,
+  });
+  const photo = missing.locator(".slot-portrait img");
+  await expect(photo).toHaveCount(1);
+  await expect(photo).toHaveAttribute("src", /^\/players\/[a-f0-9]+\.webp$/);
+  await expect
+    .poll(() => photo.evaluate((img) => (img as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+  await expect
+    .poll(() => photo.evaluate((img) => getComputedStyle(img).filter))
+    .toMatch(/blur\([57]px\)/);
+  await page.screenshot({
+    path: testInfo.outputPath("album-fotos-faltantes.png"),
+  });
+  await missing.click();
+  const owned = page.getByRole("button", {
+    name: "Desmarcar Sivera, número 3",
+    exact: true,
+  });
+  await expect(owned).toHaveAttribute("aria-pressed", "true");
+  await expect(owned.locator(".slot-portrait img")).toHaveCSS(
+    "filter",
+    "blur(0px) saturate(1)",
+  );
+  await expect(owned.locator(".slot-number")).toHaveText("3");
+  await expect(owned.locator(".slot-caption")).toHaveText("Sivera");
+  await page.screenshot({
+    path: testInfo.outputPath("album-foto-conseguida.png"),
+  });
+  await page
+    .getByRole("button", { name: "Ver fuentes de Sivera", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText("Foto: FootyLogos");
+  await expect(page.getByRole("dialog")).toContainText("Antonio Sivera");
+  await page.keyboard.press("Escape");
+  await owned.click();
+  await expect(photo).toHaveCSS("opacity", "0.55");
+  await expect(
+    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
+  ).toHaveAttribute("value", "0");
+});

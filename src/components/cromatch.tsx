@@ -60,12 +60,19 @@ type Section =
   | "notificaciones"
   | "escaner"
   | "admin";
+import {
+  HomeIcon,
+  AlbumIcon,
+  SwapIcon,
+  FriendsIcon,
+  ProfileIcon,
+} from "./app-icons";
 const nav = [
-  { id: "inicio", label: "Inicio", icon: Home },
-  { id: "album", label: "Mi álbum", icon: Album },
-  { id: "intercambios", label: "Intercambios", icon: ArrowDownUp },
-  { id: "amigos", label: "Amigos", icon: Users },
-  { id: "perfil", label: "Mi perfil", icon: UserRound },
+  { id: "inicio", label: "Inicio", icon: HomeIcon },
+  { id: "album", label: "Mi álbum", icon: AlbumIcon },
+  { id: "intercambios", label: "Intercambios", icon: SwapIcon },
+  { id: "amigos", label: "Amigos", icon: FriendsIcon },
+  { id: "perfil", label: "Mi perfil", icon: ProfileIcon },
 ] as const;
 const titles: Record<Section, string> = {
   inicio: "Tu colección, en juego.",
@@ -85,6 +92,7 @@ import { Dialog } from "./dialog";
 import { Landing } from "./landing";
 import { VisualAlbum } from "./visual-album";
 import { HomeOverview } from "./home-overview";
+import { playerPhoto } from "@/lib/player-photos";
 export function Cromatch({
   initialVisitor = false,
 }: {
@@ -825,7 +833,9 @@ export function Cromatch({
       <div className="app-main">
         <header className="app-header">
           <div className="breadcrumb">
-            <span className="header-brand">CROMATCH</span>
+            <span className="header-brand">
+              <Logo />
+            </span>
             <ChevronRight size={14} />{" "}
             <strong>{section === "inicio" ? "Inicio" : titles[section]}</strong>
           </div>
@@ -2103,7 +2113,7 @@ export function Cromatch({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Escudos: FootyLogos
+                Escudos y retratos: FootyLogos
               </a>
             </span>
             <span>Tu colección es tuya. Tu privacidad, también.</span>
@@ -2140,6 +2150,23 @@ export function Cromatch({
             {selected.variant}
           </p>
           <p>Posición física: {selected.album_position ?? "No verificada"}</p>
+          {playerPhoto(selected) && (
+            <p className="portrait-credit">
+              <a
+                href={playerPhoto(selected)!.source}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Foto: FootyLogos ↗
+              </a>
+              {" · "}
+              {playerPhoto(selected)!.player}
+              {" · "}
+              {playerPhoto(selected)!.season}
+              {" · "}
+              {playerPhoto(selected)!.club}
+            </p>
+          )}
           {!selected.catalog_reference && (
             <p>
               {own.get(selected.id)?.quantity ?? 0} unidades ·{" "}

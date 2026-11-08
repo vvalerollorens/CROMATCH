@@ -1,12 +1,12 @@
 "use client";
-import {
-  Album,
-  ArrowDownUp,
-  ArrowRight,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Logo, Legal } from "./ui";
+import {
+  AlbumIcon as Album,
+  SwapIcon as ArrowDownUp,
+  CardsIcon as Copy,
+  FriendsIcon as Users,
+} from "./app-icons";
 export function Landing({
   setAuth,
   enterVisitor,

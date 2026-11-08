@@ -10,7 +10,7 @@ Abre directamente **`/visita`**, o en la bienvenida pulsa **Ver por dentro sin c
 
 ## Álbum visual para móvil
 
-La nueva dirección toma como referencia piezas sociales de fútbol: morado profundo, crema y amarillo dorado, tipografía condensada y detalles de álbum impreso. Incluye los veinte escudos blancos de FootyLogos con atribución y el orden de equipos de los listados del álbum.
+La dirección visual actual usa cristal translúcido, degradados morados y amarillos, Manrope y nuevos iconos de trazo fino. Incluye los veinte escudos blancos de FootyLogos y 575 casilleros con sus retratos disponibles. Las fotos aparecen desenfocadas cuando faltan y se enfocan al marcarlas; los casilleros sin retrato se identifican. El detalle conserva la temporada real de cada foto.
 
 El listado de consulta contiene 661 registros y 29 apartados, con nombres, números y sus fuentes. Siete registros requieren revisión y **no se declara completitud oficial**. El [PDF de cuarta edición indicado por el usuario](https://www.panini.es//media/paniniFiles/Checklist_LALIGA_2026-27-4aED.pdf) devuelve 403 desde este entorno y sigue pendiente de cotejo. Véase [catálogo y fuentes](docs/CATALOGO.md).
 

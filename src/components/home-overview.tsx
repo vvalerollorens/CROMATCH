@@ -1,5 +1,11 @@
 "use client";
-import { Album, ArrowDownUp, ArrowRight, Copy, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import {
+  AlbumIcon as Album,
+  SwapIcon as ArrowDownUp,
+  CardsIcon as Copy,
+  FriendsIcon as Users,
+} from "./app-icons";
 export function HomeOverview({
   owned,
   total,

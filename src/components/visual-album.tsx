@@ -19,6 +19,8 @@ import {
   catalogueSummary,
   referenceStickers,
 } from "@/lib/catalogue";
+import { playerPhoto } from "@/lib/player-photos";
+import { PlayerPortrait } from "./player-portrait";
 export function TeamBadge({
   short,
   teamId,
@@ -334,6 +336,7 @@ export function VisualAlbum({
           const i = own.get(s.id);
           const q = quantity(s);
           const review = s.catalog_review === "needs_review";
+          const photo = playerPhoto(s);
           return (
             <article
               className={`album-slot real-slot ${reference ? "reference-slot" : ""} ${q ? "unlocked" : ""} ${review ? "needs-review" : ""}`}
@@ -358,12 +361,21 @@ export function VisualAlbum({
                     .replace("Edición por confirmar", "ED. ?")}
                 </span>
                 <strong className="slot-number">{s.official_code}</strong>
-                <span className="slot-symbol">
-                  <TeamBadge
-                    short={section?.short ?? "CM"}
-                    teamId={section?.id}
-                  />
-                </span>
+                {photo ? (
+                  <PlayerPortrait photo={photo} />
+                ) : (
+                  <span className="slot-symbol">
+                    <TeamBadge
+                      short={section?.short ?? "CM"}
+                      teamId={section?.id}
+                    />
+                    {s.name !== "Escudo" && (
+                      <span className="slot-photo-pending">
+                        Retrato pendiente
+                      </span>
+                    )}
+                  </span>
+                )}
                 <span className="slot-caption">{s.name}</span>
                 <span className="slot-corner">
                   {q ? <Check size={13} /> : <Plus size={13} />}
@@ -472,6 +484,12 @@ export function VisualAlbum({
             todavía que el catálogo oficial esté completo y no se ha publicado
             en los inventarios. Los huecos sin jugador no se cuentan como
             cromos.
+          </p>
+          <p>
+            Retratos disponibles de FootyLogos. Algunas fotos corresponden a
+            temporadas anteriores; puedes consultar la temporada de cada retrato
+            en su detalle. Si no hay una imagen identificada, el casillero
+            muestra «Retrato pendiente».
           </p>
           <p>
             Las marcas de esta visita solo sirven para probar el diseño y se
