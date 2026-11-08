@@ -6,7 +6,7 @@ Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js,
 
 ## Ver las pantallas sin correo
 
-En la bienvenida pulsa **Ver por dentro sin cuenta**. El modo visita permite recorrer las pantallas sin crear una sesión ni consultar inventarios privados. No contiene cromos, usuarios ni intercambios ficticios. Las operaciones de datos exigen iniciar sesión. Puedes volver con **Salir de la visita**.
+Abre directamente **`/visita`**, o en la bienvenida pulsa **Ver por dentro sin cuenta**. El modo visita permite recorrer las pantallas sin crear una sesión ni consultar inventarios privados. No contiene cromos, usuarios ni intercambios ficticios. Las operaciones de datos exigen iniciar sesión. Puedes volver con **Salir de la visita**.
 
 ## Instalar
 

@@ -103,7 +103,9 @@ test("visita sin correo recorre pantallas sin peticiones de datos", async ({
   await page
     .getByRole("button", { name: "Crear enlace compartido", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toContainText("Estás en modo visita");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Estás en modo visita" }),
+  ).toContainText("Estás en modo visita");
   expect(dataRequests).toEqual([]);
   expect(
     await page.evaluate(
@@ -116,4 +118,28 @@ test("visita sin correo recorre pantallas sin peticiones de datos", async ({
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "Ese cromo",
   );
+});
+
+test("ruta directa de visita abre el interior sin formulario", async ({
+  page,
+}) => {
+  await page.goto("/visita");
+  await expect(
+    page.getByText("Modo visita · Sin cuenta", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Tu colección, en juego." }),
+  ).toBeVisible();
+  const nav = page.getByRole("navigation", { name: "Navegación principal" });
+  if (await nav.isVisible()) {
+    await nav.getByRole("button", { name: "Mi álbum", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "Mi álbum", exact: true }),
+    ).toBeVisible();
+  }
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
 });

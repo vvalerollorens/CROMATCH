@@ -83,7 +83,11 @@ const titles: Record<Section, string> = {
 import { Empty, Logo, Legal } from "./ui";
 import { Dialog } from "./dialog";
 import { Landing } from "./landing";
-export function Cromatch() {
+export function Cromatch({
+  initialVisitor = false,
+}: {
+  initialVisitor?: boolean;
+}) {
   const activeUser = useRef<string | null>(null);
   const pendingQuantity = useRef<
     Record<string, { operation: string; delta: number }>
@@ -97,7 +101,7 @@ export function Cromatch() {
       receive_count: number;
     }[]
   >([]);
-  const [visitor, setVisitor] = useState(false);
+  const [visitor, setVisitor] = useState(initialVisitor);
   const [session, setSession] = useState<Session | null>(null);
   const [boot, setBoot] = useState(configured);
   const [section, setSection] = useState<Section>("inicio");
@@ -249,7 +253,7 @@ export function Cromatch() {
     return () => data.subscription.unsubscribe();
   }, []);
   const load = useCallback(async () => {
-    if (!session) return;
+    if (!session || visitor) return;
     setLoading(true);
     const db = database();
     try {
@@ -310,12 +314,12 @@ export function Cromatch() {
     } finally {
       setLoading(false);
     }
-  }, [session]);
+  }, [session, visitor]);
   useEffect(() => {
     void load();
   }, [load]);
   useEffect(() => {
-    if (!session || !collection) return;
+    if (!session || visitor || !collection) return;
     let alive = true;
     setStickers([]);
     (async () => {
@@ -341,9 +345,9 @@ export function Cromatch() {
     return () => {
       alive = false;
     };
-  }, [session, collection]);
+  }, [session, collection, visitor]);
   useEffect(() => {
-    if (!session) return;
+    if (!session || visitor) return;
     const channel = database()
       .channel(`inventory-${session.user.id}`)
       .on(
@@ -381,18 +385,18 @@ export function Cromatch() {
       document.removeEventListener("visibilitychange", refresh);
       clearInterval(interval);
     };
-  }, [session, load]);
+  }, [session, load, visitor]);
   useEffect(() => {
-    if (!session) return;
+    if (!session || visitor) return;
     const token = new URLSearchParams(window.location.search).get("lista");
     if (token)
       void act(async () => {
         const data = await rpc("read_shared_list", { p_id: token });
         if (activeUser.current === session.user.id) setSharedRows(data);
       });
-  }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session, visitor]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (!session || !collection) return;
+    if (!session || visitor || !collection) return;
     let active = true;
     void database()
       .rpc("find_matches", { p_collection: collection })
@@ -405,7 +409,7 @@ export function Cromatch() {
     return () => {
       active = false;
     };
-  }, [session, collection, inventory, friends]);
+  }, [session, collection, inventory, friends, visitor]);
   const current = collections.find((c) => c.id === collection);
   const stats = statistics(stickers, inventory);
   const own = new Map(inventory.map((i) => [i.sticker_id, i]));
@@ -574,7 +578,7 @@ export function Cromatch() {
       )}
     </>
   );
-  if (boot)
+  if (boot && !visitor)
     return (
       <main className="auth-page" role="status">
         <Logo />
