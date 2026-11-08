@@ -2,7 +2,7 @@
 
 Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js, React, TypeScript, Tailwind CSS y Supabase/PostgreSQL.
 
-**Estado: código inicial implementado y pruebas de base de datos incluidas. No es todavía un servicio público listo para usuarios reales.** Necesita un proyecto Supabase, un catálogo oficialmente contrastado y la validación del flujo completo en un entorno conectado. No contiene inventarios de demostración ni cromos inventados.
+**Estado: código inicial implementado y pruebas de base de datos incluidas. No es todavía un servicio público listo para usuarios reales.** Supabase ya está conectado y se comprobaron registro/acceso por usuario, persistencia de perfil, privacidad de ajustes y amistad con dos cuentas temporales. Falta publicar el catálogo contrastado y validar inventario e intercambios alojados. No contiene inventarios de demostración ni cromos inventados.
 
 ## Ver las pantallas sin correo
 
@@ -33,7 +33,7 @@ npm ci
 cp .env.example .env.local
 ```
 
-El acceso usa nombre de usuario y contraseña, sin correo personal. Necesita Supabase configurado y ambas migraciones aplicadas; aún no está validado con el servicio alojado.
+El acceso usa nombre de usuario y contraseña, sin correo personal. Supabase está configurado con ambas migraciones aplicadas y el acceso por usuario se ha probado con el servicio alojado. El catálogo sincronizado sigue pendiente de publicación.
 
 Completa las dos variables públicas con la URL y la clave publicable/anon de tu propio proyecto Supabase. La aplicación no necesita ni debe recibir una clave `service_role`.
 
@@ -105,7 +105,7 @@ Playwright comprueba bienvenida, formularios, recuperación, navegación por tec
 
 Importa este repositorio en Vercel como proyecto Next.js. Usa `npm ci` y `npm run build`, Node.js 22 y las variables de `.env.example`. No requiere `vercel.json`. Configura Preview con un Supabase de desarrollo, y Production con el de producción; ajusta en cada proyecto los callbacks de Auth. Nunca reutilices una base de producción para pruebas destructivas.
 
-El repositorio está desplegado en https://cromatch-six.vercel.app/. No se ha provisionado Supabase ni contratado servicios de pago. Las claves públicas se incorporan al build: reconstruye tras cambiarlas. El sitio muestra claramente el estado de conexión pendiente cuando no existen.
+El repositorio está desplegado en https://cromatch-six.vercel.app/. Supabase está vinculado mediante el plan gratuito de Marketplace; las credenciales permanecen protegidas en Vercel. Las claves públicas se incorporan al build: reconstruye tras cambiarlas. El sitio muestra claramente el estado de conexión pendiente cuando no existen.
 
 ## Documentación
 

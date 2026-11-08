@@ -17,7 +17,7 @@
 
 ## Bloqueos externos actuales
 
-1. Supabase está conectado a Vercel y las migraciones se aplicaron en el despliegue `b8823f0`. Auth responde y el inventario deniega consultas anónimas (401). Falta desactivar la confirmación de correo para el acceso por usuario y ejecutar el flujo alojado con dos cuentas reales; Realtime y el intercambio entre sesiones siguen sin verificarse.
+1. Supabase está conectado a Vercel y las migraciones se aplicaron en el despliegue `b8823f0`. Auth responde y el inventario deniega consultas anónimas (401). Registro por usuario, acceso tras cierre de sesión, persistencia de perfil, privacidad de ajustes y amistad se probaron con dos cuentas temporales, eliminadas al terminar. El catálogo publicado sigue vacío; inventario, Realtime e intercambios entre sesiones siguen pendientes de validación alojada.
 2. No hay checklist oficial de 2026–27 contrastado accesible. El catálogo publicado en la base está vacío; existe un listado de consulta de 661 registros, con fuentes y siete incidencias, separado del inventario. El PDF de cuarta edición indicado por el usuario devuelve 403 y no se ha podido cotejar.
 3. La vista pública está desplegada en https://cromatch-six.vercel.app/ y permite revisar sin cuenta en `/visita#album`. No se ha habilitado todavía un control de acceso para limitarla al grupo.
 4. El responsable del servicio, contacto legal, política de retención, región, contratos y procedimientos operativos deben definirse antes de abrir registros públicos.

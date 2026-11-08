@@ -56,3 +56,9 @@ La imagen de OCR es una prueba controlada, no una medición de precisión con fo
 ## Conexión Supabase y TLS
 
 El despliegue `b8823f0` terminó READY con migraciones activadas en Vercel. Se corrigió el error real `SELF_SIGNED_CERT_IN_CHAIN` mediante la CA pública oficial de Supabase; una prueba comprueba que pg no sustituye esa CA por los parámetros SSL de la URL y mantiene `rejectUnauthorized: true`. Desde el sitio publicado se consultó Auth (200, proveedor habilitado) y el inventario sin sesión (401). La confirmación de email seguía activada; se ha solicitado desactivarla antes de probar el registro solo por usuario. Estas consultas no certifican aún el flujo de dos cuentas ni los intercambios.
+
+## Prueba alojada tras configurar Auth
+
+Después de desactivar Confirm email, Auth devolvió `mailer_autoconfirm=true`. Se crearon dos cuentas temporales por la API pública de registro, sin correo personal ni confirmación administrativa. Ambas recibieron sesión y el usuario de perfil esperado. Se comprobó visibilidad privada inicial, denegación de lectura de ajustes ajenos, actualización de perfil, cierre de sesión, nuevo acceso por contraseña y persistencia del nombre público. Se envió y aceptó una amistad. Se eliminaron ambas cuentas mediante `delete_my_account` al finalizar; se conserva la trazabilidad seudonimizada prevista por el esquema. No se insertaron cromos de prueba.
+
+La consulta autenticada confirmó que el catálogo publicado sigue vacío. Esta prueba no valida todavía cantidades ni intercambios alojados. La ejecución [42522535737](https://github.com/vvalerollorens/CROMATCH/actions/runs/42522535737) pasó 48 pruebas de lógica/base de datos y 30 de navegador, además de TypeScript y build. Las pruebas públicas de navegador no sustituyen una sesión de UI alojada con Supabase.
