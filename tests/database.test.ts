@@ -61,6 +61,11 @@ beforeAll(async () => {
       readFileSync(
         "supabase/migrations/202611080002_username_accounts.sql",
         "utf8",
+      ) +
+      "\n" +
+      readFileSync(
+        "supabase/migrations/202611080003_catalogue_identity.sql",
+        "utf8",
       ),
   );
   for (const id of [A, B, C])
@@ -365,6 +370,68 @@ describe("PostgreSQL, RLS y flujo completo", () => {
         )
       ).rows,
     ).toHaveLength(2);
+  });
+  it("importa números por equipo y Extras sin sobrescribir otros jugadores", async () => {
+    await user(A);
+    const common = {
+      edition: "TEST-SCOPED",
+      variant: "base",
+      source_url: "https://official.example/scoped",
+      corroboration_url: "https://secondary.example/scoped",
+      verified_at: "2026-01-01T00:00:00Z",
+    };
+    const rows = [
+      {
+        ...common,
+        official_code: "1",
+        name: "Jugador A",
+        team: "Club prueba A",
+      },
+      {
+        ...common,
+        official_code: "1",
+        name: "Jugador B",
+        team: "Club prueba B",
+      },
+      {
+        ...common,
+        official_code: "S/N",
+        name: "Extra A",
+        series: "Extra prueba",
+      },
+      {
+        ...common,
+        official_code: "S/N",
+        name: "Extra B",
+        series: "Extra prueba",
+      },
+    ];
+    expect(
+      await rpc("import_catalog", [collection, JSON.stringify(rows)]),
+    ).toBe(4);
+    const before = (
+      await db.query<{ id: string; name: string }>(
+        "select id,name from public.stickers where edition='TEST-SCOPED' order by name",
+      )
+    ).rows;
+    expect(before).toHaveLength(4);
+    await rpc("import_catalog", [
+      collection,
+      JSON.stringify([
+        { ...rows[0], name: "Jugador A corregido" },
+        ...rows.slice(1),
+      ]),
+    ]);
+    const after = (
+      await db.query<{ id: string; name: string }>(
+        "select id,name from public.stickers where edition='TEST-SCOPED' order by name",
+      )
+    ).rows;
+    expect(after).toHaveLength(4);
+    expect(new Set(after.map((r) => r.id))).toEqual(
+      new Set(before.map((r) => r.id)),
+    );
+    expect(after.some((r) => r.name === "Jugador B")).toBe(true);
   });
   it("elimina acceso y datos personales conservando historial seudonimizado", async () => {
     await user(C);

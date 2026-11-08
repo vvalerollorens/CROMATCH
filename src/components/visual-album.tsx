@@ -198,8 +198,8 @@ export function VisualAlbum({
       setAnnouncement(
         `${s.name}: ${marked[s.id] ? "sin marcar" : "marcado en esta visita"}`,
       );
-    } else if (quantity(s) > 0) onDetail(s);
-    else void onQuantity(s, 1).catch(() => {});
+    } else if (quantity(s) > 1) onDetail(s);
+    else void onQuantity(s, quantity(s) ? -1 : 1).catch(() => {});
   };
   return (
     <section
@@ -399,6 +399,13 @@ export function VisualAlbum({
               : "Catálogo de consulta · Aún sin activar el inventario."}
         </p>
       )}
+      {!reference && collectionName?.includes("2026") && (
+        <p className="album-preview-note">
+          <Info size={14} />
+          Guardado en tu cuenta · Catálogo parcial: 7 cromos pendientes de
+          revisión.
+        </p>
+      )}
       <div className="album-slots">
         {visible.slice(page * 48, (page + 1) * 48).map((s) => {
           const i = own.get(s.id);
@@ -484,7 +491,7 @@ export function VisualAlbum({
           <h3>
             {rows.length
               ? "No hay cromos con estos filtros"
-              : "El catálogo está esperando su primer cromo verificado"}
+              : "Este apartado está pendiente de revisión"}
           </h3>
           <p>
             {rows.length

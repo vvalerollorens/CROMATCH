@@ -2,6 +2,8 @@ import { z } from "zod";
 export type Sticker = {
   catalog_reference?: boolean;
   catalog_section?: string;
+  catalog_order?: number;
+  verification_method?: string;
   catalog_review?: string;
   catalog_number_status?: string;
   catalog_notes?: string[];
@@ -104,8 +106,8 @@ export const catalogRow = z
     name: z.string().trim().min(1).max(120),
     edition: z.string().trim().min(1).max(60),
     variant: z.string().trim().min(1).max(60).default("base"),
-    team: z.string().max(100).optional(),
-    series: z.string().max(100).optional(),
+    team: z.string().trim().max(100).optional(),
+    series: z.string().trim().max(100).optional(),
     sticker_type: z.string().max(60).default("normal"),
     album_position: z.string().max(60).nullable().optional(),
     source_url: z.url().startsWith("https://"),
@@ -124,10 +126,19 @@ export const catalogRow = z
 export function parseCatalog(text: string) {
   const rows = z.array(catalogRow).min(1).max(2000).parse(JSON.parse(text));
   const ids = rows.map((r) =>
-    JSON.stringify([r.official_code, r.edition, r.variant]),
+    JSON.stringify([
+      r.team || null,
+      r.series || null,
+      r.official_code,
+      r.edition,
+      r.variant,
+      r.official_code === "S/N" ? r.name : null,
+    ]),
   );
   if (new Set(ids).size !== ids.length)
-    throw new Error("Hay códigos, ediciones y variantes duplicados.");
+    throw new Error(
+      "Hay cromos duplicados en el mismo equipo o serie, edición y variante.",
+    );
   return rows;
 }
 export const statusLabel: Record<string, string> = {

@@ -55,6 +55,18 @@ describe("importación del catálogo", () => {
     corroboration_url: "https://secondary.example/fixture",
     verified_at: "2026-01-01T00:00:00Z",
   };
+  it("admite números repetidos entre equipos y Extras sin número de jugadores distintos", () => {
+    expect(
+      parseCatalog(
+        JSON.stringify([
+          { ...row, official_code: "1", team: "Club A" },
+          { ...row, official_code: "1", team: "Club B" },
+          { ...row, official_code: "S/N", name: "Jugador A", series: "Oro" },
+          { ...row, official_code: "S/N", name: "Jugador B", series: "Oro" },
+        ]),
+      ),
+    ).toHaveLength(4);
+  });
   it("exige fuentes distintas y fecha", () => {
     expect(() =>
       parseCatalog(

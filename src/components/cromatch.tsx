@@ -386,7 +386,18 @@ export function Cromatch({
         all = all.concat(data as unknown as Sticker[]);
         if (data.length < 500) break;
       }
-      if (alive) setStickers(all);
+      if (alive)
+        setStickers(
+          all.sort(
+            (a, b) =>
+              (a.catalog_order ?? Number.MAX_SAFE_INTEGER) -
+                (b.catalog_order ?? Number.MAX_SAFE_INTEGER) ||
+              a.official_code.localeCompare(b.official_code, "es", {
+                numeric: true,
+              }) ||
+              a.id.localeCompare(b.id),
+          ),
+        );
     })();
     return () => {
       alive = false;
@@ -2338,7 +2349,9 @@ export function Cromatch({
           >
             Gestionar en Repetidos
           </button>
-          {selected.catalog_reference && (
+          {Boolean(
+            selected.catalog_reference || selected.catalog_sources?.length,
+          ) && (
             <div className="reference-detail">
               <strong>
                 {selected.catalog_review === "needs_review"
@@ -2346,8 +2359,9 @@ export function Cromatch({
                   : "Coincidencias entre listados de coleccionismo"}
               </strong>
               <p>
-                Catálogo de consulta: no equivale a validación oficial de Panini
-                ni activa el inventario.
+                {selected.catalog_reference
+                  ? "Catálogo de consulta: no equivale a validación oficial de Panini ni activa el inventario."
+                  : "Datos contrastados entre listados de coleccionismo. El cotejo con el listado oficial de Panini sigue pendiente."}
               </p>
               {selected.catalog_notes?.map((note, index) => (
                 <p key={index}>{note}</p>
@@ -2370,7 +2384,11 @@ export function Cromatch({
             </div>
           )}
           <p>
-            {selected.catalog_reference ? "Consultado:" : "Verificado:"}{" "}
+            {selected.catalog_reference
+              ? "Consultado:"
+              : selected.verification_method === "cross_checked_sources"
+                ? "Contrastado:"
+                : "Verificado:"}{" "}
             {new Date(selected.verified_at).toLocaleDateString("es-ES")}
           </p>
           <div className="export-actions">
