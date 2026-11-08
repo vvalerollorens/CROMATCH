@@ -24,7 +24,7 @@
 
 ## Funciones aún pendientes
 
-- OCR y reconocimiento visual: solo hay selección de foto y entrada manual, sin subida ni identificación.
+- OCR local implementado con Tesseract.js, coincidencias por nombre y confirmación manual. Falta medir precisión con fotografías reales de distintos móviles, ángulos y ediciones; no se garantiza identificar todas las cartas.
 - Intercambios multilaterales y detección de ciclos; el modelo contempla participantes, pero los RPC actuales operan exclusivamente entre dos personas.
 - Borradores persistentes entre sesiones; los actuales viven en memoria.
 - Push, avisos automáticos de nuevas coincidencias y caducidad programada de reservas. Las preferencias no activan envíos.
@@ -45,4 +45,4 @@
 3. Completar pruebas de aceptación alojadas y corregir cualquier defecto de privacidad o integridad antes de ampliar funcionalidad.
 4. Resolver los requisitos operativos, legales y antiabuso; probar backups y restauración.
 5. Vincular Vercel, separar desarrollo/producción y desplegar la primera versión validada.
-6. Añadir OCR, push, escala e intercambios multilaterales como fases posteriores.
+6. Evaluar OCR con fotos reales; añadir push, escala e intercambios multilaterales como fases posteriores.

@@ -1,11 +1,11 @@
 {
-  "name": "CROMATCH · Mi liga de cromos",
-  "short_name": "CROMATCH",
+  "name": "NEXO · Mi liga de cromos",
+  "short_name": "NEXO",
   "lang": "es",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#573180",
-  "theme_color": "#573180",
+  "background_color": "#151118",
+  "theme_color": "#151118",
   "icons": [
     {
       "src": "/icon.svg",

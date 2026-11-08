@@ -32,9 +32,9 @@ describe("álbum visual", () => {
       <VisualAlbum {...props} stickers={[]} visitor />,
     );
     expect(html).toContain("Tus marcas no se guardan");
-    expect(
-      html.match(/class="album-slot real-slot reference-slot/g),
-    ).toHaveLength(23);
+    expect(html.match(/class="album-slot[^"]*reference-slot/g)).toHaveLength(
+      23,
+    );
     expect(html).toContain("Marcar Sivera, número 3");
     expect(html).not.toContain("Casillero de prueba");
   });

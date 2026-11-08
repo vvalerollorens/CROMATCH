@@ -1,5 +1,5 @@
 "use client";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Camera } from "lucide-react";
 import {
   AlbumIcon as Album,
   SwapIcon as ArrowDownUp,
@@ -17,7 +17,9 @@ export function HomeOverview({
   total: number;
   duplicates: number;
   friends: number;
-  go: (section: "album" | "intercambios" | "amigos" | "repetidos") => void;
+  go: (
+    section: "album" | "intercambios" | "amigos" | "repetidos" | "escaner",
+  ) => void;
 }) {
   return (
     <div className="simple-home">
@@ -44,6 +46,9 @@ export function HomeOverview({
         </p>
         <button className="glow-cta" onClick={() => go("album")}>
           Ir a mi álbum <ArrowRight size={19} />
+        </button>
+        <button className="text-button home-scan" onClick={() => go("escaner")}>
+          <Camera size={17} /> Reconocer una foto
         </button>
         <div className="home-collection-total">
           <span>

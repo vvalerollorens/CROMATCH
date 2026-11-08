@@ -20,15 +20,16 @@ export function Empty({
 }
 export function Logo() {
   return (
-    <span className="brand brand-image">
+    <span className="brand nexo-brand">
       <Image
-        src="/brand/cromatch.png"
-        alt="CROMATCH"
-        width={2172}
-        height={724}
-        sizes="(max-width: 600px) 190px, 220px"
+        src="/brand/nexo-symbol.png"
+        alt=""
+        width={48}
+        height={48}
+        sizes="48px"
         priority
       />
+      <span>NEXO</span>
     </span>
   );
 }
@@ -40,14 +41,18 @@ export function Legal({ close }: { close: () => void }) {
       </button>
       <h2 id="legal-title">Privacidad y uso responsable</h2>
       <p>
-        CROMATCH es un proyecto independiente, sin afiliación con LaLiga ni
-        Panini. Las marcas mencionadas identifican las colecciones. Los escudos
-        de clubes y los retratos de jugadores proceden de FootyLogos y
-        pertenecen a sus respectivos titulares.
+        NEXO es un proyecto independiente, sin afiliación con LaLiga ni Panini.
+        Las marcas mencionadas identifican las colecciones. Los escudos proceden
+        de FootyLogos; los retratos, de FootyLogos, LaLiga y las webs oficiales
+        de los clubes. Las imágenes pertenecen a sus respectivos titulares y sus
+        fuentes se indican en cada ficha.
       </p>
       <h3>Tus datos</h3>
       <p>
-        El servicio utiliza Supabase para autenticar tu cuenta y almacenar tu
+        El modo sin cuenta guarda cantidades en el almacenamiento local de este
+        navegador. Las fotos del escáner se procesan en el dispositivo y no se
+        suben. La sincronización entre cuentas requiere configurar Supabase. El
+        servicio utiliza Supabase para autenticar tu cuenta y almacenar tu
         perfil, inventario e intercambios. Tu colección es privada por defecto.
         Puedes cambiar su visibilidad, exportar tus datos y eliminar tu cuenta
         desde Perfil.

@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
+  Camera,
   Check,
   ChevronRight,
   Info,
@@ -21,6 +22,9 @@ import {
 } from "@/lib/catalogue";
 import { playerPhoto } from "@/lib/player-photos";
 import { PlayerPortrait } from "./player-portrait";
+import type { CSSProperties } from "react";
+import { clubColours, cardFinish } from "@/lib/album-art";
+
 export function TeamBadge({
   short,
   teamId,
@@ -78,6 +82,9 @@ export function VisualAlbum({
   visitor,
   busy,
   collectionName,
+  local = false,
+  onAdd,
+  onScan,
   onQuantity,
   onDetail,
   onNavigate,
@@ -87,14 +94,21 @@ export function VisualAlbum({
   visitor: boolean;
   busy: boolean;
   collectionName?: string;
+  local?: boolean;
+  onAdd?: () => void;
+  onScan?: () => void;
   onQuantity: (s: Sticker, d: number) => Promise<void>;
   onDetail: (s: Sticker) => void;
   onNavigate: (s: "repetidos" | "faltantes") => void;
 }) {
   const reference =
-    stickers.length === 0 &&
+    (stickers.length === 0 || stickers.every((s) => s.catalog_reference)) &&
     (!collectionName || collectionName.includes("2026"));
-  const entries = reference ? referenceStickers : stickers;
+  const entries = stickers.length
+    ? stickers
+    : reference
+      ? referenceStickers
+      : [];
   const sections = useMemo(() => {
     const base =
       !collectionName || collectionName.includes("2026")
@@ -147,7 +161,11 @@ export function VisualAlbum({
   const section = sections.find((t) => t.id === selected);
   const own = new Map(inventory.map((i) => [i.sticker_id, i]));
   const quantity = (s: Sticker) =>
-    reference ? (marked[s.id] ? 1 : 0) : (own.get(s.id)?.quantity ?? 0);
+    reference && !local
+      ? marked[s.id]
+        ? 1
+        : 0
+      : (own.get(s.id)?.quantity ?? 0);
   const rows = entries.filter((s) => sectionOf(s) === selected);
   const count = rows.filter((s) => quantity(s) > 0).length;
   const visible = rows.filter(
@@ -158,6 +176,7 @@ export function VisualAlbum({
         .toLocaleLowerCase("es")
         .includes(query.toLocaleLowerCase("es")),
   );
+  const colours = clubColours[selected] ?? ["#e1795c", "#df6e9e"];
   const choose = (id: string) => {
     setSelected(id);
     setSearchOpen(false);
@@ -166,6 +185,12 @@ export function VisualAlbum({
     setMode("all");
   };
   const open = (s: Sticker) => {
+    if (local) {
+      const q = quantity(s);
+      if (q > 1) onDetail(s);
+      else void onQuantity(s, q ? -1 : 1).catch(() => {});
+      return;
+    }
     if (reference) {
       if (!visitor) {
         onDetail(s);
@@ -176,10 +201,26 @@ export function VisualAlbum({
         `${s.name}: ${marked[s.id] ? "sin marcar" : "marcado en esta visita"}`,
       );
     } else if (quantity(s) > 0) onDetail(s);
-    else void onQuantity(s, 1);
+    else void onQuantity(s, 1).catch(() => {});
   };
   return (
-    <section className="visual-album" aria-label="Álbum visual por equipos">
+    <section
+      className={`visual-album ${group === "team" ? "team-page" : "specials-page"}`}
+      aria-label="Álbum visual por equipos"
+      style={
+        { "--club-a": colours[0], "--club-b": colours[1] } as CSSProperties
+      }
+    >
+      {group === "team" && (
+        <div className="team-pitch" aria-hidden="true">
+          <div className="pitch-perimeter">
+            <i className="pitch-half" />
+            <i className="pitch-circle" />
+            <i className="pitch-box top" />
+            <i className="pitch-box bottom" />
+          </div>
+        </div>
+      )}
       <div className="album-topline">
         <span className="album-season">
           {collectionName ?? "LaLiga ESTE · 2026 / 27"}
@@ -228,7 +269,17 @@ export function VisualAlbum({
               aria-pressed={selected === t.id}
               onClick={() => choose(t.id)}
             >
-              <TeamBadge short={t.short} teamId={t.id} />
+              {group === "team" ? (
+                <TeamBadge short={t.short} teamId={t.id} />
+              ) : (
+                <span
+                  className={`series-icon finish-${t.id.replace("extra-oro", "gold").replace("extra-plata", "silver").replace("extra-bronce", "bronze").replace("adn-prime", "prime").replace("draft-kromix", "kromix").replace("top-fichajes", "signing")}`}
+                  aria-hidden="true"
+                >
+                  <i />
+                  <strong>{t.short}</strong>
+                </span>
+              )}
               <span>
                 {t.name
                   .replace("Atlético de Madrid", "Atlético")
@@ -263,14 +314,22 @@ export function VisualAlbum({
         <span>
           <strong>{count}</strong>
           <span> / {rows.length}</span>{" "}
-          {reference ? "marcados en esta visita" : "conseguidos"}
+          {local
+            ? "cromos en tu álbum"
+            : reference
+              ? "marcados en esta visita"
+              : "conseguidos"}
         </span>
         <span>
           {rows.length ? Math.round((count / rows.length) * 100) : 0}%
         </span>
         <progress
           aria-label={
-            reference ? "Cromos marcados en esta visita" : "Progreso del equipo"
+            local
+              ? "Progreso del equipo"
+              : reference
+                ? "Cromos marcados en esta visita"
+                : "Progreso del equipo"
           }
           max={Math.max(1, rows.length)}
           value={count}
@@ -308,6 +367,24 @@ export function VisualAlbum({
         >
           <Search size={18} />
         </button>
+        {onAdd && (
+          <button
+            className="album-add-button secondary"
+            aria-label="Añadir cromos por nombre"
+            onClick={onAdd}
+          >
+            <Plus size={19} />
+          </button>
+        )}
+        {onScan && (
+          <button
+            className="album-camera-button secondary"
+            aria-label="Reconocer cromos con la cámara"
+            onClick={onScan}
+          >
+            <Camera size={18} />
+          </button>
+        )}
         {searchOpen && (
           <label className="album-search">
             <Search size={17} />
@@ -326,9 +403,11 @@ export function VisualAlbum({
       {reference && (
         <p className="album-preview-note">
           <Info size={14} />
-          {visitor
-            ? "Prueba del catálogo · Tus marcas no se guardan."
-            : "Catálogo de consulta · Aún sin activar el inventario."}
+          {local
+            ? "Guardado en este dispositivo · Catálogo de consulta."
+            : visitor
+              ? "Prueba del catálogo · Tus marcas no se guardan."
+              : "Catálogo de consulta · Aún sin activar el inventario."}
         </p>
       )}
       <div className="album-slots">
@@ -339,12 +418,12 @@ export function VisualAlbum({
           const photo = playerPhoto(s);
           return (
             <article
-              className={`album-slot real-slot ${reference ? "reference-slot" : ""} ${q ? "unlocked" : ""} ${review ? "needs-review" : ""}`}
+              className={`album-slot finish-${cardFinish(s)} real-slot ${reference ? "reference-slot" : ""} ${q ? "unlocked" : ""} ${review ? "needs-review" : ""}`}
               key={s.id}
             >
               <button
                 className="slot-main"
-                disabled={busy && !reference}
+                disabled={busy && (!reference || local)}
                 aria-label={
                   reference
                     ? `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
@@ -356,6 +435,9 @@ export function VisualAlbum({
                 onClick={() => open(s)}
               >
                 <span className="slot-kicker">
+                  {s.sticker_series?.name ? (
+                    <span className="slot-series">{s.sticker_series.name}</span>
+                  ) : null}
                   {s.edition
                     .replace(" edición", "")
                     .replace("Edición por confirmar", "ED. ?")}
@@ -393,29 +475,28 @@ export function VisualAlbum({
                     {review ? "Dato por confirmar" : "Fuentes y edición"}
                   </span>
                 </button>
-              ) : (
-                q > 0 && (
-                  <div className="slot-counter">
-                    <button
-                      disabled={busy || (i?.reserved ?? 0) > Math.max(q - 2, 0)}
-                      onClick={() => void onQuantity(s, -1)}
-                      aria-label={`Quitar una unidad de ${s.name}`}
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <span>
-                      {q}
-                      <small>{q > 1 ? ` · ${available(i)} libres` : ""}</small>
-                    </span>
-                    <button
-                      disabled={busy}
-                      onClick={() => void onQuantity(s, 1)}
-                      aria-label={`Añadir una unidad de ${s.name}`}
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-                )
+              ) : null}
+              {(!reference || local) && q > 0 && (
+                <div className="slot-counter">
+                  <button
+                    disabled={busy || (i?.reserved ?? 0) > Math.max(q - 2, 0)}
+                    onClick={() => void onQuantity(s, -1).catch(() => {})}
+                    aria-label={`Quitar una unidad de ${s.name}`}
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span>
+                    {q}
+                    <small>{q > 1 ? ` · ${available(i)} libres` : ""}</small>
+                  </span>
+                  <button
+                    disabled={busy}
+                    onClick={() => void onQuantity(s, 1).catch(() => {})}
+                    aria-label={`Añadir una unidad de ${s.name}`}
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
               )}
             </article>
           );
@@ -486,14 +567,15 @@ export function VisualAlbum({
             cromos.
           </p>
           <p>
-            Retratos disponibles de FootyLogos. Algunas fotos corresponden a
-            temporadas anteriores; puedes consultar la temporada de cada retrato
-            en su detalle. Si no hay una imagen identificada, el casillero
-            muestra «Retrato pendiente».
+            Retratos de FootyLogos, LaLiga y las webs oficiales de los clubes.
+            Algunas fotos corresponden a temporadas anteriores; puedes consultar
+            la temporada de cada retrato en su detalle. Si no hay una imagen
+            identificada, el casillero muestra «Retrato pendiente».
           </p>
           <p>
-            Las marcas de esta visita solo sirven para probar el diseño y se
-            reinician al salir del álbum.
+            {local
+              ? "Las cantidades se conservan en este navegador. No se sincronizan con otros dispositivos ni con cuentas de amigos."
+              : "Las marcas de esta visita solo sirven para probar el diseño y se reinician al salir del álbum."}
           </p>
         </details>
       )}

@@ -91,7 +91,8 @@ export function Landing({
             Catálogo pendiente de verificación. Puedes consultar nombres y
             números contrastados en listados de coleccionismo, con las
             incidencias señaladas. Falta cotejar el PDF de Panini de la cuarta
-            edición. Las marcas de la visita no modifican una colección real.
+            edición. El álbum sin cuenta se guarda únicamente en este navegador;
+            no se sincroniza con otros dispositivos.
           </p>
         </details>
         {notices}

@@ -93,14 +93,26 @@ import { Landing } from "./landing";
 import { VisualAlbum } from "./visual-album";
 import { HomeOverview } from "./home-overview";
 import { playerPhoto } from "@/lib/player-photos";
+import { referenceStickers } from "@/lib/catalogue";
+import { useLocalAlbum } from "@/lib/use-local-album";
+import { QuickAdd } from "./quick-add";
+import { useCollectionCelebration } from "@/lib/use-collection-celebration";
+import { CollectionCelebration } from "./collection-celebration";
+import dynamic from "next/dynamic";
+const ScanAlbum = dynamic(
+  () => import("./scan-album").then((m) => m.ScanAlbum),
+  { loading: () => <p role="status">Preparando el escáner…</p> },
+);
 export function Cromatch({
   initialVisitor = false,
 }: {
   initialVisitor?: boolean;
 }) {
   useEffect(() => {
-    if (initialVisitor && window.location.hash === "#album")
-      setSection("album");
+    if (initialVisitor) {
+      const target = window.location.hash.slice(1);
+      if (Object.hasOwn(titles, target)) setSection(target as Section);
+    }
   }, [initialVisitor]);
   const activeUser = useRef<string | null>(null);
   const pendingQuantity = useRef<
@@ -129,8 +141,19 @@ export function Cromatch({
   const [profile, setProfile] = useState<Profile | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [collection, setCollection] = useState("");
-  const [stickers, setStickers] = useState<Sticker[]>([]);
-  const [inventory, setInventory] = useState<Inventory[]>([]);
+  const [publishedStickers, setStickers] = useState<Sticker[]>([]);
+  const [remoteInventory, setInventory] = useState<Inventory[]>([]);
+  const localAlbum = useLocalAlbum();
+  const stickers = visitor ? referenceStickers : publishedStickers;
+  const inventory = visitor ? localAlbum.inventory : remoteInventory;
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [scanBusy, setScanBusy] = useState(false);
+  const award = useCollectionCelebration(
+    stickers,
+    inventory,
+    visitor ? "local" : (session?.user.id ?? ""),
+    visitor ? localAlbum.ready : !!session && publishedStickers.length > 0,
+  );
   const [trades, setTrades] = useState<Trade[]>([]);
   const [tradeItems, setTradeItems] = useState<TradeItem[]>([]);
   const [notifications, setNotifications] = useState<
@@ -196,6 +219,7 @@ export function Cromatch({
     try {
       await fn();
       if (success && requestedBy === activeUser.current) setMessage(success);
+      return true;
     } catch (e) {
       if (requestedBy !== activeUser.current) return;
       setError(
@@ -203,6 +227,7 @@ export function Cromatch({
           ? e.message
           : "No se pudo guardar. Vuelve a intentarlo.",
       );
+      return false;
     } finally {
       if (requestedBy === activeUser.current) setBusy(false);
     }
@@ -447,8 +472,18 @@ export function Cromatch({
     [search, team, series, edition, section, collection],
   );
   async function quantity(s: Sticker, delta: number) {
+    if (visitor) {
+      try {
+        localAlbum.change(s.id, delta);
+        setError("");
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "No se pudo guardar.");
+        throw e;
+      }
+      return;
+    }
     const requestedBy = activeUser.current;
-    await act(async () => {
+    const saved = await act(async () => {
       const pending = pendingQuantity.current[s.id];
       if (pending && pending.delta !== delta)
         throw new Error(
@@ -484,6 +519,10 @@ export function Cromatch({
         },
       ]);
     }, "Cantidad guardada");
+    if (!saved)
+      throw new Error(
+        "No se pudo guardar la cantidad. Reintenta para confirmar el cambio.",
+      );
   }
   async function findPeople(query: string) {
     await act(async () => {
@@ -754,7 +793,7 @@ export function Cromatch({
             disabled={
               busy || q === 0 || (i?.reserved ?? 0) > Math.max(q - 2, 0)
             }
-            onClick={() => void quantity(s, -1)}
+            onClick={() => void quantity(s, -1).catch(() => {})}
           >
             −
           </button>
@@ -765,7 +804,7 @@ export function Cromatch({
             className="secondary"
             aria-label={`Añadir una unidad de ${s.name}`}
             disabled={busy}
-            onClick={() => void quantity(s, 1)}
+            onClick={() => void quantity(s, 1).catch(() => {})}
           >
             +
           </button>
@@ -816,7 +855,7 @@ export function Cromatch({
         </button>
         <button className="sidebar-user" onClick={() => go("perfil")}>
           <span className="avatar">
-            {profile?.display_name.slice(0, 1) ?? "C"}
+            {profile?.display_name.slice(0, 1) ?? "N"}
           </span>
           <span>
             <strong>
@@ -824,7 +863,7 @@ export function Cromatch({
                 (visitor ? "Visitante sin cuenta" : "Coleccionista")}
             </strong>
             <small>
-              {visitor ? "Solo lectura" : `@${profile?.username ?? ""}`}
+              {visitor ? "En este dispositivo" : `@${profile?.username ?? ""}`}
             </small>
           </span>
           <Settings size={17} />
@@ -870,7 +909,7 @@ export function Cromatch({
               onClick={() => go("perfil")}
               aria-label="Mi perfil"
             >
-              {profile?.display_name.slice(0, 1) ?? "C"}
+              {profile?.display_name.slice(0, 1) ?? "N"}
             </button>
           </div>
         </header>
@@ -880,7 +919,7 @@ export function Cromatch({
               <ShieldCheck size={20} />
               <div>
                 <strong>Modo visita · Sin cuenta</strong>
-                <p>Explora y prueba el álbum.</p>
+                <p>Tu álbum se guarda en este navegador.</p>
               </div>
               <button
                 className="text-button"
@@ -895,6 +934,9 @@ export function Cromatch({
             </div>
           )}
           {notices}
+          {visitor && localAlbum.error && (
+            <p role="alert">{localAlbum.error}</p>
+          )}
           {loading && (
             <div role="status" className="loading-note">
               Sincronizando tu colección…
@@ -907,7 +949,7 @@ export function Cromatch({
               <span className="eyebrow">
                 {section === "inicio"
                   ? `HOLA, ${profile?.display_name?.toUpperCase() ?? "COLECCIONISTA"}`
-                  : "CROMATCH / TU COLECCIÓN"}
+                  : "NEXO / TU COLECCIÓN"}
               </span>
               <h1>{titles[section]}</h1>
               <p>
@@ -958,7 +1000,10 @@ export function Cromatch({
               stickers={stickers}
               inventory={inventory}
               visitor={visitor}
-              busy={busy}
+              busy={busy || (visitor && !localAlbum.ready)}
+              local={visitor}
+              onAdd={() => setQuickAddOpen(true)}
+              onScan={() => go("escaner")}
               collectionName={current?.name}
               onQuantity={quantity}
               onDetail={setSelected}
@@ -967,6 +1012,17 @@ export function Cromatch({
           )}
           {["repetidos", "faltantes"].includes(section) && (
             <>
+              <div className="collection-add-actions">
+                <button
+                  className="glow-cta"
+                  onClick={() => setQuickAddOpen(true)}
+                >
+                  <Plus size={18} /> Añadir cromos
+                </button>
+                <button className="secondary" onClick={() => go("escaner")}>
+                  <Camera size={18} /> Escanear foto
+                </button>
+              </div>
               <div className="tabs">
                 {[
                   { id: "album", label: "Todos los cromos" },
@@ -1051,7 +1107,7 @@ export function Cromatch({
                     className="secondary"
                     onClick={() =>
                       download(
-                        `cromatch-${section}.txt`,
+                        `nexo-${section}.txt`,
                         filtered
                           .map(
                             (s) =>
@@ -1443,6 +1499,17 @@ export function Cromatch({
           )}
           {section === "intercambios" && (
             <>
+              <div className="collection-add-actions">
+                <button
+                  className="glow-cta"
+                  onClick={() => setQuickAddOpen(true)}
+                >
+                  <Plus size={18} /> Añadir cromos
+                </button>
+                <button className="secondary" onClick={() => go("escaner")}>
+                  <Camera size={18} /> Escanear foto
+                </button>
+              </div>
               <div className="tabs">
                 {[
                   { id: "all", label: "Todos" },
@@ -1725,35 +1792,45 @@ export function Cromatch({
             </>
           )}
           {section === "escaner" && (
-            <section className="panel scanner-panel">
-              <Camera size={44} />
-              <h2>La entrada manual está siempre disponible</h2>
-              <p>
-                La primera versión prepara la captura de imagen. El
-                reconocimiento OCR todavía no está activado: no se identificará
-                ni añadirá ningún cromo automáticamente.
-              </p>
-              <label className="file-input">
-                Fotografiar un cromo
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => {
-                    if (e.target.files?.[0])
-                      setMessage(
-                        "Imagen seleccionada solo en tu dispositivo. Busca y confirma el código manualmente; no se ha subido ni guardado la foto.",
-                      );
-                  }}
-                />
-              </label>
-              <button onClick={() => go("album")}>
-                Buscar y registrar manualmente <Search size={17} />
-              </button>
-            </section>
+            <ScanAlbum
+              stickers={stickers}
+              inventory={inventory}
+              onAdd={quantity}
+              onBusyChange={setScanBusy}
+            />
           )}
           {section === "perfil" && (
             <>
+              {visitor && (
+                <section className="panel local-profile">
+                  <h2>Tu álbum, en este dispositivo</h2>
+                  <p>
+                    Las cantidades se guardan en este navegador. Exporta una
+                    copia para conservar tu progreso. La sincronización entre
+                    cuentas aún no está conectada.
+                  </p>
+                  <button
+                    className="secondary"
+                    onClick={() =>
+                      download(
+                        "nexo-album.json",
+                        JSON.stringify(
+                          {
+                            version: 1,
+                            quantities: Object.fromEntries(
+                              inventory.map((i) => [i.sticker_id, i.quantity]),
+                            ),
+                          },
+                          null,
+                          2,
+                        ),
+                      )
+                    }
+                  >
+                    <Download size={16} /> Exportar mi álbum
+                  </button>
+                </section>
+              )}
               <section className="panel">
                 <h2>Perfil y privacidad</h2>
                 <form
@@ -2096,7 +2173,7 @@ export function Cromatch({
                         if (error) throw error;
                         data[table] = rows;
                       }
-                      download("cromatch-auditoria.json", data);
+                      download("nexo-auditoria.json", data);
                     })
                   }
                 >
@@ -2107,16 +2184,18 @@ export function Cromatch({
           )}
           <footer className="workspace-footer">
             <span>
-              CROMATCH · Cada cromo cuenta.{" "}
+              NEXO · Cada cromo cuenta.{" "}
               <a
                 href="https://www.footylogos.com/es"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Escudos y retratos: FootyLogos
+                Escudos: FootyLogos
               </a>
             </span>
-            <span>Tu colección es tuya. Tu privacidad, también.</span>
+            <span>
+              Retratos: FootyLogos, LaLiga y clubes · Fuente en cada ficha.
+            </span>
           </footer>
         </main>
       </div>
@@ -2132,6 +2211,21 @@ export function Cromatch({
           </button>
         ))}
       </nav>
+      {award.event && !quickAddOpen && !scanBusy && (
+        <CollectionCelebration event={award.event} close={award.close} />
+      )}
+      {quickAddOpen && (
+        <QuickAdd
+          stickers={stickers}
+          inventory={inventory}
+          onAdd={quantity}
+          close={() => setQuickAddOpen(false)}
+          scan={() => {
+            setQuickAddOpen(false);
+            go("escaner");
+          }}
+        />
+      )}
       {selected && (
         <Dialog titleId="sticker-title" close={() => setSelected(null)}>
           <button
@@ -2157,7 +2251,7 @@ export function Cromatch({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Foto: FootyLogos ↗
+                Foto: {playerPhoto(selected)!.provider ?? "FootyLogos"} ↗
               </a>
               {" · "}
               {playerPhoto(selected)!.player}
@@ -2167,12 +2261,30 @@ export function Cromatch({
               {playerPhoto(selected)!.club}
             </p>
           )}
-          {!selected.catalog_reference && (
+          {(!selected.catalog_reference || visitor) && (
             <p>
               {own.get(selected.id)?.quantity ?? 0} unidades ·{" "}
               {available(own.get(selected.id))} disponibles ·{" "}
               {own.get(selected.id)?.reserved ?? 0} reservadas
             </p>
+          )}
+          {(!selected.catalog_reference || visitor) && (
+            <div className="detail-quantity">
+              <button
+                className="secondary"
+                disabled={busy || !own.get(selected.id)?.quantity}
+                onClick={() => void quantity(selected, -1).catch(() => {})}
+              >
+                Quitar una
+              </button>
+              <button
+                className="glow-cta"
+                disabled={busy}
+                onClick={() => void quantity(selected, 1).catch(() => {})}
+              >
+                <Plus size={16} /> Añadir una copia
+              </button>
+            </div>
           )}
           {selected.catalog_reference && (
             <div className="reference-detail">

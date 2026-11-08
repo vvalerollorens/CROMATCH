@@ -1,9 +1,12 @@
 import data from "@/data/player-photos.json";
-import { referenceStickers } from "./catalogue";
+import { referenceStickers, albumSectionKey } from "./catalogue";
 import type { Sticker } from "./domain";
 import { teamKey } from "./teams";
 export type PlayerPhoto = {
   src: string;
+  provider?: string;
+  fit?: string;
+  position?: string;
   player: string;
   playerId: string;
   source: string;
@@ -20,6 +23,11 @@ const normalize = (s: string) =>
 const byIdentity = new Map<string, PlayerPhoto>();
 for (const s of referenceStickers) {
   const photo = photos[s.id];
+  if (photo && s.sticker_series)
+    byIdentity.set(
+      `series:${albumSectionKey(s.sticker_series.name)}:${normalize(s.name)}`,
+      photo,
+    );
   if (photo && s.teams)
     byIdentity.set(`${teamKey(s.teams.name)}:${normalize(s.name)}`, photo);
 }
@@ -28,5 +36,9 @@ export function playerPhoto(s: Sticker): PlayerPhoto | undefined {
   if (photos[s.id]) return photos[s.id];
   return s.teams
     ? byIdentity.get(`${teamKey(s.teams.name)}:${normalize(s.name)}`)
-    : undefined;
+    : s.sticker_series
+      ? byIdentity.get(
+          `series:${albumSectionKey(s.sticker_series.name)}:${normalize(s.name)}`,
+        )
+      : undefined;
 }

@@ -93,7 +93,7 @@ test("visita sin correo recorre pantallas sin peticiones de datos", async ({
     page.getByRole("heading", { name: "Mi álbum", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText("Prueba del catálogo · Tus marcas no se guardan."),
+    page.getByText("Guardado en este dispositivo · Catálogo de consulta."),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Mis repetidos · 0", exact: true })
@@ -176,7 +176,7 @@ test("álbum por equipos: casilleros táctiles y estado separado por club", asyn
     }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(
-    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
+    page.getByRole("progressbar", { name: "Progreso del equipo" }),
   ).toHaveAttribute("value", "1");
   await page.getByRole("button", { name: "Los tengo", exact: true }).click();
   await expect(page.locator(".reference-slot")).toHaveCount(1);
@@ -185,7 +185,7 @@ test("álbum por equipos: casilleros táctiles y estado separado por club", asyn
     .click();
   await expect(page.locator(".reference-slot")).toHaveCount(26);
   await expect(
-    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
+    page.getByRole("progressbar", { name: "Progreso del equipo" }),
   ).toHaveAttribute("value", "0");
   await teams
     .getByRole("button", { name: "Ver FC Barcelona", exact: true })
@@ -212,7 +212,7 @@ test("álbum por equipos: casilleros táctiles y estado separado por club", asyn
     })
     .click();
   await expect(
-    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
+    page.getByRole("progressbar", { name: "Progreso del equipo" }),
   ).toHaveAttribute("value", "0");
   expect(requests).toEqual([]);
   await page.reload();
@@ -220,7 +220,7 @@ test("álbum por equipos: casilleros táctiles y estado separado por club", asyn
     page.getByRole("heading", { name: "Mi álbum", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
+    page.getByRole("progressbar", { name: "Progreso del equipo" }),
   ).toHaveAttribute("value", "0");
 });
 test("diseño móvil: inicio oscuro y navegación sin desbordamiento", async ({
@@ -291,7 +291,7 @@ test("índice completo de consulta, numeración y fuentes visibles", async ({
     .getByRole("button", { name: "Ver Últimos Fichajes", exact: true })
     .click();
   await expect(
-    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
+    page.getByRole("progressbar", { name: "Progreso del equipo" }),
   ).toHaveAttribute("max", "66");
   await page.getByRole("button", { name: "Siguiente", exact: true }).click();
   await expect(
@@ -368,6 +368,169 @@ test("retratos locales de FootyLogos: desenfocados al faltar y nítidos al conse
   await owned.click();
   await expect(photo).toHaveCSS("opacity", "0.55");
   await expect(
-    page.getByRole("progressbar", { name: "Cromos marcados en esta visita" }),
+    page.getByRole("progressbar", { name: "Progreso del equipo" }),
   ).toHaveAttribute("value", "0");
+});
+
+test("añadir por nombre, repetidos y conservación en el dispositivo", async ({
+  page,
+}) => {
+  await page.goto("/visita#album");
+  await page.getByRole("button", { name: "Añadir cromos por nombre" }).click();
+  await page.getByLabel("Buscar para añadir").fill("sivera");
+  await page
+    .getByRole("button", {
+      name: "Añadir una unidad de Sivera, 3",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByLabel("Cantidad de Sivera, 3", { exact: true }),
+  ).toHaveText("1");
+  await page
+    .getByRole("button", {
+      name: "Añadir una unidad de Sivera, 3",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByLabel("Cantidad de Sivera, 3", { exact: true }),
+  ).toHaveText("2");
+  await expect(page.getByRole("dialog")).toContainText(
+    "2 en total · 1 repetidos",
+  );
+  await page.getByRole("button", { name: "Cerrar búsqueda" }).click();
+  await page
+    .getByRole("button", { name: "Mis repetidos · 1", exact: true })
+    .click();
+  await expect(page.locator(".sticker-card")).toHaveCount(1);
+  await expect(page.locator(".sticker-card")).toContainText("Sivera");
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Mis repetidos", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".sticker-card")).toHaveCount(1);
+  await expect(page.getByLabel("2 unidades", { exact: true })).toBeVisible();
+});
+
+test("colores por equipo, campo sutil y una carta especial al conseguirla", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/visita#album");
+  const before = await page
+    .locator(".visual-album")
+    .evaluate((el) => getComputedStyle(el).getPropertyValue("--club-a"));
+  await page
+    .getByRole("button", { name: "Ver FC Barcelona", exact: true })
+    .click();
+  const after = await page
+    .locator(".visual-album")
+    .evaluate((el) => getComputedStyle(el).getPropertyValue("--club-a"));
+  expect(after).not.toBe(before);
+  await expect(page.locator(".team-pitch")).toHaveCount(1);
+  await page.getByRole("button", { name: "Especiales 9", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Ver Extra Sticker Oro", exact: true })
+    .click();
+  await expect(page.locator(".finish-gold.album-slot")).toHaveCount(7);
+  await page
+    .getByRole("button", {
+      name: "Marcar Lamine Yamal, número S/N",
+      exact: true,
+    })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "Una pieza especial. Tuya.",
+  );
+  await expect(page.locator(".premium-card.finish-gold")).toBeVisible();
+  await page.getByRole("button", { name: "Seguir coleccionando" }).click();
+});
+
+test("completar un equipo ilumina su página y no se celebra al recargar", async ({
+  page,
+}) => {
+  await page.goto("/visita#album");
+  const { referenceStickers } = await import("../../src/lib/catalogue");
+  const team = referenceStickers.filter((s) => s.catalog_section === "alaves");
+  await page.evaluate(
+    (ids) =>
+      localStorage.setItem(
+        "nexo.album.v1",
+        JSON.stringify({
+          version: 1,
+          quantities: Object.fromEntries(ids.map((id) => [id, 1])),
+        }),
+      ),
+    team.slice(1).map((s) => s.id),
+  );
+  await page.reload();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Marcar Escudo, número 1", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "El equipo está completo.",
+  );
+  await expect(page.getByRole("dialog")).toContainText("23 de 23");
+  await page.getByRole("button", { name: "Seguir coleccionando" }).click();
+  await page.reload();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("OCR real de tres cartas y confirmación antes de actualizar el álbum", async ({
+  page,
+  context,
+}, testInfo) => {
+  test.setTimeout(90000);
+  const fixture = await context.newPage();
+  await fixture.setViewportSize({ width: 1000, height: 460 });
+  await fixture.setContent(
+    '<main style="display:flex;gap:30px;padding:30px;background:#ddd;font-family:Arial">' +
+      ["SIVERA", "TENAGLIA", "PADILLA"]
+        .map(
+          (name, i) =>
+            `<article style="width:270px;height:320px;background:white;border:3px solid black;display:flex;flex-direction:column;justify-content:space-between;padding:20px;box-sizing:border-box"><b style="font-size:25px">${i + 3}</b><span style="font-size:31px;font-weight:700">${name}</span></article>`,
+        )
+        .join("") +
+      "</main>",
+  );
+  const buffer = await fixture.locator("main").screenshot();
+  await fixture.close();
+  const uploads: string[] = [];
+  page.on("request", (r) => {
+    if (r.method() === "POST" && r.postDataBuffer()?.length)
+      uploads.push(r.url());
+  });
+  await page.goto("/visita#escaner");
+  await expect(
+    page.getByRole("heading", { name: "Tus cromos. En una foto." }),
+  ).toBeVisible();
+  await page
+    .getByLabel("Elegir foto de cromos")
+    .setInputFiles({ name: "tres-cartas.png", mimeType: "image/png", buffer });
+  await page
+    .getByRole("button", { name: "Analizar foto", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Revisa lo que hemos leído" }),
+  ).toBeVisible({ timeout: 60000 });
+  await expect(page.locator(".scan-match")).toHaveCount(3);
+  const first = page.locator(".scan-match").filter({ hasText: "Sivera" });
+  await expect(first).toContainText("Te falta");
+  const teamFirst = await first
+    .locator("select option")
+    .nth(1)
+    .getAttribute("value");
+  await first.getByRole("combobox").selectOption(teamFirst!);
+  await page.getByRole("button", { name: /Confirmar y añadir/ }).click();
+  await expect(
+    page.getByRole("status").filter({ hasText: /copias añadidas/ }),
+  ).toBeVisible();
+  expect(uploads).toEqual([]);
+  await page.screenshot({
+    path: testInfo.outputPath("ocr-tres-cartas.png"),
+    fullPage: true,
+  });
+  await expect(first).toContainText("Ahora tienes 1");
 });

@@ -1,4 +1,4 @@
-# CROMATCH · Mi liga de cromos
+# NEXO · Tu álbum, conectado
 
 Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js, React, TypeScript, Tailwind CSS y Supabase/PostgreSQL.
 
@@ -6,17 +6,23 @@ Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js,
 
 ## Ver las pantallas sin correo
 
-Abre directamente **`/visita`**, o en la bienvenida pulsa **Ver por dentro sin cuenta**. El modo visita permite recorrer las pantallas sin crear una sesión ni consultar inventarios privados. No contiene cromos, usuarios ni intercambios ficticios. Las operaciones de datos exigen iniciar sesión. Puedes volver con **Salir de la visita**.
+Abre directamente **`/visita`**, o en la bienvenida pulsa **Ver por dentro sin cuenta**. El modo visita permite recorrer las pantallas sin crear una sesión ni consultar inventarios privados. No contiene cromos, usuarios ni intercambios ficticios. Las cantidades del álbum local se conservan en este navegador; las operaciones sociales y los inventarios sincronizados exigen una cuenta y Supabase configurado. Puedes volver con **Salir de la visita**.
 
 ## Álbum visual para móvil
 
-La dirección visual actual usa cristal translúcido, degradados morados y amarillos, Manrope y nuevos iconos de trazo fino. Incluye los veinte escudos blancos de FootyLogos y 575 casilleros con sus retratos disponibles. Las fotos aparecen desenfocadas cuando faltan y se enfocan al marcarlas; los casilleros sin retrato se identifican. El detalle conserva la temporada real de cada foto.
+La dirección visual actual usa cristal oscuro, acentos naranja, rosa y amarillo, Manrope y nuevos iconos de trazo fino. Cada equipo activa sus colores y un campo sutil. Incluye los veinte escudos blancos y 641 casilleros con imágenes de jugadores y entrenadores de FootyLogos, LaLiga y clubes. Las fotos aparecen desenfocadas cuando faltan y se enfocan al marcarlas; los casilleros sin retrato se identifican. El detalle conserva la temporada real de cada foto.
 
 El listado de consulta contiene 661 registros y 29 apartados, con nombres, números y sus fuentes. Siete registros requieren revisión y **no se declara completitud oficial**. El [PDF de cuarta edición indicado por el usuario](https://www.panini.es//media/paniniFiles/Checklist_LALIGA_2026-27-4aED.pdf) devuelve 403 desde este entorno y sigue pendiente de cotejo. Véase [catálogo y fuentes](docs/CATALOGO.md).
 
-En la visita puedes marcar estas fichas para revisar el diseño. Son marcas en memoria que no modifican colecciones reales. La cuenta utiliza exclusivamente IDs del catálogo publicado en Supabase para guardar cantidades; el listado de consulta no se importa automáticamente.
+Sin cuenta puedes guardar cantidades en este navegador, buscar por nombre, añadir copias y consultar repetidos. No se envían esos datos a Supabase ni se sincronizan entre dispositivos. La cuenta utiliza exclusivamente IDs del catálogo publicado en Supabase para guardar cantidades; el listado de consulta no se importa automáticamente.
 
 Acceso directo: `/visita#album`. El enlace de visita sigue siendo público por URL; el uso previsto para el grupo no configura por sí solo una restricción de acceso.
+
+## Foto, cantidades y celebraciones
+
+`/visita#escaner` permite fotografiar varias cartas o seleccionar una imagen. Tesseract.js y el modelo español se sirven desde el propio sitio y procesan la foto en un Worker local. Se comparan nombres contra el listado; los números por sí solos nunca identifican cartas. Las variantes se muestran para elegirlas y se exige confirmar las coincidencias antes de sumar copias. Cada carta muestra si ya estaba en el álbum. No se almacenan ni suben las fotos. Es una ayuda OCR, con revisión manual, no reconocimiento visual garantizado de cualquier edición o fotografía.
+
+La primera copia llena una casilla; las siguientes cuentan como repetidos. Las páginas completas y las cartas de series especiales activan celebraciones suaves. La animación respeta la preferencia de movimiento reducido y no se dispara por abrir una página ya completada. Perfil permite exportar el álbum local.
 
 ## Instalar
 

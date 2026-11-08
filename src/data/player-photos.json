@@ -4598,5 +4598,613 @@
     "source": "https://www.footylogos.com/es/player-pngs/laliga",
     "season": "2025/26",
     "club": "Celta"
+  },
+  "a40c5ec1-e6ca-5e90-a5fd-801728942fce": {
+    "src": "/players/laliga-5a61e97bb55e2ab62590d328b96f9bea9489ce6a99f943a8f5badb03fb7e3a57.png",
+    "player": "Enrique Sánchez Flores",
+    "playerId": "laliga:1724",
+    "source": "https://www.laliga.com/clubes/d-alaves/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Deportivo Alavés"
+  },
+  "30ba5e81-cf61-5617-a95a-9a396b6eb75c": {
+    "src": "/players/laliga-056e89f650cd1cb066c6970018b94460a2601b3e518dad13ca6de1d6c7e98e5e.png",
+    "player": "Youssef Enriquez",
+    "playerId": "laliga:39685",
+    "source": "https://www.laliga.com/clubes/d-alaves/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Deportivo Alavés"
+  },
+  "1084fc75-ef3d-5bd7-961f-8d3d3cc22901": {
+    "src": "/players/laliga-06c7490a9611d2876c7b646c9fb8e6963a89a4ca0e36f6f709f128c33b47e98c.png",
+    "player": "Carlos Protesoni",
+    "playerId": "laliga:27242",
+    "source": "https://www.laliga.com/clubes/d-alaves/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Deportivo Alavés"
+  },
+  "e3ac5705-8929-5240-94ca-9685fbbacd0e": {
+    "src": "/players/laliga-8c1aaadff0f2035794779c0784794d5d734c2c139a0502052f251ffd15ca1d42.png",
+    "player": "Abde Rebbach",
+    "playerId": "laliga:27754",
+    "source": "https://www.laliga.com/clubes/d-alaves/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Deportivo Alavés"
+  },
+  "a0845023-ead9-5072-b5dd-06c0fb6bf474": {
+    "src": "/players/laliga-b7d3330812da13701feaec6c1b97357f976ce4d588d15c83e02abb9bcb874452.png",
+    "player": "Edin Terzic",
+    "playerId": "laliga:17175",
+    "source": "https://www.laliga.com/clubes/athletic-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Athletic Club"
+  },
+  "ea92ef15-e5f0-5cd3-8bc6-f5e913dcc46c": {
+    "src": "/players/laliga-c863d1dfc656c8d5889eae89f13ced297598f5ee1d5ea34f3f0667447dec3f1e.png",
+    "player": "Diego Simeone",
+    "playerId": "laliga:581",
+    "source": "https://www.laliga.com/clubes/atletico-de-madrid/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Atlético de Madrid"
+  },
+  "f9a905aa-6b16-5552-9a3c-d9241c32b74f": {
+    "src": "/players/laliga-a79615c213cd353d1b3a22c4fbec51ec490eeef517581a7c04831fbb5d66dd57.png",
+    "player": "Rodrigo Mendoza",
+    "playerId": "laliga:30818",
+    "source": "https://www.laliga.com/clubes/atletico-de-madrid/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Atlético de Madrid"
+  },
+  "03878416-581d-59c5-b36a-ff7492eae17b": {
+    "src": "/players/laliga-29115cc730980c6947f6f2786d9786ffe9faeddcbae3cc1eb5d598f2d8be05f3.png",
+    "player": "Antonio Hidalgo",
+    "playerId": "laliga:1018",
+    "source": "https://www.laliga.com/clubes/rc-deportivo/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "RC Deportivo"
+  },
+  "b97ace50-cb84-50c8-892e-33d1f8eba397": {
+    "src": "/players/laliga-5483807ea1f44219e11cdefccd72bcacdfef50f6d6f4ac91c5bd76f3021e0bd0.png",
+    "player": "Joaquín Navarro Jiménez",
+    "playerId": "laliga:182",
+    "source": "https://www.laliga.com/clubes/rc-deportivo/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "RC Deportivo"
+  },
+  "ac68285c-42cb-595a-b047-e8af1ae0f83b": {
+    "src": "/players/laliga-1b4ac44485b3425defbd1bc7a9892739662bc60b28e7516107d53123e8106032.png",
+    "player": "Martín Anselmi",
+    "playerId": "laliga:26583",
+    "source": "https://www.laliga.com/clubes/elche-c-f/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Elche CF"
+  },
+  "c740cbe0-d31f-5951-bfaa-f736c6124dff": {
+    "src": "/players/laliga-f9fec74882c02dceedf8011fb3badc966d2b94d18589e4b25aedfe4bb614016f.png",
+    "player": "Roy Revivo",
+    "playerId": "laliga:29269",
+    "source": "https://www.laliga.com/clubes/elche-c-f/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Elche CF"
+  },
+  "e055762f-0c45-5909-9e65-d6c16b0491dc": {
+    "src": "/players/laliga-56d9be54266c00511229778162791b2970e3b5882c7272109a37d3920fef8992.png",
+    "player": "Martim Carvalho Neto",
+    "playerId": "laliga:41086",
+    "source": "https://www.laliga.com/clubes/elche-c-f/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Elche CF"
+  },
+  "1fad2709-6e38-51cf-a57f-75c0804a5cd2": {
+    "src": "/players/laliga-6a6c14bf8ff7dbf9c0d7fb7c66aa1f461a6ec6c849761007ec90110dac07aa56.png",
+    "player": "José Antonio Ferrández Pomares",
+    "playerId": "laliga:1996",
+    "source": "https://www.laliga.com/clubes/elche-c-f/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Elche CF"
+  },
+  "9e493d16-8a1c-5c8e-bf86-d6b96ad84fd8": {
+    "src": "/players/laliga-b9d884110ed01757139432a098c3021196694b4e874783b97e580afbfa278176.png",
+    "player": "Francho Serrano",
+    "playerId": "laliga:14913",
+    "source": "https://www.laliga.com/clubes/getafe-cf/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Getafe CF"
+  },
+  "f152034a-d121-5e44-8fee-b0dc644a4c59": {
+    "src": "/players/laliga-e6b62d1d07f7afaa50e277f6e587fce064aca66a4065367166a8740d4842b0b3.png",
+    "player": "Iván Azón",
+    "playerId": "laliga:15772",
+    "source": "https://www.laliga.com/clubes/getafe-cf/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Getafe CF"
+  },
+  "188f9813-6b49-5790-86f3-7b17b7d01c63": {
+    "src": "/players/laliga-49c08920ea3f054db6cfbaf479925036d3c44f5d124cfa35ef90398fad1b91d1.png",
+    "player": "Luís Manuel Ferreira de Castro",
+    "playerId": "laliga:40964",
+    "source": "https://www.laliga.com/clubes/levante-ud/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Levante UD"
+  },
+  "75adab89-35d1-5906-9d23-5b5db9a83347": {
+    "src": "/players/laliga-dbf2fa9a24024f2bdbf5cafbe6edfc9c21b4c3e32bf615878a5b51b598e567f6.png",
+    "player": "Ifeanyi Ndukwe",
+    "playerId": "laliga:46996",
+    "source": "https://www.laliga.com/clubes/levante-ud/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Levante UD"
+  },
+  "cbd7bc57-a755-58c6-b923-3a639cc5341e": {
+    "src": "/players/laliga-426d7b7d5f986579a73f39c12ec88ca41becb4a605c792c8a0e4197a95b854d6.png",
+    "player": "José Mário dos Santos Mourinho Félix",
+    "playerId": "laliga:2398",
+    "source": "https://www.laliga.com/clubes/real-madrid/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Real Madrid"
+  },
+  "4445e033-7a36-56d1-854b-3be4b7f54f79": {
+    "src": "/players/laliga-7714a697ee4ab4367c75bf609a01d0e838ba05f4dc3d3ebc10f8d6ab51f976db.png",
+    "player": "Juan Francisco Funes Arjona",
+    "playerId": "laliga:44392",
+    "source": "https://www.laliga.com/clubes/malaga-cf/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Málaga CF"
+  },
+  "43393df9-442f-57de-b524-94e8e31465b4": {
+    "src": "/players/laliga-ddb16517a6c3891dea0d88742eb43eecf9e527cb8d3105766720a95aeea27d96.png",
+    "player": "Rockson Yeboah",
+    "playerId": "laliga:47181",
+    "source": "https://www.laliga.com/clubes/c-a-osasuna/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "CA Osasuna"
+  },
+  "59c4889e-f672-555b-9d51-1ba710d79ab7": {
+    "src": "/players/laliga-58a3a22d424b37039a9813469fe31501349cf67519427e798b956eec421fbb1c.png",
+    "player": "José Alberto López Menéndez",
+    "playerId": "laliga:9460",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "R. Racing Club"
+  },
+  "373006b6-5344-56f8-8ffb-27965f1b24f8": {
+    "src": "/players/laliga-e29467c5cf1e931daa86829e7ad08758534928e6fa43ebc6e322ae0ab1a3daf4.png",
+    "player": "Simon Eriksson",
+    "playerId": "laliga:45221",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "R. Racing Club"
+  },
+  "bc6f264f-43a6-5eec-92c8-22dc7dd7ec01": {
+    "src": "/players/laliga-1982d7f9465e73c70e068c92e88f0101f9e7296b1cb6c838785e83faf5d8d187.png",
+    "player": "Iker Luque",
+    "playerId": "laliga:45083",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "R. Racing Club"
+  },
+  "7176cffb-baf0-5d06-8765-31406f2629f3": {
+    "src": "/players/laliga-e1bc6161546a590ec370b9c76cfba687ea7642312e363e694392bbcceed4c7d0.png",
+    "player": "Beñat San José",
+    "playerId": "laliga:40118",
+    "source": "https://www.laliga.com/clubes/rayo-vallecano/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Rayo Vallecano"
+  },
+  "4eddfb12-13e8-5c4c-a1ad-5b52b019c4ba": {
+    "src": "/players/laliga-27c88d4c2c5dcb5a3f9532691e450736f1c554631f824e9240b1a0ffb70effe0.png",
+    "player": "Gnangoro Bouare Samake",
+    "playerId": "laliga:47125",
+    "source": "https://www.laliga.com/clubes/rayo-vallecano/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Rayo Vallecano"
+  },
+  "67a63f89-5fbd-565e-ada8-e596ed4a32a5": {
+    "src": "/players/laliga-ae0977d669e941436292c013f44941afd8b61191dad37a4999c0e5b0c26ee75c.png",
+    "player": "Pellegrino Matarazzo",
+    "playerId": "laliga:18118",
+    "source": "https://www.laliga.com/clubes/real-sociedad/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Real Sociedad"
+  },
+  "0d9135ee-0106-5139-8c55-b5da332ea1ae": {
+    "src": "/players/laliga-2f6ca82e017e439465f86f887d73aaa920c2902873fc4fbb16e3bf152aec262f.png",
+    "player": "Luis García",
+    "playerId": "laliga:49",
+    "source": "https://www.laliga.com/clubes/sevilla-fc/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Sevilla FC"
+  },
+  "ab271fc2-0ad0-5e91-90a9-af019add4cf6": {
+    "src": "/players/laliga-9b799377f8f4fe64ecf9b0fa3a14df94b7f16ffbe9bf09f7cac2a4937ec66bfb.png",
+    "player": "Andrés López Gallo",
+    "playerId": "laliga:25140",
+    "source": "https://www.laliga.com/clubes/sevilla-fc/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Sevilla FC"
+  },
+  "f8e318ee-5085-5465-9839-cd757df697c8": {
+    "src": "/players/laliga-a79615c213cd353d1b3a22c4fbec51ec490eeef517581a7c04831fbb5d66dd57.png",
+    "player": "Rodrigo Mendoza",
+    "playerId": "laliga:30818",
+    "source": "https://www.laliga.com/clubes/atletico-de-madrid/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Atlético de Madrid"
+  },
+  "4855e0b9-2c1e-51ca-a0da-ae65b919e407": {
+    "src": "/players/laliga-a79615c213cd353d1b3a22c4fbec51ec490eeef517581a7c04831fbb5d66dd57.png",
+    "player": "Rodrigo Mendoza",
+    "playerId": "laliga:30818",
+    "source": "https://www.laliga.com/clubes/atletico-de-madrid/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Atlético de Madrid"
+  },
+  "1038dd6c-1e9e-5cf2-8fc5-0b041f46610b": {
+    "src": "/players/laliga-9fc62415c5b0d271426bfe34653b610f7a74ea4db809519bb94725156bd75fab.png",
+    "player": "Ryunosuke Sato",
+    "playerId": "laliga:44661",
+    "source": "https://www.laliga.com/clubes/valencia-cf/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Valencia CF"
+  },
+  "92c1229c-8bb7-5bdb-af30-0eddb1b2663a": {
+    "src": "/players/laliga-ec58bcc5b47e036306cdec37aac7ecb6f29955df59a11dff5e5cf8dc01b34c8b.png",
+    "player": "Gabriel Silva Moscardo de Salles",
+    "playerId": "laliga:35654",
+    "source": "https://www.laliga.com/clubes/rcd-espanyol/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "RCD Espanyol de Barcelona"
+  },
+  "0d353341-3615-5c54-af79-8ad79a4cee4b": {
+    "src": "/players/laliga-1f1c8d5699c0968a4ef4f3013820573d5108ac93760917f1c57f9bce52b8a3e4.png",
+    "player": "Johan Mojica",
+    "playerId": "laliga:659",
+    "source": "https://www.laliga.com/clubes/getafe-cf/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Getafe CF"
+  },
+  "db975c7e-a81f-522c-b348-ab1e3f68e120": {
+    "src": "/players/laliga-99020ad98745f46275db6526bc78aaeef0ef606700f100d412756032b5155c30.png",
+    "player": "Anthony Gordon",
+    "playerId": "laliga:7323",
+    "source": "https://www.laliga.com/clubes/fc-barcelona/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "FC Barcelona"
+  },
+  "2e62a63b-2c21-5334-8e5b-02a049693870": {
+    "src": "/players/laliga-9fe5f9d63eea19d76bd617a8df42399186706f5d5e349b9392df1720e3407d65.png",
+    "player": "Javi Morcillo",
+    "playerId": "laliga:45794",
+    "source": "https://www.laliga.com/clubes/elche-c-f/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Elche CF"
+  },
+  "4fede88f-c7c9-5158-963e-1cad347c4a9c": {
+    "src": "/players/laliga-e1b186873d9034b019dfdd87614f51e1de79264556c1f9dbf11c8986b6532ddc.png",
+    "player": "Facundo Buonanotte",
+    "playerId": "laliga:32019",
+    "source": "https://www.laliga.com/clubes/elche-c-f/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Elche CF"
+  },
+  "1cc81df9-9b34-5b03-b78c-2c160dac1765": {
+    "src": "/players/laliga-3ae15d9ef68118e206a2640ca567c7e609987447d1d981749558908297840adc.png",
+    "player": "Javi Galán",
+    "playerId": "laliga:3956",
+    "source": "https://www.laliga.com/clubes/rc-celta/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Celta"
+  },
+  "0250732c-2598-57f1-bd36-8f3c0a5dd905": {
+    "src": "/players/laliga-051b4816481b7417639e812149b962c0b9b0fb3c18006eadd06e565ac0e8bfdd.png",
+    "player": "Yan Diomande",
+    "playerId": "laliga:40244",
+    "source": "https://www.laliga.com/clubes/real-madrid/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Real Madrid"
+  },
+  "5aa16d7f-0319-54c9-8785-70a49ce5175b": {
+    "src": "/players/laliga-fb8dcccc486d84a48accfc919b3c3222057fcf987bfc8daf30941ea4f49fd14b.png",
+    "player": "Jeanuël Belocian",
+    "playerId": "laliga:25492",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "R. Racing Club"
+  },
+  "2ecfc7f1-b1dd-53d7-a61b-78e108f24d67": {
+    "src": "/players/laliga-3e8471762593cd2f62a5ca77eed206022d982144e530b474e6b5f5a4f4986f8d.png",
+    "player": "Mujaid Sadick",
+    "playerId": "laliga:7607",
+    "source": "https://www.laliga.com/clubes/rayo-vallecano/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Rayo Vallecano"
+  },
+  "6ef05160-5734-50d8-ab7b-fc027183b950": {
+    "src": "/players/laliga-83acaec20b669d34a4e3d11c52ded6e9be4e22a51e8b80673ea34e25812ffba8.png",
+    "player": "Altay Bayindir",
+    "playerId": "laliga:18958",
+    "source": "https://www.laliga.com/clubes/rc-celta/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Celta"
+  },
+  "fa5ca1bb-e1c4-536e-a581-e45b072919bd": {
+    "src": "/players/laliga-54c457360b8340b20998a583bd956f7bbed1149ec00df1a0801c83b54f73d89d.png",
+    "player": "Moriba Kourouma Kourouma",
+    "playerId": "laliga:14930",
+    "source": "https://www.laliga.com/clubes/rc-celta/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Celta"
+  },
+  "e600bc74-6af8-5347-a43e-2816737a1090": {
+    "src": "/players/laliga-2b39c58dbea914e7ef9462987adfac341d793d549718d19a25ea3b11d3c2ba21.png",
+    "player": "John Donald",
+    "playerId": "laliga:16407",
+    "source": "https://www.laliga.com/clubes/elche-c-f/plantilla",
+    "provider": "LALIGA",
+    "season": "2025/26",
+    "club": "Elche CF"
+  },
+  "1fc21a06-03b8-5db5-8303-fd3222e3bb41": {
+    "src": "/players/laliga-9319f962e907a94471c803772e7c57fce330b905552af04c2c7f6f21b581b145.png",
+    "player": "Francisco Femenía Far",
+    "playerId": "laliga:995",
+    "source": "https://www.laliga.com/clubes/getafe-cf/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Getafe CF"
+  },
+  "af212e49-e275-55e9-a873-ff0599e7981a": {
+    "src": "/players/laliga-da397b0b555620afdfaf5f790ad8fb0c81210742fa7ddf989a47faae29522503.png",
+    "player": "Marco Sangalli",
+    "playerId": "laliga:1075",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2025/26",
+    "club": "R. Racing Club"
+  },
+  "e6601f41-4640-5212-8d1d-6844e7a52e9d": {
+    "src": "/players/laliga-81b81bc05d0e883c4dd7341c05bd0a27c6ebf69505c5ddfd1c7fd8c762b34adb.png",
+    "player": "Javi Castro",
+    "playerId": "laliga:14526",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2025/26",
+    "club": "R. Racing Club"
+  },
+  "daa21651-5f5e-57bb-b44e-b091c9bea655": {
+    "src": "/players/laliga-aaa713c050a021842d2d4903f044c5a2cf307ca9b80892ae8a3a7ccbebe93eb8.png",
+    "player": "José Manuel Hernando Riol",
+    "playerId": "laliga:7167",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "R. Racing Club"
+  },
+  "9b475284-6272-582d-8d38-e109c30e98cd": {
+    "src": "/players/laliga-b3d6bf1582a41263dceddb950edeaf5f43d0f8140e77c73a206c9c38ebfa1909.png",
+    "player": "Mario García",
+    "playerId": "laliga:32303",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2025/26",
+    "club": "R. Racing Club"
+  },
+  "7b597ce1-c0d9-5cf1-8322-e75f2aac5a20": {
+    "src": "/players/laliga-67777dd5291b05d05b22df3696ed36b59d51be0d71aafca4c97c2bd91919c813.png",
+    "player": "Gustavo Puerta",
+    "playerId": "laliga:32967",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2025/26",
+    "club": "R. Racing Club"
+  },
+  "e36e0ccb-30d9-52a9-b1c1-b923f56c15be": {
+    "src": "/players/laliga-3c95af5866c9147e58bed227c76568ceee88ea19abf820a42d5560bfe4746507.png",
+    "player": "Aritz Aldasoro",
+    "playerId": "laliga:19213",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2025/26",
+    "club": "R. Racing Club"
+  },
+  "d3f82549-4be5-528a-95ad-d72e34333d9b": {
+    "src": "/players/laliga-f997708eff2fd4cda3596ba46fbcb417ce5d6729aaff6558db91240efba6a64c.png",
+    "player": "Domingos André Ribeiro Almeida",
+    "playerId": "laliga:12895",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "R. Racing Club"
+  },
+  "127817f4-c398-5f5b-a7de-71d92dfee644": {
+    "src": "/players/laliga-67122c96b3296bec01d70aacb383a322f53f985eec4598a2e125f0b0065f9d42.png",
+    "player": "Suleiman Camara",
+    "playerId": "laliga:15785",
+    "source": "https://www.laliga.com/clubes/r-racing-club/plantilla",
+    "provider": "LALIGA",
+    "season": "2025/26",
+    "club": "R. Racing Club"
+  },
+  "feae1e00-71c4-5e53-942c-cda26731f5ff": {
+    "src": "/players/laliga-d37ca02577fed0485a86ba33e1205a3dc79ffe2f43160df1691a608813a4cc95.png",
+    "player": "Domingos André Ribeiro Almeida",
+    "playerId": "laliga:12895",
+    "source": "https://www.laliga.com/clubes/valencia-cf/plantilla",
+    "provider": "LALIGA",
+    "season": "2025/26",
+    "club": "Valencia CF"
+  },
+  "f120d85b-ec7c-5c92-bbbb-9a81d17e8c26": {
+    "src": "/players/laliga-0198e645f6809eb6d5ceb237da24471ef6d1688f912a1fd6c4b6e57e3b1a3b36.png",
+    "player": "Enzo Bardeli",
+    "playerId": "laliga:46216",
+    "source": "https://www.laliga.com/clubes/levante-ud/plantilla",
+    "provider": "LALIGA",
+    "season": "2026/27",
+    "club": "Levante UD"
+  },
+  "5c222edd-aa16-5f0a-96c3-d80393e8af18": {
+    "src": "/players/supplement-488fca9be5f09691e88d04ca9dff6d85cf147bb95c0ed80ca353e81e6b63da98.webp",
+    "player": "Joaquin Oso",
+    "playerId": "ligue-1:l1_championship_player_2026_15_509861",
+    "source": "https://www.footylogos.com/es/player-pngs/laliga",
+    "provider": "FootyLogos",
+    "season": "2024/25",
+    "club": "Sevilla FC"
+  },
+  "aaf0b50b-0115-5c32-96e2-025569182359": {
+    "src": "/players/supplement-488fca9be5f09691e88d04ca9dff6d85cf147bb95c0ed80ca353e81e6b63da98.webp",
+    "player": "Joaquin Oso",
+    "playerId": "ligue-1:l1_championship_player_2026_15_509861",
+    "source": "https://www.footylogos.com/es/player-pngs/laliga",
+    "provider": "FootyLogos",
+    "season": "2024/25",
+    "club": "Sevilla FC"
+  },
+  "b39e750d-6b3a-58e9-9d3d-46bffd05fab8": {
+    "src": "/players/supplement-488fca9be5f09691e88d04ca9dff6d85cf147bb95c0ed80ca353e81e6b63da98.webp",
+    "player": "Joaquin Oso",
+    "playerId": "ligue-1:l1_championship_player_2026_15_509861",
+    "source": "https://www.footylogos.com/es/player-pngs/laliga",
+    "provider": "FootyLogos",
+    "season": "2024/25",
+    "club": "Sevilla FC"
+  },
+  "cfebe38e-e3f0-50c9-8e74-1444ec309a34": {
+    "src": "/players/supplement-55c81a51e08c0f03f06f4f27dd941f12a54ab8d6750ac04a21e56b67af01be0d.webp",
+    "player": "Largie Ramazani",
+    "playerId": "archive:laliga:13305",
+    "source": "https://www.footylogos.com/es/player-pngs/laliga",
+    "provider": "FootyLogos",
+    "season": "2023/24",
+    "club": "UD Almería"
+  },
+  "e44ca903-b038-578a-9353-d80dbea3429e": {
+    "src": "/players/supplement-b9f243750126a90fb6fe38ef477d39d9f1623932bc50840520b7b6ae4aa6c2a7.webp",
+    "player": "Sergio Canales",
+    "playerId": "laliga:723",
+    "source": "https://www.footylogos.com/es/player-pngs/laliga",
+    "provider": "FootyLogos",
+    "season": "2026/27",
+    "club": "R. Racing Club"
+  },
+  "b018d625-ba33-54e4-8264-b0a08e4ffd43": {
+    "player": "Teun Gijselhart",
+    "playerId": "club:gijselhart",
+    "src": "/players/club-b21d0c4ba6ce8ed210c12cc942db96aed68f6a0560bac5d8d4e3b066f2edcbbb.png",
+    "source": "https://www.rcdeportivo.es/es/noticias/teun-gijselhart-nuevo-jugador-del-depor",
+    "provider": "RC Deportivo",
+    "season": "Foto de club",
+    "club": "RC Deportivo",
+    "fit": "cover",
+    "position": "0% 45%"
+  },
+  "2e6fef0f-c4e4-5db9-b5bb-e7c4a7aab1e1": {
+    "player": "Manolo González",
+    "playerId": "club:manolo",
+    "src": "/players/club-9b59ee97364bbb9d9995ad4538402ba2e4e41a95460023e0b22337236d1857c4.png",
+    "source": "https://www.rcdespanyol.com/es/noticia/comunicado-oficial/20933",
+    "provider": "RCD Espanyol",
+    "season": "Foto de club",
+    "club": "RCD Espanyol",
+    "fit": "cover",
+    "position": "50% 35%"
+  },
+  "ecaae0ed-9f00-5581-98a2-5bfa11b9393f": {
+    "player": "Alejandro San Cristóbal",
+    "playerId": "club:sancris",
+    "src": "/players/club-44063ef6818d2c8b7a76d68fe032d4fbc3219da19adf2c262b015a4e4bc9673b.jpg",
+    "source": "https://www.getafecf.com/noticias/alex-sancris-vuelve-a-casa-y-es-nuevo-jugador-azulon",
+    "provider": "Getafe CF",
+    "season": "Foto de club",
+    "club": "Getafe CF",
+    "fit": "cover",
+    "position": "50% 45%"
+  },
+  "9096f738-ffdb-5e8c-8dbe-f25a41ad0103": {
+    "player": "Aarón Ochoa Moloney",
+    "playerId": "club:ochoa",
+    "src": "/players/club-ec8fe41a66e72a4d6148db68dbc856a6fd47eb7defdaced2ce6bfb5a4f5dc617.png",
+    "source": "https://www.malagacf.com/jugadores/aaron-ochoa",
+    "provider": "Málaga CF",
+    "season": "Foto de club",
+    "club": "Málaga CF",
+    "fit": "contain",
+    "position": "50% 50%"
+  },
+  "3b5eeab4-e68b-5278-a6ee-a8f0a5060201": {
+    "player": "Luis Miguel Ramis",
+    "playerId": "club:ramis",
+    "src": "/players/club-15b381710af7cd2c20e902ae1b0c36743f7dc791d5f1844c05051deb1b1e3ecc.webp",
+    "source": "https://www.osasuna.es/luis-miguel-ramis-nuevo-entrenador-de-osasuna",
+    "provider": "CA Osasuna",
+    "season": "Foto de club",
+    "club": "CA Osasuna",
+    "fit": "cover",
+    "position": "10% 45%"
+  },
+  "61e49fa3-e061-51f5-8eec-9bafcc847bc2": {
+    "player": "Sergio Martínez Montero",
+    "playerId": "club:sergio",
+    "src": "/players/club-2d42daf4fbe24e1be5ce22a1ea7d452d849cce23c15ab0d07eae845d9dc9b9d7.webp",
+    "source": "https://www.realracingclub.es/noticias/despedida-de-sergio-martinez-del-real-racing-club",
+    "provider": "Racing de Santander",
+    "season": "Foto de club",
+    "club": "Racing de Santander",
+    "fit": "cover",
+    "position": "65% 30%"
+  },
+  "5388e925-699b-5faa-9486-87ff8f3b0cf3": {
+    "player": "Kareem Tunde",
+    "playerId": "club:tunde",
+    "src": "/players/club-5d62ba2d03f22b2d257bb9c65210c10396bcccd190edef3891dd7a9a942ed490.jpg",
+    "source": "https://www.levanteud.com/noticias/kareem-tunde-seguira-siendo-granota-hasta-2029",
+    "provider": "Levante UD",
+    "season": "Foto de club",
+    "club": "Levante UD",
+    "fit": "cover",
+    "position": "32% 40%"
   }
 }
