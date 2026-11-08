@@ -381,7 +381,45 @@ test("apartado Repetidos: buscar, añadir copias y mantener la plantilla limpia"
   await expect(
     page.getByRole("button", { name: "Añadir cromos por nombre" }),
   ).toHaveCount(0);
-  await page.getByRole("button", { name: "Repetidos", exact: true }).click();
+  const repeatsNav = page.getByRole("button", {
+    name: "Repetidos",
+    exact: true,
+  });
+  const hit = await repeatsNav.evaluate((el) => {
+    const b = el.getBoundingClientRect();
+    const target = document.elementFromPoint(
+      b.x + b.width / 2,
+      b.y + b.height / 2,
+    );
+    const parent = el.parentElement!;
+    return {
+      clickable: target === el || el.contains(target),
+      target:
+        target?.closest("button")?.getAttribute("aria-label") ??
+        target?.tagName,
+      rect: { x: b.x, y: b.y, width: b.width, height: b.height },
+      nav: {
+        position: getComputedStyle(parent).position,
+        z: getComputedStyle(parent).zIndex,
+      },
+      viewport: {
+        inner: innerWidth,
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+        visual: visualViewport?.width,
+        scale: visualViewport?.scale,
+      },
+    };
+  });
+  expect(hit.clickable, JSON.stringify(hit)).toBe(true);
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+  await repeatsNav.click();
   await page
     .getByRole("button", { name: "Añadir repetidos", exact: true })
     .click();

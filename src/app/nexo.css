@@ -1380,3 +1380,13 @@ textarea::placeholder {
   position: relative;
   pointer-events: auto;
 }
+/* Decorative pitch artwork must not enlarge the mobile layout viewport. */
+html {
+  overflow-x: clip;
+}
+@media (max-width: 600px) {
+  .team-pitch {
+    left: 0;
+    right: 0;
+  }
+}
