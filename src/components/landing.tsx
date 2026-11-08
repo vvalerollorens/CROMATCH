@@ -88,9 +88,10 @@ export function Landing({
             LaLiga ESTE 2026–27 <span>Sobre el catálogo</span>
           </summary>
           <p>
-            Catálogo pendiente de verificación. No se muestran cromos ni cifras
-            sin confirmar. En la visita puedes probar casilleros sin numeración
-            oficial; no representan cromos publicados.
+            Catálogo pendiente de verificación. Puedes consultar nombres y
+            números contrastados en listados de coleccionismo, con las
+            incidencias señaladas. Falta cotejar el PDF de Panini de la cuarta
+            edición. Las marcas de la visita no modifican una colección real.
           </p>
         </details>
         {notices}
