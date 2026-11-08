@@ -4,6 +4,10 @@ Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js,
 
 **Estado: código inicial implementado y pruebas de base de datos incluidas. No es todavía un servicio público listo para usuarios reales.** Necesita un proyecto Supabase, un catálogo oficialmente contrastado y la validación del flujo completo en un entorno conectado. No contiene inventarios de demostración ni cromos inventados.
 
+## Ver las pantallas sin correo
+
+En la bienvenida pulsa **Ver por dentro sin cuenta**. El modo visita permite recorrer las pantallas sin crear una sesión ni consultar inventarios privados. No contiene cromos, usuarios ni intercambios ficticios. Las operaciones de datos exigen iniciar sesión. Puedes volver con **Salir de la visita**.
+
 ## Instalar
 
 Requisitos: Node.js 22 y npm. Para Supabase local, también Supabase CLI y Docker.

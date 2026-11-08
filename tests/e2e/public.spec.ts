@@ -68,3 +68,52 @@ test("inicio de sesión y recuperación", async ({ page }) => {
     page.getByRole("button", { name: "Enviar instrucciones" }),
   ).toBeVisible();
 });
+
+test("visita sin correo recorre pantallas sin peticiones de datos", async ({
+  page,
+}) => {
+  const dataRequests: string[] = [];
+  page.on("request", (request) => {
+    if (/supabase\.co.*\/(rest|auth)\//.test(request.url()))
+      dataRequests.push(request.url());
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Ver por dentro sin cuenta" }).click();
+  await expect(
+    page.getByText("Modo visita · Sin cuenta", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Tu colección, en juego." }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Ir a mi álbum", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Mi álbum", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("El catálogo está esperando su primer cromo verificado"),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Mis repetidos · 0", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Mis repetidos", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Crear enlace compartido", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText("Estás en modo visita");
+  expect(dataRequests).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page
+    .getByRole("button", { name: "Salir de la visita", exact: true })
+    .click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Ese cromo",
+  );
+});

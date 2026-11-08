@@ -97,6 +97,7 @@ export function Cromatch() {
       receive_count: number;
     }[]
   >([]);
+  const [visitor, setVisitor] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [boot, setBoot] = useState(configured);
   const [section, setSection] = useState<Section>("inicio");
@@ -164,6 +165,12 @@ export function Cromatch() {
     window.history.replaceState(null, "", `#${s}`);
   };
   const act = async (fn: () => Promise<void>, success?: string) => {
+    if (visitor) {
+      setError(
+        "Estás en modo visita. Inicia sesión para consultar o guardar datos reales.",
+      );
+      return;
+    }
     const requestedBy = activeUser.current;
     setBusy(true);
     setError("");
@@ -183,6 +190,7 @@ export function Cromatch() {
     }
   };
   const rpc = async (name: string, args: Record<string, unknown> = {}) => {
+    if (visitor) throw new Error("El modo visita es de solo lectura.");
     const { data, error } = await database().rpc(name, args);
     if (error) throw new Error(error.message);
     return data;
@@ -683,15 +691,22 @@ export function Cromatch() {
         {legal && <Legal close={() => setLegal(false)} />}
       </main>
     );
-  if (!session)
+  if (!session && !visitor)
     return (
       <Landing
         setAuth={setAuth}
+        enterVisitor={() => {
+          setVisitor(true);
+          setSection("inicio");
+          setError("");
+          setMessage("");
+        }}
         setLegal={setLegal}
         legal={legal}
         notices={notices}
       />
     );
+  const viewerId = session?.user.id ?? "";
   const card = (s: Sticker) => {
     const i = own.get(s.id);
     const q = i?.quantity ?? 0;
@@ -763,9 +778,7 @@ export function Cromatch() {
               {n.label}
               {n.id === "intercambios" &&
                 trades.some(
-                  (t) =>
-                    t.status === "proposed" &&
-                    t.receiver_id === session.user.id,
+                  (t) => t.status === "proposed" && t.receiver_id === viewerId,
                 ) && <span className="dot" />}
             </button>
           ))}
@@ -788,8 +801,13 @@ export function Cromatch() {
             {profile?.display_name.slice(0, 1) ?? "C"}
           </span>
           <span>
-            <strong>{profile?.display_name ?? "Coleccionista"}</strong>
-            <small>@{profile?.username}</small>
+            <strong>
+              {profile?.display_name ??
+                (visitor ? "Visitante sin cuenta" : "Coleccionista")}
+            </strong>
+            <small>
+              {visitor ? "Solo lectura" : `@${profile?.username ?? ""}`}
+            </small>
           </span>
           <Settings size={17} />
         </button>
@@ -809,6 +827,7 @@ export function Cromatch() {
                 setOther(null);
               }}
             >
+              {visitor && <option value="">Vista de pantallas</option>}
               {collections.map((c) => (
                 <option value={c.id} key={c.id}>
                   {c.name}
@@ -833,6 +852,37 @@ export function Cromatch() {
           </div>
         </header>
         <main className="workspace" id="contenido">
+          {visitor && (
+            <div className="notice visitor-banner" role="status">
+              <ShieldCheck size={20} />
+              <div>
+                <strong>Modo visita · Sin cuenta</strong>
+                <p>
+                  Recorre las pantallas. No hay datos de usuarios ni cromos de
+                  ejemplo y no se guardan cambios.
+                </p>
+              </div>
+              <button
+                className="secondary"
+                onClick={() => {
+                  setVisitor(false);
+                  setAuth("register");
+                }}
+              >
+                Crear cuenta
+              </button>
+              <button
+                className="text-button"
+                onClick={() => {
+                  setVisitor(false);
+                  setSection("inicio");
+                  setError("");
+                }}
+              >
+                Salir de la visita
+              </button>
+            </div>
+          )}
           {notices}
           {loading && (
             <div role="status" className="loading-note">
@@ -1323,7 +1373,7 @@ export function Cromatch() {
                 )}
                 {friends.map((f) => {
                   const id =
-                    f.requester_id === session.user.id
+                    f.requester_id === viewerId
                       ? f.recipient_id
                       : f.requester_id;
                   return (
@@ -1332,12 +1382,12 @@ export function Cromatch() {
                       <span>
                         {f.status === "accepted"
                           ? "Amistad aceptada"
-                          : f.recipient_id === session.user.id
+                          : f.recipient_id === viewerId
                             ? "Solicitud recibida"
                             : "Solicitud enviada"}
                       </span>
                       {f.status === "pending" &&
-                        f.recipient_id === session.user.id && (
+                        f.recipient_id === viewerId && (
                           <button
                             disabled={busy}
                             onClick={() => void friendAction(id, "accept")}
@@ -1409,7 +1459,7 @@ export function Cromatch() {
                     label: "Puedes ofrecer",
                     items: matches.offer,
                     map: own,
-                    giver: session.user.id,
+                    giver: viewerId,
                   },
                   {
                     label: "Puedes recibir",
@@ -1574,9 +1624,8 @@ export function Cromatch() {
                   (t) =>
                     tradeFilter === "all" ||
                     (tradeFilter === "received" &&
-                      t.receiver_id === session.user.id) ||
-                    (tradeFilter === "sent" &&
-                      t.sender_id === session.user.id) ||
+                      t.receiver_id === viewerId) ||
+                    (tradeFilter === "sent" && t.sender_id === viewerId) ||
                     (tradeFilter === "history" &&
                       ["completed", "cancelled", "rejected"].includes(
                         t.status,
@@ -1587,7 +1636,7 @@ export function Cromatch() {
                     <div className="section-heading">
                       <div>
                         <span className="eyebrow">
-                          {t.sender_id === session.user.id
+                          {t.sender_id === viewerId
                             ? "PROPUESTA ENVIADA"
                             : "PROPUESTA RECIBIDA"}
                         </span>
@@ -1609,8 +1658,8 @@ export function Cromatch() {
                               (i) =>
                                 i.trade_id === t.id &&
                                 (give
-                                  ? i.giver_id === session.user.id
-                                  : i.giver_id !== session.user.id),
+                                  ? i.giver_id === viewerId
+                                  : i.giver_id !== viewerId),
                             )
                             .map((i) => {
                               const s = stickers.find(
@@ -1630,7 +1679,7 @@ export function Cromatch() {
                     </div>
                     <div className="export-actions">
                       {t.status === "proposed" &&
-                        t.receiver_id === session.user.id && (
+                        t.receiver_id === viewerId && (
                           <>
                             <button
                               disabled={busy}
@@ -1849,6 +1898,7 @@ export function Cromatch() {
               <section className="panel">
                 <h2>Perfil y privacidad</h2>
                 <form
+                  aria-label="Ajustes de perfil"
                   className="settings-form"
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -1983,12 +2033,10 @@ export function Cromatch() {
                           if (error) throw error;
                           data[table] =
                             table === "profiles"
-                              ? rows?.filter((r) => r.id === session.user.id)
+                              ? rows?.filter((r) => r.id === viewerId)
                               : table === "user_inventory" ||
                                   table === "user_collections"
-                                ? rows?.filter(
-                                    (r) => r.user_id === session.user.id,
-                                  )
+                                ? rows?.filter((r) => r.user_id === viewerId)
                                 : rows;
                         }
                         download("mis-datos-cromatch.json", data);
@@ -2014,6 +2062,7 @@ export function Cromatch() {
                   </button>
                   <button
                     className="text-button danger"
+                    disabled={visitor}
                     onClick={() => {
                       if (
                         confirm(

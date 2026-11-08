@@ -11,10 +11,12 @@ import {
 import { Logo, Legal } from "./ui";
 export function Landing({
   setAuth,
+  enterVisitor,
   setLegal,
   legal,
   notices,
 }: {
+  enterVisitor: () => void;
   setAuth: (v: "login" | "register") => void;
   setLegal: (v: boolean) => void;
   legal: boolean;
@@ -64,6 +66,9 @@ export function Landing({
                 Así funciona <ChevronRight size={17} />
               </a>
             </div>
+            <button className="secondary visitor-entry" onClick={enterVisitor}>
+              Ver por dentro sin cuenta <ArrowRight size={17} />
+            </button>
             <div className="hero-trust">
               <ShieldCheck size={18} />
               <span>

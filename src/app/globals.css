@@ -2191,3 +2191,22 @@ svg {
     animation: none !important;
   }
 }
+.visitor-entry {
+  margin: 0 0 24px;
+}
+.visitor-banner {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.visitor-banner > div {
+  flex: 1;
+  min-width: 180px;
+}
+.visitor-banner p {
+  font-size: 11px;
+  margin: 3px 0 0;
+  color: inherit;
+}
+.visitor-banner button {
+  font-size: 11px;
+}
