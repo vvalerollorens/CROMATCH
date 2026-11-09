@@ -1210,22 +1210,28 @@ export function Cromatch({
           )}
           {section === "album" && (
             <>
-              <div className="tabs" role="group" aria-label="Vista de mi álbum">
-                <button
-                  type="button"
-                  className={albumView === "pages" ? "active" : ""}
-                  onClick={() => setAlbumView("pages")}
+              {albumView === "owned" && (
+                <div
+                  className="tabs"
+                  role="group"
+                  aria-label="Vista de mi álbum"
                 >
-                  Por equipos
-                </button>
-                <button
-                  type="button"
-                  className={albumView === "owned" ? "active" : ""}
-                  onClick={() => setAlbumView("owned")}
-                >
-                  Ver lista de lo que tengo
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    className={albumView === "pages" ? "active" : ""}
+                    onClick={() => setAlbumView("pages")}
+                  >
+                    Por equipos
+                  </button>
+                  <button
+                    type="button"
+                    className={albumView === "owned" ? "active" : ""}
+                    onClick={() => setAlbumView("owned")}
+                  >
+                    Ver lista de lo que tengo
+                  </button>
+                </div>
+              )}
               {albumView === "owned" ? (
                 <OwnedCollectionList
                   key={collection}
@@ -1240,6 +1246,7 @@ export function Cromatch({
                   busy={busy || (visitor && !localAlbum.ready)}
                   local={visitor}
                   onScan={() => go("escaner")}
+                  onOwnedList={() => setAlbumView("owned")}
                   collectionName={current?.name}
                   onQuantity={quantity}
                   onNavigate={go}

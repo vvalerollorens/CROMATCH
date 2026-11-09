@@ -85,6 +85,7 @@ export function VisualAlbum({
   local = false,
   readOnly = false,
   onScan,
+  onOwnedList,
   onQuantity,
   onNavigate,
 }: {
@@ -96,6 +97,7 @@ export function VisualAlbum({
   local?: boolean;
   readOnly?: boolean;
   onScan?: () => void;
+  onOwnedList?: () => void;
   onQuantity: (s: Sticker, d: number) => Promise<void>;
   onNavigate: (s: "repetidos" | "faltantes") => void;
 }) {
@@ -259,6 +261,15 @@ export function VisualAlbum({
             <span>{sections.filter((s) => s.kind === g.id).length}</span>
           </button>
         ))}
+        {onOwnedList && (
+          <button
+            type="button"
+            aria-label="Ver lista de lo que tengo"
+            onClick={onOwnedList}
+          >
+            Mis cromos
+          </button>
+        )}
       </div>
       <div
         className="team-strip"
