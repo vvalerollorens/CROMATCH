@@ -39,9 +39,12 @@ export function OwnedCollectionList({
         <div>
           <h2>Lo que tengo</h2>
           <p>
-            {owned.length} cromos distintos ·{" "}
+            {owned.length}{" "}
+            {owned.length === 1 ? "cromo distinto" : "cromos distintos"} ·{" "}
             {owned.reduce((total, s) => total + quantities.get(s.id)!, 0)}{" "}
-            copias
+            {owned.reduce((total, s) => total + quantities.get(s.id)!, 0) === 1
+              ? "copia"
+              : "copias"}
           </p>
         </div>
         <button

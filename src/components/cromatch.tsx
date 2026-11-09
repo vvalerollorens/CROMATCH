@@ -1216,16 +1216,12 @@ export function Cromatch({
                   role="group"
                   aria-label="Vista de mi álbum"
                 >
-                  <button
-                    type="button"
-                    className={albumView === "pages" ? "active" : ""}
-                    onClick={() => setAlbumView("pages")}
-                  >
+                  <button type="button" onClick={() => setAlbumView("pages")}>
                     Por equipos
                   </button>
                   <button
                     type="button"
-                    className={albumView === "owned" ? "active" : ""}
+                    className="active"
                     onClick={() => setAlbumView("owned")}
                   >
                     Ver lista de lo que tengo

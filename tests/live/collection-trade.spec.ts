@@ -221,6 +221,11 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(compact.locator("li")).toHaveCount(1);
     await expect(compact.locator("li")).toContainText("Sivera");
     await expect(compact.locator("li")).toContainText("2 copias");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+      ),
+    ).toBe(true);
     await page
       .getByLabel("Buscar en lo que tengo", { exact: true })
       .fill("Tenaglia");

@@ -1645,12 +1645,14 @@ html {
 }
 .suggested-sticker {
   display: flex;
+  flex-direction: row;
   gap: 10px;
   padding: 10px 0;
   align-items: center;
   border-bottom: 1px solid #ffffff0c;
   font-size: 13px;
 }
+.suggested-sticker > span { min-width: 0; overflow-wrap: anywhere; }
 .suggested-sticker input {
   width: 18px;
   height: 18px;
