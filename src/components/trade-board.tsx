@@ -1,6 +1,6 @@
 "use client";
-import type { ReactNode } from "react";
-import { ArrowLeftRight, Check, Plus } from "lucide-react";
+import { useId, useState, type ReactNode } from "react";
+import { ArrowLeftRight, Check, ChevronDown, Plus } from "lucide-react";
 import type { Sticker } from "@/lib/domain";
 import { playerPhoto } from "@/lib/player-photos";
 import { seasonTeams, teamKey } from "@/lib/teams";
@@ -12,6 +12,8 @@ export function TradeBoard({
   otherCount,
   mine,
   other,
+  mineSelected,
+  otherSelected,
 }: {
   mineName: string;
   otherName: string;
@@ -19,7 +21,11 @@ export function TradeBoard({
   otherCount: number;
   mine: ReactNode;
   other: ReactNode;
+  mineSelected?: number;
+  otherSelected?: number;
 }) {
+  const id = useId();
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   return (
     <div
       className="trade-board"
@@ -36,6 +42,11 @@ export function TradeBoard({
           count: mineCount,
           label: "Tú das",
           content: mine,
+          chosen: mineSelected,
+          hint:
+            mineSelected === undefined
+              ? "Incluidos en el cambio"
+              : `Le faltan a ${otherName}`,
         },
         {
           side: "theirs",
@@ -43,6 +54,11 @@ export function TradeBoard({
           count: otherCount,
           label: "Tú recibes",
           content: other,
+          chosen: otherSelected,
+          hint:
+            otherSelected === undefined
+              ? "Incluidos en el cambio"
+              : "Son los que te faltan",
         },
       ].map((part) => (
         <section
@@ -54,18 +70,42 @@ export function TradeBoard({
             <strong>{part.name}</strong>
             <span>{part.label}</span>
           </div>
-          <div className="trade-stack" aria-hidden="true">
-            <span />
-            <span />
-            <div>
-              <b>{part.count}</b>
-              <small>{part.count === 1 ? "cromo" : "cromos"}</small>
-            </div>
+          <button
+            type="button"
+            className="trade-stack-toggle"
+            aria-label={`Ver cromos de ${part.name}`}
+            aria-expanded={Boolean(expanded[part.side])}
+            aria-controls={`${id}-${part.side}`}
+            onClick={() =>
+              setExpanded((v) => ({ ...v, [part.side]: !v[part.side] }))
+            }
+          >
+            <span className="trade-stack" aria-hidden="true">
+              <span />
+              <span />
+              <span className="trade-stack-front">
+                <b>{part.count}</b>
+                <small>{part.count === 1 ? "cromo" : "cromos"}</small>
+              </span>
+            </span>
+            <span className="trade-stack-action">
+              {expanded[part.side] ? "Cerrar montón" : "Ver cromos"}
+              <ChevronDown size={16} />
+            </span>
+          </button>
+          <p className="trade-pile-hint">{part.hint}</p>
+          {part.chosen !== undefined && (
+            <p className="trade-pile-selected">{part.chosen} elegidos</p>
+          )}
+          <div
+            id={`${id}-${part.side}`}
+            className="trade-pile-content"
+            hidden={!expanded[part.side]}
+          >
+            {expanded[part.side] && (
+              <div className="trade-pile-cards">{part.content}</div>
+            )}
           </div>
-          <p className="sr-only">
-            {part.count} {part.count === 1 ? "cromo" : "cromos"} en este lado
-          </p>
-          <div className="trade-pile-cards">{part.content}</div>
         </section>
       ))}
     </div>
@@ -141,7 +181,7 @@ export function TradeSticker({
       {onToggle && (
         <span className="trade-card-selection">
           {selected ? <Check size={16} /> : <Plus size={16} />}
-          {selected ? "Incluido" : "Añadir"}
+          {selected ? "Elegido" : "Elegir"}
         </span>
       )}
     </>

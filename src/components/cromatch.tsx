@@ -2127,7 +2127,7 @@ export function Cromatch({
                                   }, "Propuesta aceptada y unidades reservadas")
                                 }
                               >
-                                Aceptar propuesta
+                                Aceptar y reservar
                               </button>
                               <button
                                 className="secondary"

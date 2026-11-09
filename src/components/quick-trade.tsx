@@ -67,15 +67,7 @@ export function QuickTrade({
         if (!active) return;
         setAllowed(Boolean(permission.data));
         setTheirs(rows);
-        const matched = compare(stickers, inventory, rows);
-        setChoices(
-          Object.fromEntries([
-            ...matched.offer.slice(0, 50).map((s) => [`give:${s.id}`, true]),
-            ...matched.receive
-              .slice(0, 50)
-              .map((s) => [`receive:${s.id}`, true]),
-          ]),
-        );
+        setChoices({});
       } catch {
         if (active)
           setError(
@@ -283,42 +275,75 @@ export function QuickTrade({
                     ? "Enviando…"
                     : operation.current
                       ? "Reintentar envío"
-                      : "Solicitar intercambio"}
+                      : "Solicitar reserva"}
                 </button>
                 <small>
-                  No se mueve ningún cromo hasta que ambos confirméis el cambio.
+                  Tu amigo debe aceptar para reservar las copias de ambos. Los
+                  álbumes se actualizan al confirmar la entrega.
                 </small>
               </div>
               <p className="trade-selection-hint">
-                Los cromos ya están seleccionados. Pulsa una carta para quitarla
-                o añadirla.
+                Abre cada montón y elige las cartas. Solo aparecen repetidos que
+                os faltan al otro.
               </p>
               <TradeBoard
                 mineName={myName}
                 otherName={friend.display_name}
-                mineCount={gives.length}
-                otherCount={receives.length}
+                mineCount={matched.offer.length}
+                otherCount={matched.receive.length}
+                mineSelected={gives.length}
+                otherSelected={receives.length}
                 mine={
                   matched.offer.length ? (
-                    matched.offer.slice(0, 50).map((s) => (
-                      <TradeSticker
-                        key={s.id}
-                        sticker={s}
-                        selected={Boolean(choices[`give:${s.id}`])}
-                        label={`Dar ${s.name}, ${s.official_code}`}
+                    <>
+                      <button
+                        type="button"
+                        className="secondary trade-pile-select-all"
+                        aria-label="Elegir todos para dar"
                         disabled={
                           sending ||
                           Boolean(message) ||
                           Boolean(operation.current)
                         }
-                        onToggle={() =>
+                        onClick={() =>
                           setChoices((v) => ({
                             ...v,
-                            [`give:${s.id}`]: !v[`give:${s.id}`],
+                            ...Object.fromEntries(
+                              matched.offer
+                                .slice(0, 50)
+                                .map((s) => [
+                                  `give:${s.id}`,
+                                  gives.length !==
+                                    Math.min(matched.offer.length, 50),
+                                ]),
+                            ),
                           }))
                         }
-                      />
-                    ))
+                      >
+                        {gives.length === Math.min(matched.offer.length, 50)
+                          ? "Quitar selección"
+                          : "Elegir todos"}
+                      </button>
+                      {matched.offer.slice(0, 50).map((s) => (
+                        <TradeSticker
+                          key={s.id}
+                          sticker={s}
+                          selected={Boolean(choices[`give:${s.id}`])}
+                          label={`Dar ${s.name}, ${s.official_code}`}
+                          disabled={
+                            sending ||
+                            Boolean(message) ||
+                            Boolean(operation.current)
+                          }
+                          onToggle={() =>
+                            setChoices((v) => ({
+                              ...v,
+                              [`give:${s.id}`]: !v[`give:${s.id}`],
+                            }))
+                          }
+                        />
+                      ))}
+                    </>
                   ) : (
                     <p className="trade-pile-empty">
                       No tienes repetidos que le falten.
@@ -327,25 +352,56 @@ export function QuickTrade({
                 }
                 other={
                   matched.receive.length ? (
-                    matched.receive.slice(0, 50).map((s) => (
-                      <TradeSticker
-                        key={s.id}
-                        sticker={s}
-                        selected={Boolean(choices[`receive:${s.id}`])}
-                        label={`Recibir ${s.name}, ${s.official_code}`}
+                    <>
+                      <button
+                        type="button"
+                        className="secondary trade-pile-select-all"
+                        aria-label="Elegir todos para recibir"
                         disabled={
                           sending ||
                           Boolean(message) ||
                           Boolean(operation.current)
                         }
-                        onToggle={() =>
+                        onClick={() =>
                           setChoices((v) => ({
                             ...v,
-                            [`receive:${s.id}`]: !v[`receive:${s.id}`],
+                            ...Object.fromEntries(
+                              matched.receive
+                                .slice(0, 50)
+                                .map((s) => [
+                                  `receive:${s.id}`,
+                                  receives.length !==
+                                    Math.min(matched.receive.length, 50),
+                                ]),
+                            ),
                           }))
                         }
-                      />
-                    ))
+                      >
+                        {receives.length ===
+                        Math.min(matched.receive.length, 50)
+                          ? "Quitar selección"
+                          : "Elegir todos"}
+                      </button>
+                      {matched.receive.slice(0, 50).map((s) => (
+                        <TradeSticker
+                          key={s.id}
+                          sticker={s}
+                          selected={Boolean(choices[`receive:${s.id}`])}
+                          label={`Recibir ${s.name}, ${s.official_code}`}
+                          disabled={
+                            sending ||
+                            Boolean(message) ||
+                            Boolean(operation.current)
+                          }
+                          onToggle={() =>
+                            setChoices((v) => ({
+                              ...v,
+                              [`receive:${s.id}`]: !v[`receive:${s.id}`],
+                            }))
+                          }
+                        />
+                      ))}
+                    </>
                   ) : (
                     <p className="trade-pile-empty">
                       No tiene repetidos que te falten.

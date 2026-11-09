@@ -604,28 +604,70 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(suggestion).not.toContainText("Su colección es privada.");
     await page.unroute("**/rest/v1/rpc/can_view_inventory");
     await nav(page, "Actualizar coincidencias");
-    await expect(suggestion).toContainText("Sivera");
-    await expect(suggestion).toContainText("Tenaglia");
+    const board = suggestion.getByRole("group", {
+      name: "Cromos de los dos coleccionistas",
+      exact: true,
+    });
+    const mineToggle = board.getByRole("button", {
+      name: `Ver cromos de ${accounts[0].name}`,
+      exact: true,
+    });
+    const theirsToggle = board.getByRole("button", {
+      name: `Ver cromos de ${accounts[1].name}`,
+      exact: true,
+    });
+    await expect(mineToggle).toHaveAttribute("aria-expanded", "false");
+    await expect(theirsToggle).toHaveAttribute("aria-expanded", "false");
+    await expect(board.locator(".trade-visual-card")).toHaveCount(0);
+    await expect(
+      suggestion.getByRole("button", {
+        name: "Solicitar reserva",
+        exact: true,
+      }),
+    ).toBeDisabled();
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-closed-piles.png`,
+      fullPage: true,
+    });
+    await theirsToggle.click();
+    const receiveCard = board.getByRole("button", {
+      name: `Recibir Tenaglia, ${tenaglia.official_code}`,
+      exact: true,
+    });
+    await expect(receiveCard).toHaveAttribute("aria-pressed", "false");
+    await receiveCard.click();
+    await expect(receiveCard).toHaveAttribute("aria-pressed", "true");
+    await mineToggle.click();
     const giveCard = suggestion.getByRole("button", {
       name: `Dar Sivera, ${sivera.official_code}`,
       exact: true,
     });
-    await expect(giveCard).toHaveAttribute("aria-pressed", "true");
-    await giveCard.click();
     await expect(giveCard).toHaveAttribute("aria-pressed", "false");
     await expect(
       suggestion.getByRole("button", {
-        name: "Solicitar intercambio",
+        name: "Solicitar reserva",
         exact: true,
       }),
     ).toBeDisabled();
     await giveCard.click();
     await expect(giveCard).toHaveAttribute("aria-pressed", "true");
+    await giveCard.click();
+    await expect(giveCard).toHaveAttribute("aria-pressed", "false");
+    await expect(
+      suggestion.getByRole("button", {
+        name: "Solicitar reserva",
+        exact: true,
+      }),
+    ).toBeDisabled();
+    await board
+      .getByRole("button", { name: "Elegir todos para dar", exact: true })
+      .click();
+    await expect(giveCard).toHaveAttribute("aria-pressed", "true");
+    await mineToggle.click();
+    await expect(giveCard).toHaveCount(0);
+    await mineToggle.click();
+    await expect(giveCard).toHaveAttribute("aria-pressed", "true");
     await giveCard.hover();
-    const board = suggestion.getByRole("group", {
-      name: "Cromos de los dos coleccionistas",
-      exact: true,
-    });
     const leftPile = await board
       .getByRole("region", { name: "Tú das", exact: true })
       .boundingBox();
@@ -645,7 +687,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       )
       .toBeGreaterThan(0);
     await expect(
-      page.getByRole("button", { name: "Solicitar intercambio", exact: true }),
+      page.getByRole("button", { name: "Solicitar reserva", exact: true }),
     ).toBeEnabled();
     expect(
       await page.evaluate(
@@ -670,7 +712,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       expect(response.ok()).toBe(true);
       await route.abort("failed");
     });
-    await nav(page, "Solicitar intercambio");
+    await nav(page, "Solicitar reserva");
     await expect(
       page.getByRole("button", { name: "Reintentar envío", exact: true }),
     ).toBeEnabled();
@@ -710,7 +752,38 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     );
     await partnerPage.reload();
     await trades(partnerPage);
-    await nav(partnerPage, "Aceptar propuesta");
+    for (let i = 0; i < 2; i++) {
+      const pendingStock = await call(
+        `/rest/v1/user_inventory?select=reserved&user_id=eq.${accounts[i].id}`,
+        accounts[i].token,
+      );
+      expect(
+        pendingStock.every((r: { reserved: number }) => r.reserved === 0),
+      ).toBe(true);
+    }
+    await nav(partnerPage, "Aceptar y reservar");
+    for (let i = 0; i < 2; i++) {
+      const reservedStock = await call(
+        `/rest/v1/user_inventory?select=reserved&user_id=eq.${accounts[i].id}`,
+        accounts[i].token,
+      );
+      expect(
+        reservedStock.some((r: { reserved: number }) => r.reserved === 1),
+      ).toBe(true);
+    }
+    const partnerBoard = partnerPage.locator(".trade-panel .trade-board");
+    await partnerBoard
+      .getByRole("button", {
+        name: `Ver cromos de ${accounts[0].name}`,
+        exact: true,
+      })
+      .click();
+    await expect(
+      partnerBoard
+        .getByRole("region", { name: "Tú recibes", exact: true })
+        .getByRole("article", { name: "1 × Sivera", exact: true }),
+    ).toBeVisible();
+
     await expect(
       partnerPage.getByRole("button", {
         name: "Ya he hecho el cambio",
@@ -757,6 +830,11 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         ),
       ).toBe(true);
     }
+    for (const a of accounts)
+      await page
+        .locator(".trade-panel")
+        .getByRole("button", { name: `Ver cromos de ${a.name}`, exact: true })
+        .click();
     await expect(
       page
         .locator(".trade-panel")
