@@ -270,6 +270,17 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       "Buscar repetido por nombre o número",
       { exact: true },
     );
+    const searchScale = await page.evaluate(() => visualViewport?.scale ?? 1);
+    await repeatedSearch.click();
+    await repeatedSearch.fill("Sivera");
+    expect(
+      await repeatedSearch.evaluate((el) =>
+        parseFloat(getComputedStyle(el).fontSize),
+      ),
+    ).toBeGreaterThanOrEqual(16);
+    expect(await page.evaluate(() => visualViewport?.scale ?? 1)).toBe(
+      searchScale,
+    );
     await repeatedSearch.fill("3");
     await entry.getByLabel("Repetidos a añadir", { exact: true }).fill("3");
     const repeatedPayloads: unknown[] = [];

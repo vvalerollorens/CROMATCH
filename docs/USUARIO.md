@@ -23,7 +23,9 @@ No puedes quitar una unidad comprometida en un intercambio aceptado. Cancela pri
 
 ## Repetidos, faltantes y estadísticas
 
-Las pestañas del álbum se actualizan con el inventario. Puedes descargar la lista en texto. Un enlace compartido permite verla a otras personas registradas durante siete días; revócalo desde Perfil para retirar el acceso. Puedes enviar ese enlace mediante el servicio de mensajería que prefieras; esta versión no envía mensajes a WhatsApp por sí misma.
+En Repetidos puedes elegir equipo y escribir el número (también 13B o 5 Bis), o buscar por nombre. Indica cuántos repetidos quieres añadir y pulsa +cantidad junto al jugador. Intro añade cuando hay una única coincidencia. Se conservan el equipo y la búsqueda para seguir introduciendo cromos; la cantidad vuelve a uno tras guardar. Siempre se reserva una copia para el álbum. Si se interrumpe la respuesta, usa «Reintentar» para confirmar la misma operación sin duplicarla.
+
+«Filtrar o exportar mis repetidos» despliega las opciones de tu lista. Las pestañas del álbum se actualizan con el inventario. Puedes descargar la lista en texto. Un enlace compartido permite verla a otras personas registradas durante siete días; revócalo desde Perfil para retirar el acceso. Puedes enviar ese enlace mediante el servicio de mensajería que prefieras; esta versión no envía mensajes a WhatsApp por sí misma.
 
 El progreso cuenta cromos publicados distintos. Inicio muestra el porcentaje de toda la colección; cada equipo o serie muestra también su propio porcentaje, identificado como tal. Sin cromos, el progreso total es 0%. Las variantes pueden compartir posición física, por lo que el número de cromos y el de posiciones del álbum no son equivalentes. Las posiciones desconocidas aparecen como no verificadas. Una nueva edición puede aumentar el total y reducir el porcentaje sin que desaparezcan tus unidades.
 

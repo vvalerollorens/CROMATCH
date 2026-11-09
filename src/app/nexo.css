@@ -1718,3 +1718,21 @@ html {
 .owned-name small { display: block; color: var(--muted); font-size: .7rem; overflow-wrap: anywhere; margin-top: .15rem; }
 .owned-copies { white-space: nowrap; font-variant-numeric: tabular-nums; font-size: .8rem; }
 @media (max-width: 480px) { .owned-compact-list li { grid-template-columns: 2.8rem minmax(0, 1fr) auto; gap: .4rem; } }
+
+/* Keep touch form controls legible: iOS zooms inputs smaller than 16px.
+   This follows component rules so compact search styles cannot override it.
+   Pinch zoom remains available. */
+@media (max-width: 900px), (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea,
+  .quick-search input,
+  .search-field input,
+  .album-search input,
+  .toolbar select,
+  .header-actions select,
+  .scan-match > select,
+  .scan-text textarea {
+    font-size: max(16px, 1rem);
+  }
+}

@@ -133,6 +133,9 @@ test("visita sin correo recorre pantallas sin peticiones de datos", async ({
     page.getByRole("heading", { name: "Mis repetidos", exact: true }),
   ).toBeVisible();
   await page
+    .getByText("Filtrar o exportar mis repetidos", { exact: true })
+    .click();
+  await page
     .getByRole("button", { name: "Crear enlace compartido", exact: true })
     .click();
   await expect(
@@ -456,6 +459,13 @@ test("apartado Repetidos: buscar, añadir copias y mantener la plantilla limpia"
     exact: true,
   });
   const amount = entry.getByLabel("Repetidos a añadir", { exact: true });
+  const scale = await page.evaluate(() => visualViewport?.scale ?? 1);
+  await search.click();
+  await search.fill("Sivera");
+  expect(
+    await search.evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+  ).toBeGreaterThanOrEqual(16);
+  expect(await page.evaluate(() => visualViewport?.scale ?? 1)).toBe(scale);
   await search.fill("3");
   await amount.fill("3");
   await search.press("Enter");
