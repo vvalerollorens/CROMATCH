@@ -316,8 +316,15 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       path: `test-results/live-${info.project.name}-repeat-entry.png`,
       fullPage: true,
     });
-    for (let i = 0; i < 2; i++)
+    for (let i = 0; i < 2; i++) {
       await nav(page, "Quitar un repetido de Sivera, 3");
+      // Wait for the confirmed write before reloading or issuing the next one.
+      await expect(
+        page
+          .getByLabel("Repetidos de Sivera, 3", { exact: true })
+          .locator("strong"),
+      ).toHaveText(String(2 - i));
+    }
     await page.reload();
     await nav(page, "Repetidos");
     await expect(
