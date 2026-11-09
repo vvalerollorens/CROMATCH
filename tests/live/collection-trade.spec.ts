@@ -162,7 +162,9 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await page.reload();
     await nav(page, "Repetidos");
     await expect(
-      page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
+      page
+        .getByLabel("Repetidos de Sivera, 3", { exact: true })
+        .locator("strong"),
     ).toHaveText("1");
     const privateRows = await call(
       `/rest/v1/user_inventory?select=*&user_id=eq.${accounts[0].id}`,
