@@ -104,3 +104,11 @@ Versión `0fc2ace`: [Calidad y seguridad](https://github.com/vvalerollorens/CROM
 Se verifica añadir tres repetidos de una vez, buscar por equipo y número o nombre, mantener la búsqueda, conservar una copia para el álbum y reintentar una respuesta perdida sin sumar dos veces. La retirada de copias espera la confirmación antes de recargar y comprueba persistencia. La entrada mantiene texto de al menos 16 px y escala del visor estable al enfocarse y escribir. Esta comprobación automatizada utiliza Chromium; no certifica una prueba manual en Safari/iPhone. El CSS publicado se ha comprobado en producción y no desactiva la ampliación manual.
 
 El primer intento de la prueba alojada falló porque el guion recargaba tras el segundo clic antes de confirmar su guardado. Se corrigió la espera del guion y se repitió la prueba completa, que pasó. No se modificó el inventario de usuarios reales.
+
+## Intercambio directo desde Amigos — 9 de noviembre
+
+Versión `8d03d13`: [Calidad y seguridad](https://github.com/vvalerollorens/CROMATCH/actions/runs/42695086710) completada con TypeScript, compilación, 65 pruebas de lógica/base de datos y 30 pruebas públicas de navegador. [Prueba alojada](https://github.com/vvalerollorens/CROMATCH/actions/runs/42695086550) completada en escritorio y móvil con dos cuentas temporales.
+
+La prueba elige amigo desde Amigos con «Intercambiar», recupera un fallo de lectura sin confundirlo con privacidad, quita e incluye un cromo mediante su botón, comprueba que no se puede solicitar un cambio vacío, envía una propuesta, reintenta una respuesta perdida sin duplicarla, abre «Ver solicitud enviada» y completa aceptación y confirmación bilateral. Se mantiene la consulta del álbum ajeno y se comprueba que el diseño no desborda el ancho móvil. Se revisó la captura alojada del nuevo flujo y se corrigió el contraste al pasar por una carta y un acceso duplicado al perfil.
+
+Amigos, Repetidos y la pestaña de intercambio del perfil utilizan el mismo componente automático; se elimina el antiguo selector manual de cantidades del perfil. No hay cambios de esquema ni modificaciones de inventarios de cuentas reales.
