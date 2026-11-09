@@ -64,6 +64,7 @@ type Section =
   | "estadisticas"
   | "notificaciones"
   | "escaner"
+  | "comparar"
   | "admin";
 import {
   HomeIcon,
@@ -91,15 +92,15 @@ const titles: Record<Section, string> = {
   estadisticas: "Así va tu colección",
   notificaciones: "Notificaciones",
   escaner: "Añade tus cromos",
+  comparar: "Perfil y cambio",
   admin: "Administración del catálogo",
 };
 import { Empty, Logo, Legal } from "./ui";
-import { Dialog } from "./dialog";
 import { Landing } from "./landing";
 import { TradeProgress } from "./trade-progress";
+import { AlbumSaveCheck } from "./album-save-check";
 import { VisualAlbum } from "./visual-album";
-import { HomeOverview } from "./home-overview";
-import { playerPhoto } from "@/lib/player-photos";
+import { HomeOverview, type HomeFriend } from "./home-overview";
 import { referenceStickers } from "@/lib/catalogue";
 import { useLocalAlbum } from "@/lib/use-local-album";
 import { QuickAdd } from "./quick-add";
@@ -126,6 +127,7 @@ export function Cromatch({
   const pendingQuantity = useRef<
     Record<string, { operation: string; delta: number }>
   >({});
+  const inventoryRevision = useRef(0);
   const [rankedMatches, setRankedMatches] = useState<
     {
       user_id: string;
@@ -150,6 +152,7 @@ export function Cromatch({
   const [collections, setCollections] = useState<Collection[]>([]);
   const [collection, setCollection] = useState("");
   const [publishedStickers, setStickers] = useState<Sticker[]>([]);
+  const [loadedCatalogue, setLoadedCatalogue] = useState("");
   const [remoteInventory, setInventory] = useState<Inventory[]>([]);
   const localAlbum = useLocalAlbum();
   const stickers = visitor ? referenceStickers : publishedStickers;
@@ -187,7 +190,6 @@ export function Cromatch({
   const [series, setSeries] = useState("");
   const [edition, setEdition] = useState("");
   const [list, setList] = useState(false);
-  const [selected, setSelected] = useState<Sticker | null>(null);
   const [other, setOther] = useState<Profile | null>(null);
   const [theirInventory, setTheirInventory] = useState<Inventory[]>([]);
   const [selection, setSelection] = useState<Record<string, number>>({});
@@ -260,11 +262,13 @@ export function Cromatch({
     const acceptSession = (next: Session | null) => {
       const id = next?.user.id ?? null;
       if (activeUser.current !== id) {
+        inventoryRevision.current++;
         setBusy(false);
         setProfile(null);
         setCollections([]);
         setCollection("");
         setStickers([]);
+        setLoadedCatalogue("");
         setInventory([]);
         setTrades([]);
         setTradeItems([]);
@@ -275,7 +279,6 @@ export function Cromatch({
         setPeople([]);
         setOther(null);
         setTheirInventory([]);
-        setSelected(null);
         setSelection({});
         setShared([]);
         setSharedRows(null);
@@ -311,6 +314,7 @@ export function Cromatch({
     if (!session || visitor) return;
     setLoading(true);
     const db = database();
+    const revisionAtStart = inventoryRevision.current;
     try {
       const [p, c, inv, f, t, ti, n, pr, sh, b, h] = await Promise.all([
         db
@@ -354,11 +358,18 @@ export function Cromatch({
         if (res.error) throw new Error(res.error.message);
       const tradeIds = (t.data ?? []).map((row) => row.id);
       const partnerIds = [
-        ...new Set(
-          (t.data ?? []).map((row) =>
+        ...new Set([
+          ...(t.data ?? []).map((row) =>
             row.sender_id === session.user.id ? row.receiver_id : row.sender_id,
           ),
-        ),
+          ...(f.data ?? [])
+            .filter((row) => row.status === "accepted")
+            .map((row) =>
+              row.requester_id === session.user.id
+                ? row.recipient_id
+                : row.requester_id,
+            ),
+        ]),
       ];
       const [participants, partners] = await Promise.all([
         tradeIds.length
@@ -383,7 +394,8 @@ export function Cromatch({
       );
       setProfile(p.data);
       setCollections(c.data ?? []);
-      setInventory(inv.data ?? []);
+      if (revisionAtStart === inventoryRevision.current)
+        setInventory(inv.data ?? []);
       setFriends(f.data ?? []);
       setTrades(t.data ?? []);
       setTradeItems(ti.data ?? []);
@@ -427,7 +439,7 @@ export function Cromatch({
         all = all.concat(data as unknown as Sticker[]);
         if (data.length < 500) break;
       }
-      if (alive)
+      if (alive) {
         setStickers(
           all.sort(
             (a, b) =>
@@ -439,6 +451,8 @@ export function Cromatch({
               a.id.localeCompare(b.id),
           ),
         );
+        setLoadedCatalogue(collection);
+      }
     })();
     return () => {
       alive = false;
@@ -513,6 +527,36 @@ export function Cromatch({
   const own = new Map(inventory.map((i) => [i.sticker_id, i]));
   const their = new Map(theirInventory.map((i) => [i.sticker_id, i]));
   const matches = compare(stickers, inventory, theirInventory);
+  const homeFriends: HomeFriend[] = friends
+    .filter((f) => f.status === "accepted")
+    .flatMap((f) => {
+      const id =
+        f.requester_id === session?.user.id ? f.recipient_id : f.requester_id;
+      const person = tradePeople[id];
+      if (!person) return [];
+      const opportunity = rankedMatches.find((m) => m.user_id === id);
+      return [
+        {
+          user_id: id,
+          ...person,
+          ...(opportunity
+            ? {
+                offer_count: opportunity.offer_count,
+                receive_count: opportunity.receive_count,
+              }
+            : {}),
+        },
+      ];
+    })
+    .sort(
+      (a, b) =>
+        Math.min(b.offer_count ?? 0, b.receive_count ?? 0) -
+          Math.min(a.offer_count ?? 0, a.receive_count ?? 0) ||
+        (b.offer_count ?? 0) +
+          (b.receive_count ?? 0) -
+          ((a.offer_count ?? 0) + (a.receive_count ?? 0)) ||
+        a.display_name.localeCompare(b.display_name, "es"),
+    );
   const unread = notifications.filter((n) => !n.read_at).length;
   const filtered = stickers.filter(
     (s) =>
@@ -550,6 +594,7 @@ export function Cromatch({
         );
       const operation = pending?.operation ?? crypto.randomUUID();
       pendingQuantity.current[s.id] = { operation, delta };
+      inventoryRevision.current++;
       let q: number;
       try {
         q = await rpc("change_quantity", {
@@ -567,6 +612,7 @@ export function Cromatch({
         throw e;
       }
       if (requestedBy !== activeUser.current) return;
+      inventoryRevision.current++;
       delete pendingQuantity.current[s.id];
       setInventory((v) => [
         ...v.filter((i) => i.sticker_id !== s.id),
@@ -604,11 +650,13 @@ export function Cromatch({
       const requestedBy = activeUser.current;
       const data = await inventoryFor(p.id);
       if (activeUser.current !== requestedBy) return;
+      go("comparar");
       setTheirInventory(data ?? []);
       setOther(p);
       setSelection({});
       setDraft(null);
       setDraftId(null);
+      window.scrollTo({ top: 0, behavior: "instant" });
     });
   }
   async function friendAction(id: string, action: string) {
@@ -870,13 +918,34 @@ export function Cromatch({
         notices={notices}
       />
     );
+  if (
+    session &&
+    !visitor &&
+    (!profile || !collection || loadedCatalogue !== collection)
+  )
+    return (
+      <main className="auth-page">
+        <Logo />
+        <p role="status">Cargando el álbum guardado de tu cuenta…</p>
+        {notices}
+        {error && (
+          <button type="button" onClick={() => window.location.reload()}>
+            Volver a cargar mi álbum
+          </button>
+        )}
+      </main>
+    );
   const viewerId = session?.user.id ?? "";
   const card = (s: Sticker) => {
     const i = own.get(s.id);
     const q = i?.quantity ?? 0;
     return (
       <article key={s.id} className={`sticker-card ${list ? "compact" : ""}`}>
-        <button className="sticker-open" onClick={() => setSelected(s)}>
+        <button
+          className="sticker-open"
+          disabled={busy}
+          onClick={() => void quantity(s, q ? -1 : 1).catch(() => {})}
+        >
           <div className={`sticker-visual ${q ? "owned" : ""}`}>
             <span>{s.teams?.name ?? "Serie especial"}</span>
             <span className="card-symbol">
@@ -1095,6 +1164,16 @@ export function Cromatch({
               total={stats.total}
               duplicates={stats.available}
               friends={friends.filter((f) => f.status === "accepted").length}
+              opportunities={homeFriends}
+              busy={busy}
+              prepareTrade={(friend) =>
+                void openComparison({
+                  id: friend.user_id,
+                  username: friend.username,
+                  display_name: friend.display_name,
+                  is_admin: false,
+                })
+              }
               go={go}
             />
           )}
@@ -1108,7 +1187,6 @@ export function Cromatch({
               onScan={() => go("escaner")}
               collectionName={current?.name}
               onQuantity={quantity}
-              onDetail={setSelected}
               onNavigate={go}
             />
           )}
@@ -1366,7 +1444,9 @@ export function Cromatch({
                       onChange={(e) => setSearch(e.target.value)}
                     />
                   </label>
-                  <button disabled={busy}>Buscar</button>
+                  <button type="submit" disabled={busy}>
+                    Buscar
+                  </button>
                 </form>
                 {people.map((p) => (
                   <div className="person-row" key={p.id}>
@@ -1376,6 +1456,7 @@ export function Cromatch({
                       <p>@{p.username}</p>
                     </div>
                     <button
+                      type="button"
                       className="secondary"
                       disabled={busy}
                       onClick={() => void openComparison(p)}
@@ -1383,6 +1464,7 @@ export function Cromatch({
                       Ver perfil
                     </button>
                     <button
+                      type="button"
                       disabled={
                         busy ||
                         friends.some((f) =>
@@ -1468,6 +1550,13 @@ export function Cromatch({
           )}
           {other && (
             <section className="panel comparison">
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => go("amigos")}
+              >
+                ← Volver a amigos
+              </button>
               <div className="section-heading">
                 <div>
                   <h2>{other.display_name}</h2>
@@ -1476,10 +1565,32 @@ export function Cromatch({
                 <button
                   className="icon-button"
                   aria-label="Cerrar comparador"
-                  onClick={() => setOther(null)}
+                  onClick={() => go("amigos")}
                 >
                   <X />
                 </button>
+              </div>
+              <div className="profile-friend-action">
+                {friends.some(
+                  (f) =>
+                    [f.requester_id, f.recipient_id].includes(other.id) &&
+                    f.status === "accepted",
+                ) ? (
+                  <span className="tag">Sois amigos</span>
+                ) : friends.some((f) =>
+                    [f.requester_id, f.recipient_id].includes(other.id),
+                  ) ? (
+                  <span className="tag">Solicitud pendiente</span>
+                ) : (
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={busy}
+                    onClick={() => void friendAction(other.id, "request")}
+                  >
+                    Añadir amigo
+                  </button>
+                )}
               </div>
               <p>
                 Elige los repetidos que quieres cambiar con @{other.username}.
@@ -1891,12 +2002,10 @@ export function Cromatch({
                 <h2>Tu progreso, sin confusiones</h2>
                 <p>
                   Colección: {stats.owned}/{stats.total} cromos distintos (
-                  {stats.percent}%). Posiciones físicas cubiertas:{" "}
-                  {stats.positions}
-                  {current?.album_positions
-                    ? ` de ${current.album_positions}`
-                    : " (total de posiciones no verificado)"}
-                  .
+                  {stats.percent}%).{" "}
+                  {stickers.some((s) => s.album_position)
+                    ? `Posiciones físicas identificadas: ${stats.positions}${current?.album_positions ? ` de ${current.album_positions}` : " (mapa del álbum pendiente de verificar)"}.`
+                    : "Posiciones físicas del álbum: aún no verificadas."}
                 </p>
                 <p>
                   Al incorporar nuevas ediciones, aumenta el total de cromos y
@@ -1952,6 +2061,14 @@ export function Cromatch({
           )}
           {section === "perfil" && (
             <>
+              {!visitor && session && profile && (
+                <AlbumSaveCheck
+                  userId={session.user.id}
+                  username={profile.username}
+                  localInventory={localAlbum.inventory}
+                  onRecovered={load}
+                />
+              )}
               {visitor && (
                 <section className="panel local-profile">
                   <h2>Tu álbum, en este dispositivo</h2>
@@ -2367,7 +2484,7 @@ export function Cromatch({
           </button>
         ))}
       </nav>
-      {award.event && !quickAddOpen && !scanBusy && !selected && !legal && (
+      {award.event && !quickAddOpen && !scanBusy && !legal && (
         <CollectionCelebration event={award.event} close={award.close} />
       )}
       {quickAddOpen && (
@@ -2382,121 +2499,6 @@ export function Cromatch({
             go("escaner");
           }}
         />
-      )}
-      {selected && (
-        <Dialog titleId="sticker-title" close={() => setSelected(null)}>
-          <button
-            className="icon-button close"
-            onClick={() => setSelected(null)}
-            aria-label="Cerrar detalle"
-          >
-            <X />
-          </button>
-          <span className="eyebrow">
-            #{selected.official_code} · {selected.edition}
-          </span>
-          <h2 id="sticker-title">{selected.name}</h2>
-          <p>
-            {selected.teams?.name} · {selected.sticker_series?.name} ·{" "}
-            {selected.variant}
-          </p>
-          <p>Posición física: {selected.album_position ?? "No verificada"}</p>
-          {playerPhoto(selected) && (
-            <p className="portrait-credit">
-              <a
-                href={playerPhoto(selected)!.source}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Foto: {playerPhoto(selected)!.provider ?? "FootyLogos"} ↗
-              </a>
-              {" · "}
-              {playerPhoto(selected)!.player}
-              {" · "}
-              {playerPhoto(selected)!.season}
-              {" · "}
-              {playerPhoto(selected)!.club}
-            </p>
-          )}
-          {(!selected.catalog_reference || visitor) && (
-            <p>
-              {own.get(selected.id)?.quantity ?? 0} unidades ·{" "}
-              {available(own.get(selected.id))} disponibles ·{" "}
-              {own.get(selected.id)?.reserved ?? 0} reservadas
-            </p>
-          )}
-          <button
-            className="secondary"
-            onClick={() => {
-              setSelected(null);
-              go("repetidos");
-            }}
-          >
-            Gestionar en Repetidos
-          </button>
-          {Boolean(
-            selected.catalog_reference || selected.catalog_sources?.length,
-          ) && (
-            <div className="reference-detail">
-              <strong>
-                {selected.catalog_review === "needs_review"
-                  ? "Dato pendiente de confirmar"
-                  : "Coincidencias entre listados de coleccionismo"}
-              </strong>
-              <p>
-                {selected.catalog_reference
-                  ? "Catálogo de consulta: no equivale a validación oficial de Panini ni activa el inventario."
-                  : "Datos contrastados entre listados de coleccionismo. El cotejo con el listado oficial de Panini sigue pendiente."}
-              </p>
-              {selected.catalog_notes?.map((note, index) => (
-                <p key={index}>{note}</p>
-              ))}
-              <h3>Qué dice cada fuente</h3>
-              {selected.catalog_sources?.map((source, index) => (
-                <div key={index}>
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {source.name} ↗
-                  </a>
-                  <p>
-                    {source.number ?? "Sin número"} · {source.nameInSource}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-          <p>
-            {selected.catalog_reference
-              ? "Consultado:"
-              : selected.verification_method === "cross_checked_sources"
-                ? "Contrastado:"
-                : "Verificado:"}{" "}
-            {new Date(selected.verified_at).toLocaleDateString("es-ES")}
-          </p>
-          <div className="export-actions">
-            <a
-              href={selected.source_url}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Fuente original ↗
-            </a>
-            <a
-              href={selected.corroboration_url}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Fuente de contraste ↗
-            </a>
-          </div>
-          <p>
-            Se muestran nombres y numeración; las fotografías de los cromos no
-            se incluyen.
-          </p>
-        </Dialog>
       )}
       {legal && <Legal close={() => setLegal(false)} />}
     </div>

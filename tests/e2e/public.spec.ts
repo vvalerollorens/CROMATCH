@@ -335,14 +335,9 @@ test("índice completo de consulta, numeración y fuentes visibles", async ({
     .getByRole("button", { name: "Ver Top Fichajes", exact: true })
     .click();
   await expect(page.locator(".needs-review")).toHaveCount(3);
-  await page
-    .getByRole("button", { name: "Ver fuentes de Rodri", exact: true })
-    .click();
-  await expect(page.getByRole("dialog")).toContainText(
-    "pendiente de confirmar",
-  );
-  await expect(page.getByRole("dialog")).toContainText("Qué dice cada fuente");
-  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: /Ver fuentes de/ }),
+  ).toHaveCount(0);
   await series
     .getByRole("button", { name: "Ver Extra Sticker Oro", exact: true })
     .click();
@@ -390,12 +385,11 @@ test("retratos locales de FootyLogos: desenfocados al faltar y nítidos al conse
   await page.screenshot({
     path: testInfo.outputPath("album-foto-conseguida.png"),
   });
-  await page
-    .getByRole("button", { name: "Ver fuentes de Sivera", exact: true })
-    .click();
-  await expect(page.getByRole("dialog")).toContainText("Foto: FootyLogos");
-  await expect(page.getByRole("dialog")).toContainText("Antonio Sivera");
-  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(owned.locator(".slot-club-badge img")).toHaveAttribute(
+    "src",
+    "/badges/alaves-white.svg",
+  );
   await owned.click();
   await expect(photo).toHaveCSS("opacity", "0.55");
   await expect(

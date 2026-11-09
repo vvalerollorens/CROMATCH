@@ -1517,3 +1517,107 @@ html {
     margin-top: 14px;
   }
 }
+
+.home-matches {
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid #e6b58b3b;
+  border-radius: 26px;
+  background:
+    radial-gradient(ellipse at 0 0, #df8a6930, transparent 65%), #211923b3;
+}
+.home-matches h2 {
+  margin: 10px 0 18px;
+  font-size: clamp(23px, 3vw, 32px);
+  line-height: 1.2;
+}
+.home-match {
+  padding: 16px 0;
+  border-top: 1px solid #ffffff13;
+}
+.home-match > div {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+.home-match strong {
+  font-size: 17px;
+  color: #f2e4dc;
+}
+.home-match small,
+.home-match > p {
+  color: #c1afc1;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.home-match-counts {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.home-match-counts span {
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #f6d4b40a;
+}
+.home-match-counts b {
+  color: #f0c898;
+  padding-left: 5px;
+}
+.home-match .glow-cta {
+  min-height: 44px;
+  padding: 11px 18px;
+  font-size: 14px;
+}
+.home-matches > .text-button {
+  font-size: 12px;
+  margin-top: 4px;
+}
+.profile-friend-action {
+  margin: 6px 0 18px;
+}
+.slot-club-badge {
+  position: absolute;
+  z-index: 3;
+  right: 9px;
+  top: 37px;
+  width: 28px;
+  height: 32px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #170f21c9;
+  border: 1px solid #ffffff20;
+  pointer-events: none;
+}
+.slot-club-badge .team-badge {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+.slot-club-badge .club-crest {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.album-save-check p {
+  color: #cdbed0;
+  line-height: 1.65;
+}
+.device-album-backup {
+  border-top: 1px solid #ffffff18;
+  margin-top: 20px;
+  padding-top: 16px;
+}
+.album-total-progress {
+  color: #baaaba;
+  font-size: 12px;
+  margin: 2px 0 12px;
+}
+.album-progress > span:last-child {
+  font-size: 12px;
+  text-align: right;
+}

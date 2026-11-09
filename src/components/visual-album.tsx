@@ -85,7 +85,6 @@ export function VisualAlbum({
   local = false,
   onScan,
   onQuantity,
-  onDetail,
   onNavigate,
 }: {
   stickers: Sticker[];
@@ -96,7 +95,6 @@ export function VisualAlbum({
   local?: boolean;
   onScan?: () => void;
   onQuantity: (s: Sticker, d: number) => Promise<void>;
-  onDetail: (s: Sticker) => void;
   onNavigate: (s: "repetidos" | "faltantes") => void;
 }) {
   const reference =
@@ -166,6 +164,7 @@ export function VisualAlbum({
       : (own.get(s.id)?.quantity ?? 0);
   const rows = entries.filter((s) => sectionOf(s) === selected);
   const count = rows.filter((s) => quantity(s) > 0).length;
+  const albumOwned = entries.filter((s) => quantity(s) > 0).length;
   const visible = rows.filter(
     (s) =>
       (mode === "all" ||
@@ -185,20 +184,22 @@ export function VisualAlbum({
   const open = (s: Sticker) => {
     if (local) {
       const q = quantity(s);
-      if (q > 1) onDetail(s);
+      if (q > 1) onNavigate("repetidos");
       else void onQuantity(s, q ? -1 : 1).catch(() => {});
       return;
     }
     if (reference) {
       if (!visitor) {
-        onDetail(s);
+        setAnnouncement(
+          "Espera a que termine de cargar el álbum de tu cuenta.",
+        );
         return;
       }
       setMarked((v) => ({ ...v, [s.id]: !v[s.id] }));
       setAnnouncement(
         `${s.name}: ${marked[s.id] ? "sin marcar" : "marcado en esta visita"}`,
       );
-    } else if (quantity(s) > 1) onDetail(s);
+    } else if (quantity(s) > 1) onNavigate("repetidos");
     else void onQuantity(s, quantity(s) ? -1 : 1).catch(() => {});
   };
   return (
@@ -308,6 +309,11 @@ export function VisualAlbum({
         </div>
         {section && <TeamBadge short={section.short} teamId={section.id} />}
       </div>
+      <p className="album-total-progress">
+        Tu colección: {albumOwned} de {entries.length} cromos ·{" "}
+        {entries.length ? Math.round((albumOwned / entries.length) * 100) : 0}%
+        del total
+      </p>
       <div className="album-progress">
         <span>
           <strong>{count}</strong>
@@ -320,6 +326,7 @@ export function VisualAlbum({
         </span>
         <span>
           {rows.length ? Math.round((count / rows.length) * 100) : 0}%
+          {group === "team" ? " del equipo" : " de esta serie"}
         </span>
         <progress
           aria-label={
@@ -423,10 +430,10 @@ export function VisualAlbum({
                 aria-label={
                   reference
                     ? q > 1
-                      ? `Ver ${s.name}, ${q} unidades`
+                      ? `Gestionar repetidos de ${s.name}`
                       : `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
                     : q > 1
-                      ? `Ver ${s.name}, ${q} unidades`
+                      ? `Gestionar repetidos de ${s.name}`
                       : q === 1
                         ? `Desmarcar ${s.name}, código ${s.official_code}`
                         : `Desbloquear ${s.name}, código ${s.official_code}`
@@ -461,6 +468,14 @@ export function VisualAlbum({
                     )}
                   </span>
                 )}
+                {s.teams && s.name !== "Escudo" && (
+                  <span className="slot-club-badge">
+                    <TeamBadge
+                      teamId={teamKey(s.teams.name)}
+                      short={s.teams.name.slice(0, 3).toUpperCase()}
+                    />
+                  </span>
+                )}
                 <span className="slot-caption">{s.name}</span>
                 <span className="slot-corner">
                   {q ? (
@@ -471,18 +486,6 @@ export function VisualAlbum({
                 </span>
                 {review && <span className="slot-review">Revisar</span>}
               </button>
-              {reference ? (
-                <button
-                  className="slot-source-button"
-                  aria-label={`Ver fuentes de ${s.name}`}
-                  onClick={() => onDetail(s)}
-                >
-                  <Info size={12} />
-                  <span>
-                    {review ? "Dato por confirmar" : "Fuentes y edición"}
-                  </span>
-                </button>
-              ) : null}
             </article>
           );
         })}

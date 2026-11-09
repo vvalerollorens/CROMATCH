@@ -57,7 +57,7 @@ describe("álbum visual", () => {
         ]}
       />,
     );
-    expect(html).toContain("Ver Fixture de pruebas, 2 unidades");
+    expect(html).toContain("Gestionar repetidos de Fixture de pruebas");
     expect(html).not.toContain("Quitar una unidad");
     expect(html).not.toContain("Añadir una unidad");
     expect(html).not.toContain("slot-counter");

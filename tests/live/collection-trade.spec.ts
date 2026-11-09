@@ -40,6 +40,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     id: string;
   }[] = [];
   let tradeId: string | undefined;
+  let releaseDelayedRead = () => {};
   const second = await browser.newContext({
     viewport: page.viewportSize() ?? undefined,
     isMobile: info.project.name === "mobile",
@@ -135,12 +136,53 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       name: "Desbloquear Sivera, código 3",
       exact: true,
     });
+    await expect(mark.locator(".slot-club-badge img")).toHaveAttribute(
+      "src",
+      "/badges/alaves-white.svg",
+    );
+    let capturedRead = () => {};
+    let deliveredRead = () => {};
+    let delayed = false;
+    const captured = new Promise<void>((resolve) => {
+      capturedRead = resolve;
+    });
+    const delivered = new Promise<void>((resolve) => {
+      deliveredRead = resolve;
+    });
+    const released = new Promise<void>((resolve) => {
+      releaseDelayedRead = resolve;
+    });
+    await page.route("**/rest/v1/user_inventory?**", async (route) => {
+      const url = new URL(route.request().url());
+      if (
+        delayed ||
+        route.request().method() !== "GET" ||
+        !url.searchParams.get("user_id")?.includes(accounts[0].id)
+      )
+        return route.continue();
+      delayed = true;
+      const response = await route.fetch();
+      capturedRead();
+      await released;
+      await route.fulfill({ response });
+      deliveredRead();
+    });
+    await page.evaluate(() =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+    await captured;
     await mark.click();
     const unmark = page.getByRole("button", {
       name: "Desmarcar Sivera, código 3",
       exact: true,
     });
     await expect(unmark).toHaveAttribute("aria-pressed", "true");
+    releaseDelayedRead();
+    await delivered;
+    await page.waitForLoadState("networkidle");
+    await expect(unmark).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.unroute("**/rest/v1/user_inventory?**");
     await unmark.click();
     await expect(mark).toHaveAttribute("aria-pressed", "false");
     // First duplicate adds two copies atomically, including the album copy.
@@ -171,11 +213,47 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       accounts[1].token,
     );
     expect(privateRows).toEqual([]);
+    await nav(page, "Mi perfil");
+    const saveCheck = page.getByRole("region", {
+      name: "Revisión de guardado",
+    });
+    await expect(saveCheck).toContainText("1 cromo distinto");
+    await expect(saveCheck).toContainText("no tiene marcas pendientes");
     await rpc(1, "change_quantity", {
       p_sticker: tenaglia.id,
       p_delta: 2,
       p_operation: randomUUID(),
     });
+    // Opening a searched profile must leave search, never submit it a second time.
+    await nav(page, "Inicio");
+    await nav(page, "Intercambios");
+    await nav(page, "Elegir amigo para un cambio");
+    let searches = 0;
+    page.on("request", (r) => {
+      const url = new URL(r.url());
+      if (
+        url.pathname === "/rest/v1/profiles" &&
+        url.searchParams.get("username")?.startsWith("like.")
+      )
+        searches++;
+    });
+    await page
+      .getByLabel("Nombre de usuario", { exact: true })
+      .fill(accounts[1].name);
+    await nav(page, "Buscar");
+    await expect(
+      page.getByRole("button", { name: "Ver perfil", exact: true }),
+    ).toBeVisible();
+    const searchesBefore = searches;
+    await nav(page, "Ver perfil");
+    await expect(
+      page.getByRole("heading", { name: "Perfil y cambio", exact: true }),
+    ).toBeVisible();
+    await expect(page.locator(".comparison h2")).toHaveText(accounts[1].name);
+    await expect(
+      page.getByRole("button", { name: "Buscar", exact: true }),
+    ).toHaveCount(0);
+    expect(searches).toBe(searchesBefore);
     await rpc(0, "friend_action", {
       p_other: accounts[1].id,
       p_action: "request",
@@ -192,8 +270,18 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         p_matches: false,
       });
     await page.reload();
-    await nav(page, "Amigos");
-    await nav(page, "Ver colección y comparar");
+    const homeMatches = page.getByRole("region", {
+      name: "Cambios con tus amigos",
+    });
+    await expect(homeMatches).toContainText("Ya tenéis cromos para cambiar");
+    await expect(homeMatches).toContainText(accounts[1].name);
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-home-match.png`,
+    });
+    await nav(page, `Preparar cambio con @${accounts[1].name}`);
+    await expect(
+      page.getByRole("heading", { name: "Perfil y cambio", exact: true }),
+    ).toBeVisible();
     await page
       .getByLabel("Unidades de Sivera para Tú das", { exact: true })
       .fill("1");
@@ -272,6 +360,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       path: `test-results/live-${info.project.name}-completed.png`,
     });
   } finally {
+    releaseDelayedRead();
     if (info.status !== info.expectedStatus)
       await page
         .screenshot({

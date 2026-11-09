@@ -71,6 +71,11 @@ beforeAll(async () => {
       readFileSync(
         "supabase/migrations/202611080005_bulk_quantities.sql",
         "utf8",
+      ) +
+      "\n" +
+      readFileSync(
+        "supabase/migrations/202611090006_album_recovery.sql",
+        "utf8",
       ),
   );
   for (const id of [A, B, C])
@@ -92,6 +97,79 @@ afterAll(async () => {
   await db.close();
 });
 describe("PostgreSQL, RLS y flujo completo", () => {
+  it("diagnostica y recupera solo el inventario propio desde el historial, sin duplicarlo y conservando reservas", async () => {
+    await owner();
+    const d = uuid(),
+      e = uuid();
+    await db.query("insert into auth.users(id) values($1),($2)", [d, e]);
+    await user(null);
+    await expect(rpc("album_save_status")).rejects.toThrow();
+    await expect(rpc("recover_album_from_history")).rejects.toThrow();
+    await user(d);
+    await rpc("change_quantity", [S1, 2, uuid()]);
+    await rpc("update_profile", ["recovery_d", "D", "friends", false]);
+    await rpc("friend_action", [e, "request"]);
+    await user(e);
+    await rpc("change_quantity", [S2, 3, uuid()]);
+    await rpc("update_profile", ["recovery_e", "E", "friends", false]);
+    await rpc("friend_action", [d, "accept"]);
+    await user(d);
+    const trade = await rpc("propose_trade", [
+      e,
+      collection,
+      JSON.stringify([
+        { giver_id: d, sticker_id: S1, quantity: 1 },
+        { giver_id: e, sticker_id: S2, quantity: 1 },
+      ]),
+      uuid(),
+    ]);
+    await user(e);
+    await rpc("trade_action", [trade, "accept"]);
+    await owner();
+    await db.query("delete from public.user_inventory where user_id=$1", [d]);
+    await user(d);
+    expect(await rpc("album_save_status")).toMatchObject({
+      saved_stickers: 0,
+      movements: 1,
+      recoverable_stickers: 1,
+    });
+    expect(await rpc("recover_album_from_history")).toMatchObject({
+      recovered_stickers: 1,
+      recovered_copies: 2,
+    });
+    expect(await qty(d, S1)).toMatchObject({ quantity: 2, reserved: 1 });
+    await user(d);
+    expect(await rpc("recover_album_from_history")).toMatchObject({
+      recovered_stickers: 0,
+      recovered_copies: 0,
+    });
+    expect(await rpc("album_save_status")).toMatchObject({
+      saved_stickers: 1,
+      movements: 1,
+      recoverable_stickers: 0,
+    });
+    await user(e);
+    expect(await rpc("album_save_status")).toMatchObject({
+      saved_stickers: 1,
+      movements: 1,
+      recoverable_stickers: 0,
+    });
+    await owner();
+    await db.query(
+      "update public.user_inventory set quantity=4 where user_id=$1 and sticker_id=$2",
+      [d, S1],
+    );
+    await user(d);
+    expect(await rpc("recover_album_from_history")).toMatchObject({
+      recovered_stickers: 0,
+    });
+    expect(await qty(d, S1)).toMatchObject({ quantity: 4, reserved: 1 });
+    await user(d);
+    await rpc("trade_action", [trade, "cancel"]);
+    await rpc("delete_my_account");
+    await user(e);
+    await rpc("delete_my_account");
+  });
   it("añade un primer repetido y cantidades OCR de forma atómica e idempotente", async () => {
     await user(B);
     const op = uuid();

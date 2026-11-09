@@ -6,23 +6,109 @@ import {
   CardsIcon as Copy,
   FriendsIcon as Users,
 } from "./app-icons";
+export type HomeFriend = {
+  user_id: string;
+  username: string;
+  display_name: string;
+  offer_count?: number;
+  receive_count?: number;
+};
 export function HomeOverview({
   owned,
   total,
   duplicates,
   friends,
+  opportunities,
+  busy,
+  prepareTrade,
   go,
 }: {
   owned: number;
   total: number;
   duplicates: number;
   friends: number;
+  opportunities: HomeFriend[];
+  busy: boolean;
+  prepareTrade: (friend: HomeFriend) => void;
   go: (
     section: "album" | "intercambios" | "amigos" | "repetidos" | "escaner",
   ) => void;
 }) {
   return (
     <div className="simple-home">
+      {friends > 0 && (
+        <section className="home-matches" aria-label="Cambios con tus amigos">
+          <span className="eyebrow">TU PRÓXIMO CAMBIO</span>
+          <h2>
+            {opportunities.some(
+              (f) => (f.offer_count ?? 0) > 0 && (f.receive_count ?? 0) > 0,
+            )
+              ? "Ya tenéis cromos para cambiar."
+              : "Tu próximo cambio empieza aquí."}
+          </h2>
+          {opportunities.slice(0, 3).map((friend) => {
+            const known =
+              friend.offer_count !== undefined &&
+              friend.receive_count !== undefined;
+            const reciprocal =
+              (friend.offer_count ?? 0) > 0 && (friend.receive_count ?? 0) > 0;
+            return (
+              <div className="home-match" key={friend.user_id}>
+                <div>
+                  <strong>{friend.display_name}</strong>
+                  <small>@{friend.username}</small>
+                </div>
+                {known ? (
+                  <p className="home-match-counts">
+                    <span>
+                      Tú das <b>{friend.offer_count}</b>
+                    </span>
+                    <span>
+                      Tú recibes <b>{friend.receive_count}</b>
+                    </span>
+                  </p>
+                ) : (
+                  <p>
+                    Compartid vuestros álbumes con «Solo amigos» en Mi perfil
+                    para ver coincidencias.
+                  </p>
+                )}
+                {known &&
+                  friend.offer_count === 0 &&
+                  friend.receive_count === 0 && (
+                    <p>
+                      Aún no hay coincidencias. Registrad vuestros repetidos
+                      para encontrarlas.
+                    </p>
+                  )}
+                <button
+                  type="button"
+                  className={reciprocal ? "glow-cta" : "secondary"}
+                  disabled={busy}
+                  aria-label={`${reciprocal ? "Preparar cambio" : "Ver coincidencias"} con @${friend.username}`}
+                  onClick={() => prepareTrade(friend)}
+                >
+                  {reciprocal ? "Preparar cambio" : "Ver coincidencias"}
+                  <ArrowRight size={17} />
+                </button>
+              </div>
+            );
+          })}
+          {!opportunities.length && (
+            <p>
+              Tu amigo ya está en tu equipo. Abre sus coincidencias para
+              preparar vuestro primer cambio.
+            </p>
+          )}
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => go("amigos")}
+          >
+            Ver mis amigos <ArrowRight size={15} />
+          </button>
+        </section>
+      )}
       <section className="glow-hero">
         <div className="glow-orbit" aria-hidden="true">
           <div />
@@ -57,7 +143,7 @@ export function HomeOverview({
           </span>
           <span>
             {total
-              ? `${Math.round((owned / total) * 100)}%`
+              ? `${Math.round((owned / total) * 100)}% de la colección`
               : "Todo empieza aquí"}
           </span>
           <progress
