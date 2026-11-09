@@ -9,7 +9,6 @@ const props = {
   inventory: [],
   busy: false,
   onQuantity: async () => {},
-  onDetail: noop,
   onNavigate: noop,
 };
 describe("álbum visual", () => {
@@ -62,5 +61,35 @@ describe("álbum visual", () => {
     expect(html).not.toContain("Añadir una unidad");
     expect(html).not.toContain("slot-counter");
     expect(html).not.toContain("preview-slot");
+  });
+  it("la colección de un amigo muestra su inventario y bloquea la edición", () => {
+    const sticker = {
+      id: "friend-card",
+      name: "Tenaglia",
+      official_code: "7",
+      edition: "TEST",
+      variant: "base",
+      teams: { name: "Deportivo Alavés" },
+    } as Sticker;
+    const html = renderToStaticMarkup(
+      <VisualAlbum
+        {...props}
+        stickers={[sticker]}
+        visitor={false}
+        readOnly
+        inventory={[
+          {
+            user_id: "friend",
+            sticker_id: sticker.id,
+            quantity: 2,
+            reserved: 0,
+          },
+        ]}
+      />,
+    );
+    expect(html).toContain("Su colección: 1 de");
+    expect(html).toMatch(/disabled="" aria-label="Tiene Tenaglia, código 7"/);
+    expect(html).not.toContain("Gestionar repetidos de Tenaglia");
+    expect(html).not.toContain("Reconocer cromos con la cámara");
   });
 });

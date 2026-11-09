@@ -227,7 +227,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     // Opening a searched profile must leave search, never submit it a second time.
     await nav(page, "Inicio");
     await nav(page, "Intercambios");
-    await nav(page, "Elegir amigo para un cambio");
+    await nav(page, "Buscar compañeros");
     let searches = 0;
     page.on("request", (r) => {
       const url = new URL(r.url());
@@ -282,13 +282,28 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(
       page.getByRole("heading", { name: "Perfil y cambio", exact: true }),
     ).toBeVisible();
+    await nav(page, "Ver colección");
+    await expect(
+      page.getByRole("button", {
+        name: `Tiene Tenaglia, código ${tenaglia.official_code}`,
+        exact: true,
+      }),
+    ).toBeDisabled();
+    await nav(page, "Repetidos");
+    await nav(page, "Cambiar con amigos");
     await page
-      .getByLabel("Unidades de Sivera para Tú das", { exact: true })
-      .fill("1");
-    await page
-      .getByLabel("Unidades de Tenaglia para Tú recibes", { exact: true })
-      .fill("1");
-    await nav(page, "Proponer este cambio");
+      .getByLabel("Amigo para intercambiar", { exact: true })
+      .selectOption(accounts[1].id);
+    const suggestion = page.getByRole("region", {
+      name: "Preparar intercambio automático",
+    });
+    await expect(suggestion).toContainText("Sivera");
+    await expect(suggestion).toContainText("Tenaglia");
+    await expect(
+      page.getByRole("button", { name: "Solicitar intercambio", exact: true }),
+    ).toBeEnabled();
+    await nav(page, "Solicitar intercambio");
+    await expect(suggestion).toContainText("Solicitud enviada");
     await expect(page.locator(".trade-panel")).toHaveCount(1);
     tradeId =
       (await page.locator(".trade-panel").getAttribute("data-trade-id")) ??

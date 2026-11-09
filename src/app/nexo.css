@@ -1621,3 +1621,44 @@ html {
   font-size: 12px;
   text-align: right;
 }
+.visual-album.is-readonly .slot-main:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.quick-trade > label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  margin: 20px 0 10px;
+}
+.quick-trade select {
+  width: 100%;
+  min-height: 48px;
+}
+.quick-trade .compare-columns {
+  margin: 18px 0;
+}
+.quick-trade .compare-columns > div {
+  padding: 14px;
+  border: 1px solid #ffffff15;
+  border-radius: 16px;
+}
+.suggested-sticker {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  align-items: center;
+  border-bottom: 1px solid #ffffff0c;
+  font-size: 13px;
+}
+.suggested-sticker input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+.suggested-sticker small {
+  display: block;
+  color: #bcaebe;
+  margin-top: 4px;
+  font-size: 11px;
+}

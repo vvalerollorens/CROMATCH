@@ -99,6 +99,7 @@ import { Empty, Logo, Legal } from "./ui";
 import { Landing } from "./landing";
 import { TradeProgress } from "./trade-progress";
 import { AlbumSaveCheck } from "./album-save-check";
+import { QuickTrade } from "./quick-trade";
 import { VisualAlbum } from "./visual-album";
 import { HomeOverview, type HomeFriend } from "./home-overview";
 import { referenceStickers } from "@/lib/catalogue";
@@ -206,6 +207,11 @@ export function Cromatch({
     { official_code: string; name: string; quantity: number }[] | null
   >(null);
   const [tradeFilter, setTradeFilter] = useState("all");
+  const [repeatView, setRepeatView] = useState<"copies" | "trades">("copies");
+  const [profileTab, setProfileTab] = useState<"collection" | "trade">(
+    "collection",
+  );
+  const [theirAllowed, setTheirAllowed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [blocks, setBlocks] = useState<{ blocked_id: string }[]>([]);
   const [history, setHistory] = useState<
@@ -214,6 +220,7 @@ export function Cromatch({
   const [draftId, setDraftId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, number> | null>(null);
   const go = (s: Section) => {
+    if (s === "repetidos") setRepeatView("copies");
     setSection(s);
     setOther(null);
     setSearch("");
@@ -250,9 +257,21 @@ export function Cromatch({
   };
   const rpc = async (name: string, args: Record<string, unknown> = {}) => {
     if (visitor) throw new Error("El modo visita es de solo lectura.");
-    const { data, error } = await database().rpc(name, args);
-    if (error) throw new Error(error.message);
-    return data;
+    const changesInventory = [
+      "change_quantity",
+      "trade_action",
+      "recover_album_from_history",
+    ].includes(name);
+    const requestedBy = activeUser.current;
+    if (changesInventory) inventoryRevision.current++;
+    try {
+      const { data, error } = await database().rpc(name, args);
+      if (error) throw new Error(error.message);
+      return data;
+    } finally {
+      if (changesInventory && requestedBy === activeUser.current)
+        inventoryRevision.current++;
+    }
   };
   useEffect(() => {
     if ("serviceWorker" in navigator)
@@ -594,7 +613,6 @@ export function Cromatch({
         );
       const operation = pending?.operation ?? crypto.randomUUID();
       pendingQuantity.current[s.id] = { operation, delta };
-      inventoryRevision.current++;
       let q: number;
       try {
         q = await rpc("change_quantity", {
@@ -612,7 +630,6 @@ export function Cromatch({
         throw e;
       }
       if (requestedBy !== activeUser.current) return;
-      inventoryRevision.current++;
       delete pendingQuantity.current[s.id];
       setInventory((v) => [
         ...v.filter((i) => i.sticker_id !== s.id),
@@ -645,12 +662,21 @@ export function Cromatch({
       setPeople(data ?? []);
     });
   }
-  async function openComparison(p: Profile) {
+  async function openComparison(
+    p: Profile,
+    intent: "collection" | "trade" = "collection",
+  ) {
     await act(async () => {
       const requestedBy = activeUser.current;
-      const data = await inventoryFor(p.id);
+      const permission = await database().rpc("can_view_inventory", {
+        owner_id: p.id,
+      });
+      if (permission.error) throw permission.error;
+      const data = permission.data ? await inventoryFor(p.id) : [];
       if (activeUser.current !== requestedBy) return;
       go("comparar");
+      setTheirAllowed(Boolean(permission.data));
+      setProfileTab(intent);
       setTheirInventory(data ?? []);
       setOther(p);
       setSelection({});
@@ -1167,12 +1193,15 @@ export function Cromatch({
               opportunities={homeFriends}
               busy={busy}
               prepareTrade={(friend) =>
-                void openComparison({
-                  id: friend.user_id,
-                  username: friend.username,
-                  display_name: friend.display_name,
-                  is_admin: false,
-                })
+                void openComparison(
+                  {
+                    id: friend.user_id,
+                    username: friend.username,
+                    display_name: friend.display_name,
+                    is_admin: false,
+                  },
+                  "trade",
+                )
               }
               go={go}
             />
@@ -1190,7 +1219,30 @@ export function Cromatch({
               onNavigate={go}
             />
           )}
-          {["repetidos", "faltantes"].includes(section) && (
+          {section === "repetidos" && (
+            <div
+              className="tabs"
+              role="group"
+              aria-label="Repetidos e intercambios"
+            >
+              <button
+                type="button"
+                className={repeatView === "copies" ? "active" : ""}
+                onClick={() => setRepeatView("copies")}
+              >
+                Mis repetidos
+              </button>
+              <button
+                type="button"
+                className={repeatView === "trades" ? "active" : ""}
+                onClick={() => setRepeatView("trades")}
+              >
+                Cambiar con amigos
+              </button>
+            </div>
+          )}
+          {(section === "faltantes" ||
+            (section === "repetidos" && repeatView === "copies")) && (
             <>
               <div className="collection-add-actions">
                 <button
@@ -1284,44 +1336,42 @@ export function Cromatch({
                   {list ? <Grid2X2 size={20} /> : <LayoutList size={20} />}
                 </button>
               </div>
-              {section !== "album" && (
-                <div className="export-actions">
-                  <button
-                    className="secondary"
-                    onClick={() =>
-                      download(
-                        `nexo-${section}.txt`,
-                        filtered
-                          .map(
-                            (s) =>
-                              `#${s.official_code} ${s.name}${section === "repetidos" ? ` · ${available(own.get(s.id))} disponibles` : ""}`,
-                          )
-                          .join("\n"),
-                      )
-                    }
-                  >
-                    <Download size={16} /> Exportar lista
-                  </button>
-                  <button
-                    className="secondary"
-                    disabled={busy}
-                    onClick={() =>
-                      void act(async () => {
-                        const token = await rpc("create_shared_list", {
-                          p_collection: collection,
-                          p_kind:
-                            section === "repetidos" ? "duplicates" : "missing",
-                        });
-                        const url = `${location.origin}/?lista=${token}`;
-                        await navigator.clipboard.writeText(url);
-                        await load();
-                      }, "Enlace copiado. Caduca en 7 días y puedes revocarlo en Perfil.")
-                    }
-                  >
-                    <Copy size={16} /> Crear enlace compartido
-                  </button>
-                </div>
-              )}
+              <div className="export-actions">
+                <button
+                  className="secondary"
+                  onClick={() =>
+                    download(
+                      `nexo-${section}.txt`,
+                      filtered
+                        .map(
+                          (s) =>
+                            `#${s.official_code} ${s.name}${section === "repetidos" ? ` · ${available(own.get(s.id))} disponibles` : ""}`,
+                        )
+                        .join("\n"),
+                    )
+                  }
+                >
+                  <Download size={16} /> Exportar lista
+                </button>
+                <button
+                  className="secondary"
+                  disabled={busy}
+                  onClick={() =>
+                    void act(async () => {
+                      const token = await rpc("create_shared_list", {
+                        p_collection: collection,
+                        p_kind:
+                          section === "repetidos" ? "duplicates" : "missing",
+                      });
+                      const url = `${location.origin}/?lista=${token}`;
+                      await navigator.clipboard.writeText(url);
+                      await load();
+                    }, "Enlace copiado. Caduca en 7 días y puedes revocarlo en Perfil.")
+                  }
+                >
+                  <Copy size={16} /> Crear enlace compartido
+                </button>
+              </div>
               <p className="results-count">
                 {filtered.length} cromos · {stats.reserved} unidades reservadas
               </p>
@@ -1592,173 +1642,231 @@ export function Cromatch({
                   </button>
                 )}
               </div>
-              <p>
-                Elige los repetidos que quieres cambiar con @{other.username}.
-                Selecciona al menos uno en cada lado.
-              </p>
-              {matches.offer.length === 0 && matches.receive.length === 0 && (
-                <p className="trade-next">
-                  Para encontrar coincidencias, ambos necesitáis marcar vuestros
-                  cromos y compartir el álbum con «Solo amigos» desde Mi perfil.
-                </p>
-              )}
-              <div className="compare-columns">
-                {[
-                  {
-                    label: "Tú das",
-                    items: matches.offer,
-                    map: own,
-                    giver: viewerId,
-                  },
-                  {
-                    label: "Tú recibes",
-                    items: matches.receive,
-                    map: their,
-                    giver: other.id,
-                  },
-                ].map((part) => (
-                  <div key={part.label}>
-                    <h3>
-                      {part.label} · {part.items.length}
-                    </h3>
-                    {part.items.length === 0 && (
-                      <p>No hay coincidencias disponibles.</p>
+              <div className="tabs" aria-label="Perfil del amigo">
+                <button
+                  type="button"
+                  className={profileTab === "collection" ? "active" : ""}
+                  onClick={() => setProfileTab("collection")}
+                >
+                  Ver colección
+                </button>
+                <button
+                  type="button"
+                  className={profileTab === "trade" ? "active" : ""}
+                  onClick={() => setProfileTab("trade")}
+                >
+                  Preparar cambio
+                </button>
+              </div>
+              {profileTab === "collection" ? (
+                theirAllowed ? (
+                  <VisualAlbum
+                    stickers={stickers}
+                    inventory={theirInventory}
+                    visitor={false}
+                    readOnly
+                    busy={false}
+                    collectionName={current?.name}
+                    onQuantity={async () => {}}
+                    onNavigate={() => {}}
+                  />
+                ) : (
+                  <p>
+                    Su colección es privada. Podrás verla cuando la comparta
+                    contigo.
+                  </p>
+                )
+              ) : (
+                <>
+                  <p>
+                    Elige los repetidos que quieres cambiar con @
+                    {other.username}. Selecciona al menos uno en cada lado.
+                  </p>
+                  {matches.offer.length === 0 &&
+                    matches.receive.length === 0 && (
+                      <p className="trade-next">
+                        Para encontrar coincidencias, ambos necesitáis marcar
+                        vuestros cromos y compartir el álbum con «Solo amigos»
+                        desde Mi perfil.
+                      </p>
                     )}
-                    {part.items.map((s) => {
-                      const key = `${part.giver}:${s.id}`;
-                      return (
-                        <label className="trade-select" key={key}>
-                          <span>
-                            #{s.official_code} · {s.name}
-                            <small>
-                              {s.variant} · {s.edition}
-                            </small>
-                          </span>
-                          <input
-                            type="number"
-                            aria-label={`Unidades de ${s.name} para ${part.label}`}
-                            min={0}
-                            max={available(part.map.get(s.id))}
-                            value={selection[key] ?? 0}
-                            onChange={(e) => {
-                              setSelection((v) => ({
-                                ...v,
-                                [key]: Math.max(
-                                  0,
-                                  Math.min(
-                                    available(part.map.get(s.id)),
-                                    Number(e.target.value) || 0,
-                                  ),
-                                ),
-                              }));
-                              setDraft(null);
-                              setDraftId(null);
-                            }}
-                          />
-                        </label>
-                      );
-                    })}
+                  <div className="compare-columns">
+                    {[
+                      {
+                        label: "Tú das",
+                        items: matches.offer,
+                        map: own,
+                        giver: viewerId,
+                      },
+                      {
+                        label: "Tú recibes",
+                        items: matches.receive,
+                        map: their,
+                        giver: other.id,
+                      },
+                    ].map((part) => (
+                      <div key={part.label}>
+                        <h3>
+                          {part.label} · {part.items.length}
+                        </h3>
+                        {part.items.length === 0 && (
+                          <p>No hay coincidencias disponibles.</p>
+                        )}
+                        {part.items.map((s) => {
+                          const key = `${part.giver}:${s.id}`;
+                          return (
+                            <label className="trade-select" key={key}>
+                              <span>
+                                #{s.official_code} · {s.name}
+                                <small>
+                                  {s.variant} · {s.edition}
+                                </small>
+                              </span>
+                              <input
+                                type="number"
+                                aria-label={`Unidades de ${s.name} para ${part.label}`}
+                                min={0}
+                                max={available(part.map.get(s.id))}
+                                value={selection[key] ?? 0}
+                                onChange={(e) => {
+                                  setSelection((v) => ({
+                                    ...v,
+                                    [key]: Math.max(
+                                      0,
+                                      Math.min(
+                                        available(part.map.get(s.id)),
+                                        Number(e.target.value) || 0,
+                                      ),
+                                    ),
+                                  }));
+                                  setDraft(null);
+                                  setDraftId(null);
+                                }}
+                              />
+                            </label>
+                          );
+                        })}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <p>
-                No hace falta dar y recibir el mismo número de cromos. Revisa
-                las cartas especiales antes de acordar el cambio.
-              </p>
-              <div className="export-actions">
-                <button
-                  className="secondary"
-                  onClick={() => {
-                    setDraft({ ...selection });
-                    setDraftId(crypto.randomUUID());
-                    setMessage(
-                      "Borrador preparado en esta sesión. Revisa la selección y envíala cuando quieras.",
-                    );
-                  }}
-                >
-                  Guardar borrador
-                </button>
-                <button
-                  disabled={
-                    busy ||
-                    !Object.entries(draft ?? selection).some(
-                      ([key, n]) => key.startsWith(`${viewerId}:`) && n > 0,
-                    ) ||
-                    !Object.entries(draft ?? selection).some(
-                      ([key, n]) => key.startsWith(`${other.id}:`) && n > 0,
-                    )
-                  }
-                  onClick={() =>
-                    void act(async () => {
-                      const chosen = draft ?? selection;
-                      const items = Object.entries(chosen)
-                        .filter(([, n]) => n > 0)
-                        .map(([key, n]) => {
-                          const [giver_id, sticker_id] = key.split(":");
-                          return { giver_id, sticker_id, quantity: n };
-                        });
-                      const id = draftId ?? crypto.randomUUID();
-                      setDraftId(id);
-                      await rpc("propose_trade", {
-                        p_receiver: other.id,
-                        p_collection: collection,
-                        p_items: items,
-                        p_id: id,
-                      });
-                      setOther(null);
-                      setSection("intercambios");
-                      await load();
-                    }, "Propuesta enviada")
-                  }
-                >
-                  Proponer este cambio <ArrowRight size={16} />
-                </button>
-                <button
-                  className="text-button"
-                  onClick={() => void friendAction(other.id, "block")}
-                >
-                  Bloquear usuario
-                </button>
-                <button
-                  className="text-button"
-                  onClick={() => {
-                    const reason = prompt(
-                      "Explica la incidencia (mínimo 10 caracteres).",
-                    );
-                    if (reason)
-                      void act(async () => {
-                        await rpc("report_user", {
-                          p_other: other.id,
-                          p_reason: reason,
-                        });
-                      }, "Denuncia registrada");
-                  }}
-                >
-                  <Flag size={15} /> Denunciar
-                </button>
-              </div>
+                  <p>
+                    No hace falta dar y recibir el mismo número de cromos.
+                    Revisa las cartas especiales antes de acordar el cambio.
+                  </p>
+                  <div className="export-actions">
+                    <button
+                      className="secondary"
+                      onClick={() => {
+                        setDraft({ ...selection });
+                        setDraftId(crypto.randomUUID());
+                        setMessage(
+                          "Borrador preparado en esta sesión. Revisa la selección y envíala cuando quieras.",
+                        );
+                      }}
+                    >
+                      Guardar borrador
+                    </button>
+                    <button
+                      disabled={
+                        busy ||
+                        !Object.entries(draft ?? selection).some(
+                          ([key, n]) => key.startsWith(`${viewerId}:`) && n > 0,
+                        ) ||
+                        !Object.entries(draft ?? selection).some(
+                          ([key, n]) => key.startsWith(`${other.id}:`) && n > 0,
+                        )
+                      }
+                      onClick={() =>
+                        void act(async () => {
+                          const chosen = draft ?? selection;
+                          const items = Object.entries(chosen)
+                            .filter(([, n]) => n > 0)
+                            .map(([key, n]) => {
+                              const [giver_id, sticker_id] = key.split(":");
+                              return { giver_id, sticker_id, quantity: n };
+                            });
+                          const id = draftId ?? crypto.randomUUID();
+                          setDraftId(id);
+                          await rpc("propose_trade", {
+                            p_receiver: other.id,
+                            p_collection: collection,
+                            p_items: items,
+                            p_id: id,
+                          });
+                          setOther(null);
+                          setSection("intercambios");
+                          await load();
+                        }, "Propuesta enviada")
+                      }
+                    >
+                      Proponer este cambio <ArrowRight size={16} />
+                    </button>
+                    <button
+                      className="text-button"
+                      onClick={() => void friendAction(other.id, "block")}
+                    >
+                      Bloquear usuario
+                    </button>
+                    <button
+                      className="text-button"
+                      onClick={() => {
+                        const reason = prompt(
+                          "Explica la incidencia (mínimo 10 caracteres).",
+                        );
+                        if (reason)
+                          void act(async () => {
+                            await rpc("report_user", {
+                              p_other: other.id,
+                              p_reason: reason,
+                            });
+                          }, "Denuncia registrada");
+                      }}
+                    >
+                      <Flag size={15} /> Denunciar
+                    </button>
+                  </div>
+                </>
+              )}
             </section>
           )}
-          {section === "intercambios" && (
+          {(section === "intercambios" ||
+            (section === "repetidos" && repeatView === "trades")) && (
             <>
-              <section className="panel trade-intro">
-                <h2>De repetido a conseguido.</h2>
-                <p>
-                  Elige un amigo, propone qué das y qué recibes. Cuando acepte,
-                  esas copias quedan reservadas. Los álbumes se actualizan
-                  después de que los dos confirméis el cambio. Para ver
-                  coincidencias, compartid vuestros álbumes con «Solo amigos» en
-                  Mi perfil.
-                </p>
-                <button className="secondary" onClick={() => go("amigos")}>
-                  Elegir amigo para un cambio <ArrowRight size={16} />
-                </button>
-              </section>
+              {!visitor ? (
+                <QuickTrade
+                  userId={viewerId}
+                  friends={homeFriends}
+                  stickers={stickers}
+                  inventory={inventory}
+                  collection={collection}
+                  onProfile={(friend) =>
+                    void openComparison({
+                      id: friend.user_id,
+                      username: friend.username,
+                      display_name: friend.display_name,
+                      is_admin: false,
+                    })
+                  }
+                  onSent={load}
+                />
+              ) : (
+                <section className="panel">
+                  <p>
+                    Entra en tu cuenta para elegir un amigo y preparar un
+                    intercambio.
+                  </p>
+                </section>
+              )}
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => go("amigos")}
+              >
+                Buscar compañeros
+              </button>
               <div className="tabs">
                 {[
-                  { id: "all", label: "Todos" },
-                  { id: "received", label: "Recibidos" },
-                  { id: "sent", label: "Enviados" },
+                  { id: "all", label: "Mis cambios" },
                   { id: "history", label: "Historial" },
                 ].map((x) => (
                   <button
@@ -2066,7 +2174,10 @@ export function Cromatch({
                   userId={session.user.id}
                   username={profile.username}
                   localInventory={localAlbum.inventory}
-                  onRecovered={load}
+                  onRecovered={async () => {
+                    inventoryRevision.current++;
+                    await load();
+                  }}
                 />
               )}
               {visitor && (

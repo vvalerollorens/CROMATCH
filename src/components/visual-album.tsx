@@ -83,6 +83,7 @@ export function VisualAlbum({
   busy,
   collectionName,
   local = false,
+  readOnly = false,
   onScan,
   onQuantity,
   onNavigate,
@@ -93,6 +94,7 @@ export function VisualAlbum({
   busy: boolean;
   collectionName?: string;
   local?: boolean;
+  readOnly?: boolean;
   onScan?: () => void;
   onQuantity: (s: Sticker, d: number) => Promise<void>;
   onNavigate: (s: "repetidos" | "faltantes") => void;
@@ -182,6 +184,7 @@ export function VisualAlbum({
     setMode("all");
   };
   const open = (s: Sticker) => {
+    if (readOnly) return;
     if (local) {
       const q = quantity(s);
       if (q > 1) onNavigate("repetidos");
@@ -204,7 +207,7 @@ export function VisualAlbum({
   };
   return (
     <section
-      className={`visual-album ${group === "team" ? "team-page" : "specials-page"}`}
+      className={`visual-album ${readOnly ? "is-readonly" : ""} ${group === "team" ? "team-page" : "specials-page"}`}
       aria-label="Álbum visual por equipos"
       style={
         { "--club-a": colours[0], "--club-b": colours[1] } as CSSProperties
@@ -225,7 +228,13 @@ export function VisualAlbum({
           {collectionName ?? "LaLiga ESTE · 2026 / 27"}
         </span>
         <span className="album-dot" />
-        <span>{reference ? "Catálogo de consulta" : "Tu colección"}</span>
+        <span>
+          {reference
+            ? "Catálogo de consulta"
+            : readOnly
+              ? "Colección compartida"
+              : "Tu colección"}
+        </span>
       </div>
       <div
         className="album-groups"
@@ -304,13 +313,16 @@ export function VisualAlbum({
           <p>
             {reference
               ? "Nombres y numeración de los listados consultados."
-              : "Toca los que tienes para completar tu página."}
+              : readOnly
+                ? "Consulta los cromos que tiene tu amigo."
+                : "Toca los que tienes para completar tu página."}
           </p>
         </div>
         {section && <TeamBadge short={section.short} teamId={section.id} />}
       </div>
       <p className="album-total-progress">
-        Tu colección: {albumOwned} de {entries.length} cromos ·{" "}
+        {readOnly ? "Su colección" : "Tu colección"}: {albumOwned} de{" "}
+        {entries.length} cromos ·{" "}
         {entries.length ? Math.round((albumOwned / entries.length) * 100) : 0}%
         del total
       </p>
@@ -356,7 +368,13 @@ export function VisualAlbum({
                 setPage(0);
               }}
             >
-              {m.label}
+              {readOnly
+                ? m.id === "missing"
+                  ? "Le faltan"
+                  : m.id === "owned"
+                    ? "Tiene"
+                    : m.label
+                : m.label}
             </button>
           ))}
         </div>
@@ -409,8 +427,8 @@ export function VisualAlbum({
       {!reference && collectionName?.includes("2026") && (
         <p className="album-preview-note">
           <Info size={14} />
-          Guardado en tu cuenta · Catálogo parcial: 7 cromos pendientes de
-          revisión.
+          {readOnly ? "Álbum compartido" : "Guardado en tu cuenta"} · Catálogo
+          parcial: 7 cromos pendientes de revisión.
         </p>
       )}
       <div className="album-slots">
@@ -426,17 +444,19 @@ export function VisualAlbum({
             >
               <button
                 className="slot-main"
-                disabled={busy && (!reference || local)}
+                disabled={readOnly || (busy && (!reference || local))}
                 aria-label={
-                  reference
-                    ? q > 1
-                      ? `Gestionar repetidos de ${s.name}`
-                      : `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
-                    : q > 1
-                      ? `Gestionar repetidos de ${s.name}`
-                      : q === 1
-                        ? `Desmarcar ${s.name}, código ${s.official_code}`
-                        : `Desbloquear ${s.name}, código ${s.official_code}`
+                  readOnly
+                    ? `${q ? "Tiene" : "Le falta"} ${s.name}, código ${s.official_code}`
+                    : reference
+                      ? q > 1
+                        ? `Gestionar repetidos de ${s.name}`
+                        : `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
+                      : q > 1
+                        ? `Gestionar repetidos de ${s.name}`
+                        : q === 1
+                          ? `Desmarcar ${s.name}, código ${s.official_code}`
+                          : `Desbloquear ${s.name}, código ${s.official_code}`
                 }
                 aria-pressed={q > 0}
                 onClick={() => open(s)}
@@ -567,18 +587,20 @@ export function VisualAlbum({
           </p>
         </details>
       )}
-      <div className="album-shortcuts">
-        <button className="secondary" onClick={() => onNavigate("repetidos")}>
-          Mis repetidos ·{" "}
-          {inventory
-            .filter((i) => stickers.some((s) => s.id === i.sticker_id))
-            .reduce((sum, i) => sum + available(i), 0)}
-          <ChevronRight size={15} />
-        </button>
-        <button className="secondary" onClick={() => onNavigate("faltantes")}>
-          Ver todos mis faltantes <ChevronRight size={15} />
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="album-shortcuts">
+          <button className="secondary" onClick={() => onNavigate("repetidos")}>
+            Mis repetidos ·{" "}
+            {inventory
+              .filter((i) => stickers.some((s) => s.id === i.sticker_id))
+              .reduce((sum, i) => sum + available(i), 0)}
+            <ChevronRight size={15} />
+          </button>
+          <button className="secondary" onClick={() => onNavigate("faltantes")}>
+            Ver todos mis faltantes <ChevronRight size={15} />
+          </button>
+        </div>
+      )}
       <span className="sr-only" role="status" aria-live="polite">
         {announcement}
       </span>
