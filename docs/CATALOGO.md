@@ -4,7 +4,7 @@
 
 [Listado de Panini: LaLiga 2026–27, cuarta edición](https://www.panini.es//media/paniniFiles/Checklist_LALIGA_2026-27-4aED.pdf).
 
-El 8 de noviembre de 2026 se intentó leer esta URL, también normalizando la doble barra. Tanto el cliente HTTP como la herramienta web recibieron **403 Forbidden**. No se ha podido comprobar el contenido del PDF. Es la referencia pendiente de cotejar; su URL no se presenta como prueba de haberla leído. Una copia adjunta del documento permitirá hacer la comparación de primera mano.
+El 8 de noviembre de 2026 se intentó leer esta URL, también normalizando la doble barra. Tanto el cliente HTTP como la herramienta web recibieron **403 Forbidden**. No se ha podido comprobar el contenido del PDF. Es la referencia pendiente de cotejar; su URL no se presenta como prueba de haberla leído. Una copia adjunta del documento permitirá hacer la comparación de primera mano. Se repitió el acceso el 9 de noviembre y continuó devolviendo 403.
 
 ## Catálogo de consulta disponible
 
@@ -17,7 +17,7 @@ Se conservaron los nombres y números de los listados, sin crear jugadores, huec
 - [De Cromos con JR](https://www.decromosconjr.es/laliga-ea-sports-2026-27-listado-ediciones/).
 - [HobbyRadar](https://hobbyradar.es/deportivas/liga-este-2026-27), como contraste del listado inicial, excluyendo los registros «Por anunciar».
 
-**No se afirma que estos 661 registros sean la colección oficial completa.** El dato `officially_complete` permanece en `false`. Este catálogo no se importa automáticamente en inventarios de usuarios: se muestra como consulta hasta poder cotejar Panini y resolver las discrepancias.
+**No se afirma que estos 661 registros sean la colección oficial completa.** El dato `officially_complete` permanece en `false`. La base publica los 654 registros marcados `cross_checked`, conservando sus UUID, orden y fuentes. Los siete con discrepancias quedan fuera del inventario sincronizado. El estado de la colección es `partial`; contrastar fuentes no equivale a certificación oficial de Panini.
 
 ## Incidencias explícitas
 
@@ -31,7 +31,11 @@ Las ediciones se muestran cuando una fuente las identifica. «Edición por confi
 
 ## Consulta frente a inventario
 
-Sin catálogo publicado en Supabase, el álbum muestra el listado de consulta. En `/visita#album` sus marcas son efímeras y no modifican inventarios. Una cuenta real puede consultar sus fuentes, pero no guardar los UUID de referencia como cromos publicados. Cuando exista catálogo en la base, las operaciones usan exclusivamente sus IDs y las funciones transaccionales.
+Supabase contiene 654 fichas publicadas. Una cuenta guarda cantidades por RPC y puede comparar/intercambiar esos IDs. La visita conserva 661 registros de consulta y sus marcas en este navegador, sin sincronización ni importación automática al crear una cuenta.
+
+Los números reinician por equipo y serie: la identidad numerada incluye colección, equipo/serie, código, edición y variante. Los Extra Sticker S/N añaden el nombre a su identidad. Una corrección conserva el UUID y genera una revisión. No se inventan prefijos para convertir una numeración local en un supuesto número impreso global.
+
+Las migraciones de publicación usan un actor técnico sin cuenta Auth ni permisos administrativos, oculto de búsquedas de personas. Cada fila registra `verification_method=cross_checked_sources`, fuentes, notas y orden. El actor técnico registra la publicación; no representa a una persona que certifique el catálogo. Las 654 inserciones tienen revisiones y un registro de auditoría.
 
 ## Importación JSON del catálogo publicado
 

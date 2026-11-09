@@ -2,7 +2,7 @@
 
 Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js, React, TypeScript, Tailwind CSS y Supabase/PostgreSQL.
 
-**Estado: código inicial implementado y pruebas de base de datos incluidas. No es todavía un servicio público listo para usuarios reales.** Supabase ya está conectado y se comprobaron registro/acceso por usuario, persistencia de perfil, privacidad de ajustes y amistad con dos cuentas temporales. Falta publicar el catálogo contrastado y validar inventario e intercambios alojados. No contiene inventarios de demostración ni cromos inventados.
+**Estado: versión privada funcional para pequeños grupos; todavía no se declara lista para un lanzamiento público general.** Supabase ya está conectado y se comprobaron registro/acceso por usuario, persistencia de perfil, privacidad de ajustes y amistad con dos cuentas temporales. El catálogo publica 654 registros contrastados (siete pendientes). El inventario y los intercambios se han probado por API con dos cuentas reales temporales; el cotejo oficial con Panini sigue pendiente. No contiene inventarios de demostración ni cromos inventados.
 
 ## Ver las pantallas sin correo
 
@@ -33,7 +33,7 @@ npm ci
 cp .env.example .env.local
 ```
 
-El acceso usa nombre de usuario y contraseña, sin correo personal. Supabase está configurado con ambas migraciones aplicadas y el acceso por usuario se ha probado con el servicio alojado. El catálogo sincronizado sigue pendiente de publicación.
+El acceso usa nombre de usuario y contraseña, sin correo personal. Supabase está configurado con las migraciones aplicadas y el acceso por usuario se ha probado con el servicio alojado. El catálogo sincronizado incluye 654 registros y se identifica como parcial.
 
 Completa las dos variables públicas con la URL y la clave publicable/anon de tu propio proyecto Supabase. La aplicación no necesita ni debe recibir una clave `service_role`.
 
@@ -43,7 +43,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=TU-CLAVE-PUBLICABLE
 NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=false
 ```
 
-Aplica las dos migraciones SQL en orden (core y username_accounts) en un **proyecto nuevo** desde el SQL Editor de Supabase, o utiliza el CLI:
+Aplica todas las migraciones SQL en orden cronológico en un **proyecto nuevo** desde el SQL Editor de Supabase, o utiliza el CLI:
 
 ```sh
 supabase login
@@ -52,7 +52,7 @@ supabase db push
 npm run dev
 ```
 
-Los archivos reproducibles están en `supabase/migrations/` (core y acceso por usuario). Incluye tablas, restricciones, RLS, funciones transaccionales, índices, alta de perfiles y metadatos de la primera colección. No incluye datos de cromos sin verificar.
+Los archivos reproducibles están en `supabase/migrations/` (esquema, acceso por usuario, identidad del catálogo, publicación y cantidades). Incluye tablas, restricciones, RLS, funciones transaccionales, índices, alta de perfiles y metadatos de la primera colección. No incluye datos de cromos sin verificar.
 
 Para ejecutar con servicios locales:
 
@@ -99,7 +99,7 @@ npm run test:e2e
 
 `npm test` ejecuta pruebas de dominio y una base PostgreSQL embebida con RLS real (PGlite). Las pruebas de concurrencia se activan con `TEST_DATABASE_URL` apuntando a una **base desechable llamada exactamente `cromatch_test`**; recrean sus esquemas. GitHub Actions configura PostgreSQL 17 para ejecutarlas con conexiones simultáneas. Los datos de prueba, marcados como fixtures, nunca se importan en la aplicación.
 
-Playwright comprueba bienvenida, formularios, recuperación, navegación por teclado y ausencia de desbordamiento en escritorio y móvil. Esas pruebas públicas no sustituyen el E2E de Supabase Auth y dos usuarios con correo real. Consulta [verificación](docs/VERIFICACION.md).
+Playwright comprueba bienvenida, formularios, recuperación, navegación por teclado y ausencia de desbordamiento en escritorio y móvil. Esas pruebas públicas no sustituyen el E2E de Supabase Auth y dos usuarios reales con contraseña. Consulta [verificación](docs/VERIFICACION.md).
 
 ## Publicar en Vercel
 

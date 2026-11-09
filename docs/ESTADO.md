@@ -17,8 +17,8 @@
 
 ## Bloqueos externos actuales
 
-1. Supabase está conectado a Vercel y las migraciones se aplicaron en el despliegue `b8823f0`. Auth responde y el inventario deniega consultas anónimas (401). Registro por usuario, acceso tras cierre de sesión, persistencia de perfil, privacidad de ajustes y amistad se probaron con dos cuentas temporales, eliminadas al terminar. El catálogo publicado sigue vacío; inventario, Realtime e intercambios entre sesiones siguen pendientes de validación alojada.
-2. No hay checklist oficial de 2026–27 contrastado accesible. El catálogo publicado en la base está vacío; existe un listado de consulta de 661 registros, con fuentes y siete incidencias, separado del inventario. El PDF de cuarta edición indicado por el usuario devuelve 403 y no se ha podido cotejar.
+1. Supabase está conectado a Vercel y las migraciones se aplicaron en el despliegue `b8823f0`. Auth responde y el inventario deniega consultas anónimas (401). Registro por usuario, acceso tras cierre de sesión, persistencia de perfil, privacidad de ajustes y amistad se probaron con dos cuentas temporales, eliminadas al terminar. El catálogo ya contiene 654 cromos contrastados. Se probó por API el ciclo completo con dos cuentas: cantidades, privacidad, persistencia, amistad, coincidencias, propuesta, reserva y confirmación bilateral, incluidas peticiones repetidas. La comprobación de interfaz alojada se documenta en VERIFICACION.md.
+2. No hay checklist oficial de 2026–27 contrastado accesible. La base publica 654 registros contrastados; la consulta incluye 661, de los cuales siete siguen en revisión. No se declara completitud oficial. El PDF de cuarta edición indicado por el usuario devuelve 403 y no se ha podido cotejar.
 3. La vista pública está desplegada en https://cromatch-six.vercel.app/ y permite revisar sin cuenta en `/visita#album`. No se ha habilitado todavía un control de acceso para limitarla al grupo.
 4. El responsable del servicio, contacto legal, política de retención, región, contratos y procedimientos operativos deben definirse antes de abrir registros públicos.
 
@@ -42,9 +42,9 @@
 
 ## Orden de trabajo
 
-1. Provisionar Supabase de desarrollo, aplicar migración y configurar Auth/SMTP.
+1. Mantener Supabase conectado, con migraciones reproducibles y acceso por usuario; separar un entorno de desarrollo antes de ampliar el grupo.
 2. Contrastar y cargar el catálogo; revisar variantes, posiciones y ediciones con fuentes oficiales.
-3. Completar pruebas de aceptación alojadas y corregir cualquier defecto de privacidad o integridad antes de ampliar funcionalidad.
+3. Mantener las pruebas de aceptación alojadas con cuentas temporales, revisar capturas y corregir cualquier defecto antes de ampliar funcionalidad.
 4. Resolver los requisitos operativos, legales y antiabuso; probar backups y restauración.
-5. Vincular Vercel, separar desarrollo/producción y desplegar la primera versión validada.
+5. Mantener Vercel vinculado, separar desarrollo/producción y verificar restauración antes del lanzamiento público.
 6. Evaluar OCR con fotos reales; añadir push, escala e intercambios multilaterales como fases posteriores.
