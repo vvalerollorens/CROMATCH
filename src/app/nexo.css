@@ -1831,3 +1831,9 @@ button.trade-visual-card:hover:not(:disabled), button.trade-visual-card:focus-vi
 .duplicate-slot-controls small { flex-basis: 100%; font-size: 9px; color: var(--muted); }
 .duplicate-album-entry .slot-corner { min-width: 24px; width: auto; padding: 3px 5px; font-size: 10px; }
 .duplicate-album-entry .slot-main { touch-action: manipulation; }
+
+.duplicate-album-entry .slot-portrait img {
+  filter: none;
+  opacity: 1;
+  transform: none;
+}
