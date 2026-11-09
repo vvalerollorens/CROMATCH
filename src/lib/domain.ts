@@ -54,6 +54,12 @@ export type Trade = {
   completed_at: string | null;
 };
 export type TradeItem = {
+  stickers?: {
+    id: string;
+    official_code: string;
+    name: string;
+    collection_id: string;
+  } | null;
   trade_id: string;
   giver_id: string;
   sticker_id: string;

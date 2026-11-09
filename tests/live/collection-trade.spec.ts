@@ -258,6 +258,12 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         ),
       ).toBe(true);
     }
+    await expect(
+      page.locator(".trade-panel").getByText(/#3 · Sivera/),
+    ).toBeVisible();
+    await expect(
+      page.locator(".trade-panel").getByText(/#4 · Tenaglia/),
+    ).toBeVisible();
     await page.screenshot({
       path: `test-results/live-${info.project.name}-completed.png`,
     });

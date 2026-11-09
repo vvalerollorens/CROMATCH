@@ -326,7 +326,10 @@ export function Cromatch({
           .select("*")
           .order("created_at", { ascending: false })
           .limit(100),
-        db.from("trade_items").select("*").limit(10000),
+        db
+          .from("trade_items")
+          .select("*,stickers(id,official_code,name,collection_id)")
+          .limit(10000),
         db
           .from("notifications")
           .select("*")
@@ -1727,15 +1730,15 @@ export function Cromatch({
                                     : i.giver_id !== viewerId),
                               )
                               .map((i) => {
-                                const s = stickers.find(
-                                  (s) => s.id === i.sticker_id,
-                                );
+                                const s =
+                                  i.stickers ??
+                                  stickers.find((s) => s.id === i.sticker_id);
                                 return (
                                   <p key={i.sticker_id}>
                                     {i.quantity} ×{" "}
                                     {s
                                       ? `#${s.official_code} · ${s.name}`
-                                      : `Cromo ${i.sticker_id.slice(0, 8)} · otra colección`}
+                                      : "Cromo no disponible"}
                                   </p>
                                 );
                               })}
