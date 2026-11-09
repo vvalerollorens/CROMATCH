@@ -10,7 +10,7 @@ Guarda bien tu contraseña: las cuentas sin correo todavía no tienen recuperaci
 
 Elige colección en la cabecera. Mi álbum organiza los cromos publicados y verificados. Busca por código, nombre o equipo; filtra por equipo, serie y edición. Alterna cuadrícula y lista rápida.
 
-En Mi álbum → Ver lista de lo que tengo puedes consultar juntos todos tus cromos de la colección seleccionada, en orden del álbum, con número, nombre, equipo o apartado y copias. La lista admite búsqueda, filtro por equipo/apartado y exportación. Las copias reservadas siguen contándose mientras sean tuyas.
+En Mi álbum → Mis cromos (lista compacta) puedes consultar juntos todos tus cromos de la colección seleccionada, en orden del álbum, con número, nombre, equipo o apartado y copias. La lista admite búsqueda, filtro por equipo/apartado y exportación. Las copias reservadas siguen contándose mientras sean tuyas.
 
 Toca una casilla para marcar o desmarcar el cromo. No se abre información del jugador. Las copias adicionales se gestionan en Repetidos. El guardado se confirma tras responder la base de datos. Si falla la conexión, reintenta el mismo botón; no pulses el contrario mientras el cambio siga pendiente. No se guardan cambios desconectados.
 
