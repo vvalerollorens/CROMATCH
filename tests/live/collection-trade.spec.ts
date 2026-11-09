@@ -375,10 +375,12 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       (r) =>
         r.url().includes("/rest/v1/user_privacy_settings?") &&
         r.request().method() === "GET",
+      { timeout: 10000 },
     );
     await refreshVisible();
     await refreshedPrivacy;
-    await page.waitForLoadState("networkidle");
+    console.info("Respuesta de privacidad recibida");
+    await expect(page.locator(".loading-note")).toBeHidden({ timeout: 15000 });
     await expect(privacy).toHaveValue("friends");
     await expect(
       page.getByText("Tu privacidad tiene cambios sin guardar.", {
@@ -514,10 +516,11 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       (r) =>
         r.url().includes("/rest/v1/user_inventory?") &&
         r.url().includes(accounts[0].id),
+      { timeout: 10000 },
     );
     await refreshVisible();
     await refreshedStock;
-    await page.waitForLoadState("networkidle");
+    await expect(page.locator(".loading-note")).toBeHidden({ timeout: 15000 });
     await expect(suggestion).not.toContainText("Sivera");
     await nav(page, "Reintentar envío");
     await expect(suggestion).toContainText("Solicitud enviada");
