@@ -8,7 +8,7 @@ Dos personas autenticadas registran cromos propios, autorizan su comparación, p
 
 - `npm run typecheck`: comprobación estática de TypeScript.
 - `npm run build`: compilación de producción Next.js.
-- `npm test`: pruebas locales de dominio, álbum, fotos, OCR y PostgreSQL embebido; 4 pruebas de concurrencia se omiten sin `TEST_DATABASE_URL`. Las cifras de cada ejecución se indican abajo.
+- `npm test`: pruebas locales de dominio, álbum, fotos, OCR y PostgreSQL embebido; 5 pruebas de concurrencia se omiten sin `TEST_DATABASE_URL`. Las cifras de cada ejecución se indican abajo.
 - El esquema se aplica de cero en PGlite. Se utiliza `SET ROLE authenticated` y claims de identidad, de modo que la prueba no se limita a comprobar cadenas de texto de las políticas.
 
 Las pruebas de dominio cubren repetidos y reservas, identidad exacta, aislamiento por catálogo proporcionado, variantes, posiciones físicas, validación y duplicados del importador.
@@ -17,7 +17,7 @@ Las de base de datos cubren privacidad inicial, denegación a anónimos, ausenci
 
 ## Concurrencia real y navegador en GitHub Actions
 
-El workflow levanta PostgreSQL 17 en una base desechable y ejecuta cuatro pruebas con conexiones independientes: dos aceptaciones por la misma unidad, confirmaciones simultáneas, reintento simultáneo de una operación y ocho incrementos concurrentes. No se deben describir como pasadas hasta comprobar el resultado de CI.
+El workflow levanta PostgreSQL 17 en una base desechable y ejecuta cinco pruebas con conexiones independientes: dos aceptaciones por la misma unidad, confirmaciones simultáneas, reintento simultáneo de una operación, ocho incrementos concurrentes y alta simultánea de repetidos conservando una única copia de álbum. No se deben describir como pasadas hasta comprobar el resultado de CI.
 
 Después instala Chromium y ejecuta 30 casos Playwright en escritorio y móvil, incluidos diálogo/foco/teclado y desbordamiento móvil. El entorno de desarrollo no expone la herramienta `cua_repl.js` requerida por Sites para la inspección visual; no se ha sustituido por otro mecanismo ni se afirma inspección visual local.
 
@@ -96,3 +96,11 @@ El recorrido verifica Elche 13B (John/Jon Chetauya), 655 fichas publicadas, cons
 Los avisos de guardado y sincronización flotan sin cambiar la altura del álbum; las casillas deshabilitadas durante el guardado mantienen su opacidad. Los diálogos restauran el foco sin desplazar la página. El PDF utiliza Manrope y la prueba extrae el texto real con `pdftotext`, incluidos Szczęsny y Sučić, las últimas filas y los números de página. `npm audit --omit=dev` no encontró vulnerabilidades conocidas en esta revisión.
 
 Las pruebas no editan inventarios de usuarios reales. La limpieza usa un contexto HTTP independiente para poder cancelar solicitudes y eliminar sus propias cuentas temporales aun cuando se cierre el navegador por un timeout. Algunas ejecuciones anteriores agotaron el tiempo antes de que la limpieza pudiera certificarse; no se afirma que esas cuentas antiguas se hayan eliminado. La incidencia de marcas antiguas comunicada por el usuario continúa pendiente de su resumen de guardado y no debe confundirse con las pruebas de conservación de estado de la interfaz.
+
+## Entrada rápida de repetidos y zoom móvil — 9 de noviembre
+
+Versión `0fc2ace`: [Calidad y seguridad](https://github.com/vvalerollorens/CROMATCH/actions/runs/42692253716) completada: TypeScript, compilación, **65 pruebas de lógica/base de datos** (incluidas cinco de concurrencia real) y **30 pruebas públicas de navegador**. [Prueba alojada](https://github.com/vvalerollorens/CROMATCH/actions/runs/42692254204) completada con dos cuentas temporales, en escritorio y móvil.
+
+Se verifica añadir tres repetidos de una vez, buscar por equipo y número o nombre, mantener la búsqueda, conservar una copia para el álbum y reintentar una respuesta perdida sin sumar dos veces. La retirada de copias espera la confirmación antes de recargar y comprueba persistencia. La entrada mantiene texto de al menos 16 px y escala del visor estable al enfocarse y escribir. Esta comprobación automatizada utiliza Chromium; no certifica una prueba manual en Safari/iPhone. El CSS publicado se ha comprobado en producción y no desactiva la ampliación manual.
+
+El primer intento de la prueba alojada falló porque el guion recargaba tras el segundo clic antes de confirmar su guardado. Se corrigió la espera del guion y se repitió la prueba completa, que pasó. No se modificó el inventario de usuarios reales.
