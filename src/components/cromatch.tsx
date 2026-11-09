@@ -1485,6 +1485,12 @@ export function Cromatch({
                 Elige los repetidos que quieres cambiar con @{other.username}.
                 Selecciona al menos uno en cada lado.
               </p>
+              {matches.offer.length === 0 && matches.receive.length === 0 && (
+                <p className="trade-next">
+                  Para encontrar coincidencias, ambos necesitáis marcar vuestros
+                  cromos y compartir el álbum con «Solo amigos» desde Mi perfil.
+                </p>
+              )}
               <div className="compare-columns">
                 {[
                   {
@@ -1629,7 +1635,9 @@ export function Cromatch({
                 <p>
                   Elige un amigo, propone qué das y qué recibes. Cuando acepte,
                   esas copias quedan reservadas. Los álbumes se actualizan
-                  después de que los dos confirméis el cambio.
+                  después de que los dos confirméis el cambio. Para ver
+                  coincidencias, compartid vuestros álbumes con «Solo amigos» en
+                  Mi perfil.
                 </p>
                 <button className="secondary" onClick={() => go("amigos")}>
                   Elegir amigo para un cambio <ArrowRight size={16} />

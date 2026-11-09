@@ -259,15 +259,25 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       ).toBe(true);
     }
     await expect(
-      page.locator(".trade-panel").getByText(/#3 · Sivera/),
+      page
+        .locator(".trade-panel")
+        .getByText(new RegExp(`#${sivera.official_code} · Sivera`)),
     ).toBeVisible();
     await expect(
-      page.locator(".trade-panel").getByText(/#4 · Tenaglia/),
+      page
+        .locator(".trade-panel")
+        .getByText(new RegExp(`#${tenaglia.official_code} · Tenaglia`)),
     ).toBeVisible();
     await page.screenshot({
       path: `test-results/live-${info.project.name}-completed.png`,
     });
   } finally {
+    if (info.status !== info.expectedStatus)
+      await page
+        .screenshot({
+          path: `test-results/live-${info.project.name}-failure.png`,
+        })
+        .catch(() => {});
     // A failed UI assertion must not leave reservations or active test accounts.
     if (tradeId && accounts[0])
       await request.post(api + "/rest/v1/rpc/trade_action", {
