@@ -506,12 +506,21 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     });
     await nav(page, "Repetidos");
     await nav(page, "Cambiar con amigos");
+    await page.route("**/rest/v1/rpc/can_view_inventory", (route) =>
+      route.abort("failed"),
+    );
     await page
       .getByLabel("Amigo para intercambiar", { exact: true })
       .selectOption(accounts[1].id);
     const suggestion = page.getByRole("region", {
       name: "Preparar intercambio automático",
     });
+    await expect(suggestion.getByRole("alert")).toContainText(
+      "No se ha podido leer su colección",
+    );
+    await expect(suggestion).not.toContainText("Su colección es privada.");
+    await page.unroute("**/rest/v1/rpc/can_view_inventory");
+    await nav(page, "Actualizar coincidencias");
     await expect(suggestion).toContainText("Sivera");
     await expect(suggestion).toContainText("Tenaglia");
     await expect(

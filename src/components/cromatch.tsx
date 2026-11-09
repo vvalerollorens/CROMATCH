@@ -2321,6 +2321,7 @@ export function Cromatch({
                   <label>
                     Visibilidad de tu colección
                     <select
+                      aria-label="Visibilidad de tu colección"
                       value={visibility}
                       onChange={(e) => {
                         privacyDraftRevision.current++;

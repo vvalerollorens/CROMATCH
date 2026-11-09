@@ -22,7 +22,7 @@ export function QuickTrade({
 }) {
   const [friendId, setFriendId] = useState("");
   const [theirs, setTheirs] = useState<Inventory[]>([]);
-  const [allowed, setAllowed] = useState(false);
+  const [allowed, setAllowed] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -39,7 +39,7 @@ export function QuickTrade({
   useEffect(() => {
     let active = true;
     setTheirs([]);
-    setAllowed(false);
+    setAllowed(null);
     setChoices({});
     operation.current = null;
     setError("");
@@ -210,12 +210,12 @@ export function QuickTrade({
           >
             Ver perfil y colección de @{friend.username}
           </button>
-          {!allowed ? (
+          {allowed === false ? (
             <p>
               Su colección es privada. Necesita compartirla contigo para
               detectar las coincidencias.
             </p>
-          ) : (
+          ) : allowed === true ? (
             <>
               <div className="compare-columns">
                 {[
@@ -298,7 +298,7 @@ export function QuickTrade({
                     : "Solicitar intercambio"}
               </button>
             </>
-          )}
+          ) : null}
         </>
       )}
     </section>
