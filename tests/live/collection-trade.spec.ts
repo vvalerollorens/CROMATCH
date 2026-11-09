@@ -760,12 +760,12 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(
       page
         .locator(".trade-panel")
-        .getByText(new RegExp(`#${sivera.official_code} · Sivera`)),
+        .getByRole("article", { name: "1 × Sivera", exact: true }),
     ).toBeVisible();
     await expect(
       page
         .locator(".trade-panel")
-        .getByText(new RegExp(`#${tenaglia.official_code} · Tenaglia`)),
+        .getByRole("article", { name: "1 × Tenaglia", exact: true }),
     ).toBeVisible();
     await page.screenshot({
       path: `test-results/live-${info.project.name}-completed.png`,
