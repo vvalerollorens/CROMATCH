@@ -589,6 +589,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     ).toBeDisabled();
     await giveCard.click();
     await expect(giveCard).toHaveAttribute("aria-pressed", "true");
+    await giveCard.hover();
     await expect(
       page.getByRole("button", { name: "Solicitar intercambio", exact: true }),
     ).toBeEnabled();

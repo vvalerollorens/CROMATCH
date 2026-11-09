@@ -241,13 +241,6 @@ export function QuickTrade({
       )}
       {friend && !loading && (
         <>
-          <button
-            type="button"
-            className="text-button"
-            onClick={() => onProfile(friend)}
-          >
-            Ver perfil y colección de @{friend.username}
-          </button>
           {allowed === false ? (
             <p>
               Su colección es privada. Necesita compartirla contigo para

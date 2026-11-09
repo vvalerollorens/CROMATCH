@@ -1757,3 +1757,6 @@ html {
 .trade-sent-notice { padding: 18px; border: 1px solid #efdc9b70; border-radius: 16px; }
 .friend-management { border-top: 1px solid var(--border); padding: 12px 0; }
 .friend-management summary { cursor: pointer; padding: 10px 0; overflow-wrap: anywhere; }
+
+.quick-trade .trade-sticker-choice:hover:not(:disabled),
+.quick-trade .trade-sticker-choice:focus-visible { background: #f6a16b1f; color: var(--ink); transform: none; }
