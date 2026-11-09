@@ -26,7 +26,7 @@ La plantilla solo permite marcar la posesión del cromo. El apartado Repetidos t
 
 Repetidos → Cambiar con amigos reúne las propuestas y su gestión: elegir amigo prepara automáticamente los repetidos útiles para ambos, permite desmarcar cartas y enviar «Solicitar intercambio». Su perfil muestra el álbum compartido en modo consulta. Inicio también ofrece las coincidencias entre amigos. Mi perfil → Revisar mi guardado consulta el historial propio y ofrece recuperar diferencias verificables sin reducir existencias; no sustituye los backups ni confirma la recuperación de una incidencia concreta.
 
-Mi álbum → Mis cromos (lista compacta) reúne todos los cromos propios del catálogo seleccionado en una lista compacta, en orden del álbum, con número, nombre, equipo/apartado y copias. Incluye búsqueda, filtro y exportación; cuenta también las copias reservadas que todavía te pertenecen.
+Mi álbum → Mis cromos (lista compacta) reúne todos los cromos propios del catálogo seleccionado en una lista compacta que se puede recorrer completa desplazándose, en orden del álbum, con número, nombre, equipo/apartado y copias. Incluye búsqueda, filtro y descarga PDF con paginación; cuenta también las copias reservadas que todavía te pertenecen. El PDF se genera en el dispositivo e incluye las filas de la búsqueda actual. «Ver todos mis cromos» limpia los filtros.
 
 ## Instalar
 

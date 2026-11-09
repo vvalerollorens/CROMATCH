@@ -1233,6 +1233,7 @@ export function Cromatch({
                   key={collection}
                   stickers={stickers}
                   inventory={inventory}
+                  collectionName={current?.name}
                 />
               ) : (
                 <VisualAlbum

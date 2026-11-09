@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { randomUUID, randomBytes } from "node:crypto";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 
 // No secrets or service keys: use the same public config and APIs as the app.
 // Only temporary accounts; no fixture cards are inserted into the catalogue.
@@ -234,6 +234,22 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       .getByLabel("Buscar en lo que tengo", { exact: true })
       .fill("Sivera");
     await expect(compact.locator("li")).toHaveCount(1);
+    await compact
+      .getByRole("button", { name: "Ver todos mis cromos", exact: true })
+      .click();
+    await expect(
+      page.getByLabel("Buscar en lo que tengo", { exact: true }),
+    ).toHaveValue("");
+    const downloaded = page.waitForEvent("download");
+    await compact
+      .getByRole("button", { name: "Descargar PDF", exact: true })
+      .click();
+    const pdf = await downloaded;
+    expect(pdf.suggestedFilename()).toBe("nexo-lo-que-tengo.pdf");
+    expect(await pdf.failure()).toBeNull();
+    const pdfBytes = await readFile((await pdf.path())!);
+    expect(pdfBytes.subarray(0, 5).toString()).toBe("%PDF-");
+    expect(pdfBytes.toString("latin1")).toContain("Sivera");
     await page.screenshot({
       path: `test-results/live-${info.project.name}-owned-list.png`,
       fullPage: true,

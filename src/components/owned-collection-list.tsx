@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import type { Inventory, Sticker } from "@/lib/domain";
-import { download } from "@/lib/supabase";
 
 const normalized = (value: string) =>
   value
@@ -12,12 +11,16 @@ const normalized = (value: string) =>
 export function OwnedCollectionList({
   stickers,
   inventory,
+  collectionName,
 }: {
   stickers: Sticker[];
   inventory: Inventory[];
+  collectionName?: string;
 }) {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
   const quantities = new Map(inventory.map((i) => [i.sticker_id, i.quantity]));
   const owned = stickers.filter((s) => (quantities.get(s.id) ?? 0) > 0);
   const groupOf = (s: Sticker) =>
@@ -30,6 +33,33 @@ export function OwnedCollectionList({
         `${s.official_code} ${s.name} ${groupOf(s)} ${s.sticker_series?.name ?? ""}`,
       ).includes(normalized(query.trim())),
   );
+  async function exportPdf() {
+    if (exporting || !rows.length) return;
+    setExporting(true);
+    setExportError("");
+    try {
+      const { ownedCollectionPdf } = await import("@/lib/owned-pdf");
+      const pdf = ownedCollectionPdf(
+        rows.map((s) => ({
+          code: s.official_code,
+          name: s.name,
+          group: groupOf(s),
+          edition: s.edition,
+          variant: s.variant,
+          quantity: quantities.get(s.id)!,
+        })),
+        collectionName,
+        [query.trim(), group].filter(Boolean).join(" · "),
+      );
+      pdf.save("nexo-lo-que-tengo.pdf");
+    } catch {
+      setExportError(
+        "No se ha podido crear el PDF. Puedes reintentarlo o consultar aquí toda la lista.",
+      );
+    } finally {
+      setExporting(false);
+    }
+  }
   return (
     <section
       className="panel owned-collection"
@@ -50,22 +80,13 @@ export function OwnedCollectionList({
         <button
           type="button"
           className="secondary"
-          disabled={!rows.length}
-          onClick={() =>
-            download(
-              "nexo-lo-que-tengo.txt",
-              rows
-                .map(
-                  (s) =>
-                    `#${s.official_code} · ${s.name} · ${groupOf(s)} · ${quantities.get(s.id)} copias · ${s.edition} · ${s.variant}`,
-                )
-                .join("\n"),
-            )
-          }
+          disabled={!rows.length || exporting}
+          onClick={() => void exportPdf()}
         >
-          Exportar lista
+          {exporting ? "Preparando PDF…" : "Descargar PDF"}
         </button>
       </div>
+      {exportError && <p role="alert">{exportError}</p>}
       <div className="toolbar">
         <label className="search-field">
           <input
@@ -89,6 +110,24 @@ export function OwnedCollectionList({
       <p className="results-count">
         {rows.length} de {owned.length} cromos · Orden del álbum
       </p>
+      {rows.length > 0 && (
+        <p className="owned-scroll-hint">
+          Desplázate para ver toda la lista. El PDF incluye los cromos de esta
+          búsqueda.
+        </p>
+      )}
+      {(query || group) && (
+        <button
+          type="button"
+          className="text-button"
+          onClick={() => {
+            setQuery("");
+            setGroup("");
+          }}
+        >
+          Ver todos mis cromos
+        </button>
+      )}
       {rows.length ? (
         <ul className="owned-compact-list">
           {rows.map((s) => (

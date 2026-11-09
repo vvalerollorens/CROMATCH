@@ -1665,6 +1665,7 @@ html {
   font-size: 11px;
 }
 .owned-compact-list { list-style: none; padding: 0; margin: 0; }
+.owned-scroll-hint { color: var(--muted); font-size: .78rem; margin: 0 0 12px; }
 .owned-compact-list li { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; align-items: center; gap: .75rem; padding: .6rem 0; border-bottom: 1px solid var(--border); }
 .owned-code { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .85rem; overflow-wrap: anywhere; }
 .owned-name { min-width: 0; }
