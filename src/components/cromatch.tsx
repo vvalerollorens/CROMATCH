@@ -152,6 +152,14 @@ export function Cromatch({
   >(null);
   const [legal, setLegal] = useState(false);
   const [message, setMessage] = useState("");
+  useEffect(() => {
+    if (!message || auth || (!session && !visitor)) return;
+    const timer = window.setTimeout(
+      () => setMessage((value) => (value === message ? "" : value)),
+      4000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [message, auth, session, visitor]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -1148,15 +1156,20 @@ export function Cromatch({
               </button>
             </div>
           )}
-          {notices}
-          {visitor && localAlbum.error && (
-            <p role="alert">{localAlbum.error}</p>
-          )}
-          {loading && (
-            <div role="status" className="loading-note">
-              Sincronizando tu colección…
-            </div>
-          )}
+          <div
+            className="workspace-notices"
+            aria-label="Avisos de tu colección"
+          >
+            {notices}
+            {visitor && localAlbum.error && (
+              <p role="alert">{localAlbum.error}</p>
+            )}
+            {loading && (
+              <div role="status" className="loading-note">
+                Sincronizando tu colección…
+              </div>
+            )}
+          </div>
           <div
             className={`page-heading ${section === "album" ? "album-page-heading" : ""}`}
           >

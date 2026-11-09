@@ -22,7 +22,7 @@ export function Dialog({
     const selectors =
       'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex="0"]';
     const first = panel?.querySelector<HTMLElement>(selectors);
-    first?.focus();
+    first?.focus({ preventScroll: true });
     const before = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const key = (e: KeyboardEvent) => {
@@ -49,7 +49,7 @@ export function Dialog({
     return () => {
       document.body.style.overflow = before;
       document.removeEventListener("keydown", key);
-      previous?.focus();
+      previous?.focus({ preventScroll: true });
     };
   }, []);
   return (

@@ -41,7 +41,7 @@ describe("catálogo de consulta y escudos", () => {
     expect(referenceStickers).toHaveLength(661);
     expect(new Set(referenceStickers.map((s) => s.id)).size).toBe(661);
     expect(catalogueSummary.officiallyComplete).toBe(false);
-    expect(catalogueSummary.review).toBe(7);
+    expect(catalogueSummary.review).toBe(6);
     expect(
       referenceStickers.filter((s) => s.catalog_section === "ultimos-fichajes"),
     ).toHaveLength(66);

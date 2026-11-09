@@ -5946,15 +5946,25 @@
           "name": "John Chetauya",
           "edition": null,
           "variant": "B",
-          "review_status": "needs_review",
+          "review_status": "cross_checked",
           "notes": [
-            "Solo se localizó este registro en un listado; falta contrastarlo."
+            "13B contrastado el 9 de noviembre de 2026 en Cromolista, Stickers.app y De Cromos con JR. Las fuentes alternan John y Jon Chetauya; se conservan los nombres originales. Edición aún por confirmar."
           ],
           "sources": [
             {
               "source": 0,
               "number": "13B",
               "name": "John Chetauya"
+            },
+            {
+              "source": 1,
+              "number": "ELC 13B",
+              "name": "Jon Chetauya"
+            },
+            {
+              "source": 2,
+              "number": "13B",
+              "name": "Jon Chetauya"
             }
           ]
         },

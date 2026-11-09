@@ -1,4 +1,12 @@
 /* NEXO: palette experiments live in these variables. */
+html { scrollbar-gutter: stable; }
+.workspace-notices { position: fixed; z-index: 60; top: 82px; right: 18px; width: max-content; max-width: min(360px, calc(100vw - 36px)); display: grid; gap: 8px; pointer-events: none; }
+.workspace-notices:empty { display: none; }
+.workspace-notices > * { pointer-events: auto; margin: 0; box-shadow: 0 8px 28px #0004; }
+.workspace-notices .loading-note { padding: 10px 14px; border-radius: 12px; border: 1px solid #ffffff24; background: #201a25f5; }
+.workspace-notices .alert { margin: 0; font-size: 12px; }
+.visual-album:not(.is-readonly) .slot-main:disabled { opacity: 1; cursor: progress; }
+.slot-main { touch-action: manipulation; }
 :root {
   --nexo-orange: #f6a16b;
   --nexo-pink: #e87b9d;

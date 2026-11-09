@@ -82,6 +82,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
   const partnerPage = await second.newPage();
   async function call(path: string, token?: string, data?: unknown) {
     const response = await request.fetch(api + path, {
+      timeout: 15000,
       method: data === undefined ? "GET" : "POST",
       headers: {
         apikey: key!,
@@ -128,7 +129,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       : p
     )
       .getByRole("button", { name, exact: true })
-      .click();
+      .click({ noWaitAfter: true }); // Sections use history.replaceState, not document navigation.
   async function trades(p: Page) {
     await nav(p, "Inicio");
     await nav(p, "Intercambios");
@@ -140,7 +141,11 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       const data = await call("/auth/v1/signup", undefined, {
         email: `${name}@accounts.nexo.invalid`,
         password,
-        data: { display_name: name },
+        data: {
+          display_name: name,
+          nexo_test: true,
+          test_run: process.env.GITHUB_RUN_ID ?? "manual",
+        },
       });
       expect(Boolean(data.access_token)).toBe(true);
       accounts.push({
@@ -164,7 +169,15 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       "/rest/v1/stickers?select=id,name,collection_id,catalog_section,official_code&order=catalog_order",
       accounts[0].token,
     );
-    expect(rows).toHaveLength(654);
+    expect(rows).toHaveLength(655);
+    const elche13b = rows.find(
+      (s: { catalog_section: string; official_code: string }) =>
+        s.catalog_section === "elche" && s.official_code === "13B",
+    );
+    expect(elche13b).toMatchObject({
+      id: "e600bc74-6af8-5347-a43e-2816737a1090",
+      name: "John Chetauya",
+    });
     const sivera = rows.find(
       (s: { name: string; catalog_section: string }) =>
         s.catalog_section === "alaves" && s.name === "Sivera",
@@ -174,6 +187,14 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         s.catalog_section === "alaves" && s.name === "Tenaglia",
     );
     await nav(page, "Mi álbum");
+    await nav(page, "Ver Elche CF");
+    await expect(
+      page.getByRole("button", {
+        name: "Desbloquear John Chetauya, código 13B",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await nav(page, "Ver Deportivo Alavés");
     const mark = page.getByRole("button", {
       name: "Desbloquear Sivera, código 3",
       exact: true,
@@ -182,6 +203,9 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       "src",
       "/badges/alaves-white.svg",
     );
+    await mark.scrollIntoViewIfNeeded();
+    const markBox = await mark.boundingBox();
+    const scrollBeforeMark = await page.evaluate(() => window.scrollY);
     let capturedRead = () => {};
     let deliveredRead = () => {};
     let delayed = false;
@@ -217,6 +241,15 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       exact: true,
     });
     await expect(unmark).toHaveAttribute("aria-pressed", "true");
+    const savedBox = await unmark.boundingBox();
+    expect(
+      Math.abs(savedBox!.y - markBox!.y),
+      "La casilla no salta al guardar",
+    ).toBeLessThan(2);
+    expect(
+      Math.abs((await page.evaluate(() => window.scrollY)) - scrollBeforeMark),
+      "Conserva el desplazamiento al guardar",
+    ).toBeLessThan(2);
     releaseDelayedRead();
     await delivered;
     await page.waitForLoadState("networkidle");
@@ -361,16 +394,20 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     });
     await nav(page, "Por equipos");
     console.info("Lista, PDF y lecturas desordenadas comprobados");
+    console.info("Abriendo perfil");
     await nav(page, "Mi perfil");
+    console.info("Perfil abierto");
     const saveCheck = page.getByRole("region", {
       name: "Revisión de guardado",
     });
     await expect(saveCheck).toContainText("1 cromo distinto");
     await expect(saveCheck).toContainText("no tiene marcas pendientes");
+    console.info("Diagnóstico de guardado recibido");
     const privacy = page.getByLabel("Visibilidad de tu colección", {
       exact: true,
     });
     await privacy.selectOption("friends");
+    console.info("Privacidad seleccionada");
     const refreshedPrivacy = page.waitForResponse(
       (r) =>
         r.url().includes("/rest/v1/user_privacy_settings?") &&

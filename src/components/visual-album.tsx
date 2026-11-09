@@ -439,10 +439,10 @@ export function VisualAlbum({
         <p className="album-preview-note">
           <Info size={14} />
           {readOnly ? "Álbum compartido" : "Guardado en tu cuenta"} · Catálogo
-          parcial: 7 cromos pendientes de revisión.
+          parcial: {catalogueSummary.review} cromos pendientes de revisión.
         </p>
       )}
-      <div className="album-slots">
+      <div className="album-slots" aria-busy={busy}>
         {visible.slice(page * 48, (page + 1) * 48).map((s) => {
           const i = own.get(s.id);
           const q = quantity(s);
@@ -452,6 +452,7 @@ export function VisualAlbum({
             <article
               className={`album-slot finish-${cardFinish(s)} real-slot ${reference ? "reference-slot" : ""} ${q ? "unlocked" : ""} ${review ? "needs-review" : ""}`}
               key={s.id}
+              data-sticker-id={s.id}
             >
               <button
                 className="slot-main"

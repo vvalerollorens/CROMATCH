@@ -17,11 +17,11 @@ Se conservaron los nombres y números de los listados, sin crear jugadores, huec
 - [De Cromos con JR](https://www.decromosconjr.es/laliga-ea-sports-2026-27-listado-ediciones/).
 - [HobbyRadar](https://hobbyradar.es/deportivas/liga-este-2026-27), como contraste del listado inicial, excluyendo los registros «Por anunciar».
 
-**No se afirma que estos 661 registros sean la colección oficial completa.** El dato `officially_complete` permanece en `false`. La base publica los 654 registros marcados `cross_checked`, conservando sus UUID, orden y fuentes. Los siete con discrepancias quedan fuera del inventario sincronizado. El estado de la colección es `partial`; contrastar fuentes no equivale a certificación oficial de Panini.
+**No se afirma que estos 661 registros sean la colección oficial completa.** El dato `officially_complete` permanece en `false`. La base publica los 655 registros marcados `cross_checked`, conservando sus UUID, orden y fuentes. Los seis con discrepancias quedan fuera del inventario sincronizado. El estado de la colección es `partial`; contrastar fuentes no equivale a certificación oficial de Panini.
 
 ## Incidencias explícitas
 
-Hay siete registros marcados para revisión: Altay Bayındır, Hugo Burcio, Marc Casadó, John Chetauya y las tres fichas de Top Fichajes. En las tres últimas, los listados no coinciden en orden/número: la interfaz muestra `?`, no elige un número sin respaldo suficiente.
+Hay seis registros marcados para revisión: Altay Bayındır, Hugo Burcio, Marc Casadó y las tres fichas de Top Fichajes. En las tres últimas, los listados no coinciden en orden/número: la interfaz muestra `?`, no elige un número sin respaldo suficiente.
 
 Los Extra Sticker aparecen como **S/N** porque los identificadores E1 o LY-B empleados por algunas webs no acreditan numeración impresa. Para los colocas con número compartido, no se presentan los sufijos internos BIS2/BisB como número oficial confirmado. Una misma posición física no se cuenta automáticamente como dos posiciones de álbum.
 
@@ -31,7 +31,7 @@ Las ediciones se muestran cuando una fuente las identifica. «Edición por confi
 
 ## Consulta frente a inventario
 
-Supabase contiene 654 fichas publicadas. Una cuenta guarda cantidades por RPC y puede comparar/intercambiar esos IDs. La visita conserva 661 registros de consulta y sus marcas en este navegador, sin sincronización ni importación automática al crear una cuenta.
+Supabase contiene 655 fichas publicadas. Una cuenta guarda cantidades por RPC y puede comparar/intercambiar esos IDs. La visita conserva 661 registros de consulta y sus marcas en este navegador, sin sincronización ni importación automática al crear una cuenta.
 
 Los números reinician por equipo y serie: la identidad numerada incluye colección, equipo/serie, código, edición y variante. Los Extra Sticker S/N añaden el nombre a su identidad. Una corrección conserva el UUID y genera una revisión. No se inventan prefijos para convertir una numeración local en un supuesto número impreso global.
 
@@ -46,3 +46,7 @@ Las correcciones de nombres conservan los UUID de la base y quedan auditadas. No
 ## Escudos de clubes
 
 Los veinte escudos SVG blancos se descargaron por petición expresa del usuario desde [FootyLogos](https://www.footylogos.com/es/competition/laliga). Se sirven sin modificaciones desde `public/badges/`; `sources.json` registra la URL de la ficha, descarga, fecha, tamaño y SHA-256. La interfaz incluye atribución a FootyLogos. Los escudos pertenecen a sus respectivos titulares; no se afirma afiliación con los clubes ni una licencia de uso comercial.
+
+## Corrección de Elche 13B (9 de noviembre de 2026)
+
+Se publica John Chetauya, código 13B, con su UUID de consulta original `e600bc74-6af8-5347-a43e-2816737a1090`. La corroboración inicial no había unido las grafías John y Jon. Cromolista, Stickers.app y De Cromos con JR coinciden en equipo y número; se conservan los nombres originales en las fuentes y la edición permanece sin confirmar. La migración 007 añade la ficha y su revisión, sin modificar inventarios ni sustituir identificadores existentes. El inventario pasa de 654 a 655 fichas publicadas y siguen seis incidencias pendientes.

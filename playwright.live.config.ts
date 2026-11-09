@@ -7,6 +7,8 @@ export default defineConfig({
   reporter: "list",
   expect: { timeout: 20000 },
   use: {
+    actionTimeout: 10000,
+    navigationTimeout: 20000,
     baseURL: "https://cromatch-six.vercel.app",
     trace: "off",
     screenshot: "off",

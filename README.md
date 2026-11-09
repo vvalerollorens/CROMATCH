@@ -2,7 +2,7 @@
 
 Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js, React, TypeScript, Tailwind CSS y Supabase/PostgreSQL.
 
-**Estado: versión privada funcional para pequeños grupos; todavía no se declara lista para un lanzamiento público general.** Supabase ya está conectado y se comprobaron registro/acceso por usuario, persistencia de perfil, privacidad de ajustes y amistad con dos cuentas temporales. El catálogo publica 654 registros contrastados (siete pendientes). El inventario y los intercambios se han probado por API con dos cuentas reales temporales; el cotejo oficial con Panini sigue pendiente. No contiene inventarios de demostración ni cromos inventados.
+**Estado: versión privada funcional para pequeños grupos; todavía no se declara lista para un lanzamiento público general.** Supabase ya está conectado y se comprobaron registro/acceso por usuario, persistencia de perfil, privacidad de ajustes y amistad con dos cuentas temporales. El catálogo publica 655 registros contrastados (seis pendientes). El inventario y los intercambios se han probado por API con dos cuentas reales temporales; el cotejo oficial con Panini sigue pendiente. No contiene inventarios de demostración ni cromos inventados.
 
 ## Ver las pantallas sin correo
 
@@ -12,7 +12,7 @@ Abre directamente **`/visita`**, o en la bienvenida pulsa **Ver por dentro sin c
 
 La dirección visual actual usa cristal oscuro, acentos naranja, rosa y amarillo, Manrope y nuevos iconos de trazo fino. Cada equipo activa sus colores y un campo sutil. Incluye los veinte escudos blancos y 641 casilleros con imágenes de jugadores y entrenadores de FootyLogos, LaLiga y clubes. Las fotos aparecen desenfocadas cuando faltan y se enfocan al marcarlas; los casilleros sin retrato se identifican. Las fuentes conservan la temporada real de cada foto. Tocar una casilla marca o desmarca, sin abrir información del jugador; las fotos llevan el escudo del equipo.
 
-El listado de consulta contiene 661 registros y 29 apartados, con nombres, números y sus fuentes. Siete registros requieren revisión y **no se declara completitud oficial**. El [PDF de cuarta edición indicado por el usuario](https://www.panini.es//media/paniniFiles/Checklist_LALIGA_2026-27-4aED.pdf) devuelve 403 desde este entorno y sigue pendiente de cotejo. Véase [catálogo y fuentes](docs/CATALOGO.md).
+El listado de consulta contiene 661 registros y 29 apartados, con nombres, números y sus fuentes. Seis registros requieren revisión y **no se declara completitud oficial**. El [PDF de cuarta edición indicado por el usuario](https://www.panini.es//media/paniniFiles/Checklist_LALIGA_2026-27-4aED.pdf) devuelve 403 desde este entorno y sigue pendiente de cotejo. Véase [catálogo y fuentes](docs/CATALOGO.md).
 
 Sin cuenta puedes guardar cantidades en este navegador, buscar por nombre, añadir copias y consultar repetidos. No se envían esos datos a Supabase ni se sincronizan entre dispositivos. La cuenta utiliza exclusivamente IDs del catálogo publicado en Supabase para guardar cantidades; el listado de consulta no se importa automáticamente.
 
@@ -37,7 +37,7 @@ npm ci
 cp .env.example .env.local
 ```
 
-El acceso usa nombre de usuario y contraseña, sin correo personal. Supabase está configurado con las migraciones aplicadas y el acceso por usuario se ha probado con el servicio alojado. El catálogo sincronizado incluye 654 registros y se identifica como parcial.
+El acceso usa nombre de usuario y contraseña, sin correo personal. Supabase está configurado con las migraciones aplicadas y el acceso por usuario se ha probado con el servicio alojado. El catálogo sincronizado incluye 655 registros y se identifica como parcial.
 
 Completa las dos variables públicas con la URL y la clave publicable/anon de tu propio proyecto Supabase. La aplicación no necesita ni debe recibir una clave `service_role`.
 
