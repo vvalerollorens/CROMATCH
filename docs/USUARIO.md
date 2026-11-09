@@ -47,6 +47,8 @@ Una propuesta puede cancelarse antes de completarse. La cancelación libera las 
 
 Los borradores de la selección permanecen solo durante la sesión actual. No constituyen una propuesta enviada ni una reserva.
 
+«Actualizar coincidencias» vuelve a consultar los álbumes. Si no llega la confirmación de una solicitud enviada, «Reintentar envío» comprueba esa misma propuesta, conservando sus cartas e identificador. Mientras se confirma, no se edita la selección. Una propuesta rechazada por falta de existencias o permisos puede actualizarse y prepararse de nuevo.
+
 ## Cámara
 
 Puedes seleccionar una foto o usar la cámara del móvil. El OCR local propone coincidencias por nombre para que las revises; no añade cromos sin confirmación. La imagen no se sube. No se garantiza identificar todas las cartas de una fotografía.
@@ -54,6 +56,8 @@ Puedes seleccionar una foto o usar la cámara del móvil. El OCR local propone c
 ## Tu privacidad
 
 Desde Perfil puedes cambiar visibilidad, revocar listas, desbloquear usuarios, exportar datos y eliminar tu cuenta. Para eliminarla, resuelve primero los intercambios activos. El historial conserva registros seudonimizados, descritos en la política de privacidad.
+
+Una actualización automática no descarta tus cambios de privacidad pendientes. Pulsa «Guardar cambios» para aplicarlos; el aviso de cambios pendientes desaparece cuando se guardan.
 
 Puedes instalar el acceso PWA desde el menú de tu navegador compatible. Los datos privados requieren conexión; no existe edición offline.
 

@@ -1,4 +1,9 @@
-import { test, expect, type Page } from "@playwright/test";
+import {
+  test,
+  expect,
+  request as requestFactory,
+  type Page,
+} from "@playwright/test";
 import { randomUUID, randomBytes } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 
@@ -92,6 +97,15 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
   }
   const rpc = (who: number, name: string, data: unknown) =>
     call(`/rest/v1/rpc/${name}`, accounts[who].token, data);
+  async function refreshVisible(p: Page = page) {
+    await p.bringToFront();
+    await expect
+      .poll(() => p.evaluate(() => document.visibilityState))
+      .toBe("visible");
+    await p.evaluate(() =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+  }
   async function login(p: Page, who: number) {
     await p.goto(site);
     await p
@@ -195,9 +209,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       await route.fulfill({ response });
       deliveredRead();
     });
-    await page.evaluate(() =>
-      document.dispatchEvent(new Event("visibilitychange")),
-    );
+    await refreshVisible();
     await captured;
     await mark.click();
     const unmark = page.getByRole("button", {
@@ -283,18 +295,14 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       await route.fulfill({ response });
       deliverOlder();
     });
-    await page.evaluate(() =>
-      document.dispatchEvent(new Event("visibilitychange")),
-    );
+    await refreshVisible();
     await olderCaptured;
     await rpc(0, "change_quantity", {
       p_sticker: sivera.id,
       p_delta: 1,
       p_operation: randomUUID(),
     });
-    await page.evaluate(() =>
-      document.dispatchEvent(new Event("visibilitychange")),
-    );
+    await refreshVisible();
     await expect(compact.locator("li")).toContainText("3 copias");
     releaseOlder();
     await olderDelivered;
@@ -306,9 +314,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       p_delta: -1,
       p_operation: randomUUID(),
     });
-    await page.evaluate(() =>
-      document.dispatchEvent(new Event("visibilitychange")),
-    );
+    await refreshVisible();
     await expect(compact.locator("li")).toContainText("2 copias");
     expect(
       await page.evaluate(
@@ -354,6 +360,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       fullPage: true,
     });
     await nav(page, "Por equipos");
+    console.info("Lista, PDF y lecturas desordenadas comprobados");
     await nav(page, "Mi perfil");
     const saveCheck = page.getByRole("region", {
       name: "Revisión de guardado",
@@ -369,9 +376,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         r.url().includes("/rest/v1/user_privacy_settings?") &&
         r.request().method() === "GET",
     );
-    await page.evaluate(() =>
-      document.dispatchEvent(new Event("visibilitychange")),
-    );
+    await refreshVisible();
     await refreshedPrivacy;
     await page.waitForLoadState("networkidle");
     await expect(privacy).toHaveValue("friends");
@@ -385,6 +390,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(
       page.getByText("Perfil guardado", { exact: true }),
     ).toBeVisible();
+    console.info("Privacidad pendiente comprobada");
     await rpc(1, "change_quantity", {
       p_sticker: tenaglia.id,
       p_delta: 2,
@@ -509,9 +515,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         r.url().includes("/rest/v1/user_inventory?") &&
         r.url().includes(accounts[0].id),
     );
-    await page.evaluate(() =>
-      document.dispatchEvent(new Event("visibilitychange")),
-    );
+    await refreshVisible();
     await refreshedStock;
     await page.waitForLoadState("networkidle");
     await expect(suggestion).not.toContainText("Sivera");
@@ -596,6 +600,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       path: `test-results/live-${info.project.name}-completed.png`,
     });
   } finally {
+    const cleanupRequest = await requestFactory.newContext({ timeout: 20000 });
     releaseDelayedRead();
     if (info.status !== info.expectedStatus)
       await page
@@ -603,14 +608,14 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
           path: `test-results/live-${info.project.name}-failure.png`,
         })
         .catch(() => {});
-    // A failed UI assertion must not leave reservations or active test accounts.
+    // Keep cleanup independent of fixtures already closed by a test timeout.
     if (tradeId && accounts[0])
-      await request.post(api + "/rest/v1/rpc/trade_action", {
+      await cleanupRequest.post(api + "/rest/v1/rpc/trade_action", {
         headers: { apikey: key!, Authorization: `Bearer ${accounts[0].token}` },
         data: { p_trade: tradeId, p_action: "cancel" },
       });
     for (const a of accounts) {
-      const cleanup = await request.post(
+      const cleanup = await cleanupRequest.post(
         api + "/rest/v1/rpc/delete_my_account",
         {
           headers: { apikey: key!, Authorization: `Bearer ${a.token}` },
@@ -619,6 +624,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       );
       expect(cleanup.ok(), "Delete temporary account").toBe(true);
     }
+    await cleanupRequest.dispose();
     await second.close();
   }
 });

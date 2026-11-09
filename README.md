@@ -103,6 +103,8 @@ npm run test:e2e
 
 `npm test` ejecuta pruebas de dominio y una base PostgreSQL embebida con RLS real (PGlite). Las pruebas de concurrencia se activan con `TEST_DATABASE_URL` apuntando a una **base desechable llamada exactamente `cromatch_test`**; recrean sus esquemas. GitHub Actions configura PostgreSQL 17 para ejecutarlas con conexiones simultáneas. Los datos de prueba, marcados como fixtures, nunca se importan en la aplicación.
 
+La prueba del texto real de los PDF requiere `pdftotext` (`poppler-utils` en Linux); CI lo instala. Comprueba nombres con caracteres como Szczęsny y Sučić, últimas filas y páginas numeradas. Las fuentes Manrope se cargan desde el mismo sitio únicamente al descargar un PDF. Las pruebas alojadas esperan que el metadato público `nexo-revision` coincida con su commit antes de usar las cuentas temporales.
+
 Playwright comprueba bienvenida, formularios, recuperación, navegación por teclado y ausencia de desbordamiento en escritorio y móvil. Esas pruebas públicas no sustituyen el E2E de Supabase Auth y dos usuarios reales con contraseña. Consulta [verificación](docs/VERIFICACION.md).
 
 ## Publicar en Vercel
