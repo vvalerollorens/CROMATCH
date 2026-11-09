@@ -80,7 +80,12 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     ).toBeVisible();
   }
   const nav = (p: Page, name: string) =>
-    p.getByRole("button", { name, exact: true }).click();
+    (["Inicio", "Mi álbum", "Repetidos", "Amigos", "Mi perfil"].includes(name)
+      ? p.getByRole("navigation")
+      : p
+    )
+      .getByRole("button", { name, exact: true })
+      .click();
   async function trades(p: Page) {
     await nav(p, "Inicio");
     await nav(p, "Intercambios");
