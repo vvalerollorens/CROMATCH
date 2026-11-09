@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { compare, type Inventory, type Sticker } from "@/lib/domain";
 import { database, inventoryFor } from "@/lib/supabase";
+import { ArrowRight, Check, Plus } from "lucide-react";
 import type { HomeFriend } from "./home-overview";
 export function QuickTrade({
   userId,
@@ -11,6 +12,8 @@ export function QuickTrade({
   collection,
   onProfile,
   onSent,
+  onViewTrades,
+  initialFriendId = "",
 }: {
   userId: string;
   friends: HomeFriend[];
@@ -19,8 +22,10 @@ export function QuickTrade({
   collection: string;
   onProfile: (friend: HomeFriend) => void;
   onSent: () => Promise<void>;
+  onViewTrades?: () => void;
+  initialFriendId?: string;
 }) {
-  const [friendId, setFriendId] = useState("");
+  const [friendId, setFriendId] = useState(initialFriendId);
   const [theirs, setTheirs] = useState<Inventory[]>([]);
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
@@ -71,7 +76,7 @@ export function QuickTrade({
       } catch {
         if (active)
           setError(
-            "No se ha podido leer su colección. Puedes volver a elegir el amigo.",
+            "No se ha podido leer su colección. Pulsa Actualizar coincidencias para reintentar.",
           );
       } finally {
         if (active) setLoading(false);
@@ -154,32 +159,65 @@ export function QuickTrade({
       className="panel quick-trade"
       aria-label="Preparar intercambio automático"
     >
-      <h2>Cambia con un amigo</h2>
-      <p>
-        Elige con quién. Buscamos los repetidos que os faltan y preparamos una
-        propuesta para que la revises.
-      </p>
-      <label>
-        Amigo
-        <select
-          aria-label="Amigo para intercambiar"
-          value={friendId}
-          disabled={sending || Boolean(operation.current) || refreshing}
-          onChange={(e) => setFriendId(e.target.value)}
-        >
-          <option value="">Selecciona un amigo</option>
-          {friends.map((f) => (
-            <option key={f.user_id} value={f.user_id}>
-              {f.display_name} · @{f.username}
-            </option>
-          ))}
-        </select>
-      </label>
+      <span className="eyebrow">
+        1 · ELIGE AMIGO · 2 · REVISA · 3 · SOLICITA
+      </span>
+      <h2>¿Con quién quieres cambiar?</h2>
+      <p>Elige un amigo. Preparamos los cromos que os faltan a los dos.</p>
+      <div
+        className="trade-friend-buttons"
+        role="group"
+        aria-label="Elegir amigo para intercambiar"
+      >
+        {friends.map((f) => (
+          <div
+            className={`trade-friend-card ${friendId === f.user_id ? "selected" : ""}`}
+            key={f.user_id}
+          >
+            <div>
+              <strong>{f.display_name}</strong>
+              <small>@{f.username}</small>
+            </div>
+            <button
+              type="button"
+              aria-label={`Intercambiar con @${f.username}`}
+              aria-pressed={friendId === f.user_id}
+              disabled={sending || Boolean(operation.current) || refreshing}
+              onClick={() => setFriendId(f.user_id)}
+            >
+              {friendId === f.user_id ? (
+                <Check size={18} />
+              ) : (
+                <ArrowRight size={18} />
+              )}
+              {friendId === f.user_id ? "Seleccionado" : "Intercambiar"}
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => onProfile(f)}
+              disabled={sending || Boolean(operation.current)}
+              aria-label={`Ver colección de @${f.username}`}
+            >
+              Ver colección
+            </button>
+          </div>
+        ))}
+      </div>
       {!friends.length && (
         <p>Añade primero un amigo para preparar vuestro cambio.</p>
       )}
       {error && <p role="alert">{error}</p>}
-      {message && <p role="status">{message}</p>}
+      {message && (
+        <div className="trade-sent-notice">
+          <p role="status">{message}</p>
+          {onViewTrades && (
+            <button type="button" onClick={onViewTrades}>
+              Ver solicitud enviada <ArrowRight size={18} />
+            </button>
+          )}
+        </div>
+      )}
       {loading && <p role="status">Comparando vuestros álbumes…</p>}
       {friend && (
         <button
@@ -217,6 +255,40 @@ export function QuickTrade({
             </p>
           ) : allowed === true ? (
             <>
+              <div
+                className="trade-send-summary"
+                aria-label="Resumen del intercambio"
+              >
+                <h3>Tu propuesta para @{friend.username}</h3>
+                <p>
+                  <strong>{gives.length}</strong> para dar{" "}
+                  <span aria-hidden="true">↔</span>{" "}
+                  <strong>{receives.length}</strong> para recibir
+                </p>
+                <button
+                  type="button"
+                  disabled={
+                    sending ||
+                    (!operation.current &&
+                      (!gives.length || !receives.length)) ||
+                    Boolean(message)
+                  }
+                  onClick={() => void send()}
+                >
+                  {sending
+                    ? "Enviando…"
+                    : operation.current
+                      ? "Reintentar envío"
+                      : "Solicitar intercambio"}
+                </button>
+                <small>
+                  No se mueve ningún cromo hasta que ambos confirméis el cambio.
+                </small>
+              </div>
+              <p className="trade-selection-hint">
+                Los cromos ya están seleccionados. Pulsa una carta para quitarla
+                o añadirla.
+              </p>
               <div className="compare-columns">
                 {[
                   { key: "give", label: "Tú das", rows: matched.offer },
@@ -237,23 +309,29 @@ export function QuickTrade({
                       </p>
                     )}
                     {part.rows.slice(0, 50).map((s) => (
-                      <label className="suggested-sticker" key={s.id}>
-                        <input
-                          type="checkbox"
-                          checked={Boolean(choices[`${part.key}:${s.id}`])}
-                          disabled={
-                            sending ||
-                            Boolean(message) ||
-                            Boolean(operation.current)
-                          }
-                          onChange={(e) => {
-                            setChoices((v) => ({
-                              ...v,
-                              [`${part.key}:${s.id}`]: e.target.checked,
-                            }));
-                            operation.current = null;
-                          }}
-                        />
+                      <button
+                        type="button"
+                        className="suggested-sticker trade-sticker-choice"
+                        key={s.id}
+                        aria-label={`${part.key === "give" ? "Dar" : "Recibir"} ${s.name}, ${s.official_code}`}
+                        aria-pressed={Boolean(choices[`${part.key}:${s.id}`])}
+                        disabled={
+                          sending ||
+                          Boolean(message) ||
+                          Boolean(operation.current)
+                        }
+                        onClick={() =>
+                          setChoices((v) => ({
+                            ...v,
+                            [`${part.key}:${s.id}`]: !v[`${part.key}:${s.id}`],
+                          }))
+                        }
+                      >
+                        {choices[`${part.key}:${s.id}`] ? (
+                          <Check size={20} />
+                        ) : (
+                          <Plus size={20} />
+                        )}
                         <span>
                           #{s.official_code} · {s.name}
                           <small>
@@ -261,7 +339,12 @@ export function QuickTrade({
                             {s.sticker_series ? " · Especial" : ""}
                           </small>
                         </span>
-                      </label>
+                        <small>
+                          {choices[`${part.key}:${s.id}`]
+                            ? "Incluido"
+                            : "Añadir"}
+                        </small>
+                      </button>
                     ))}
                   </div>
                 ))}
@@ -282,21 +365,6 @@ export function QuickTrade({
                   lado.
                 </p>
               )}
-              <button
-                type="button"
-                disabled={
-                  sending ||
-                  (!operation.current && (!gives.length || !receives.length)) ||
-                  Boolean(message)
-                }
-                onClick={() => void send()}
-              >
-                {sending
-                  ? "Enviando…"
-                  : operation.current
-                    ? "Reintentar envío"
-                    : "Solicitar intercambio"}
-              </button>
             </>
           ) : null}
         </>

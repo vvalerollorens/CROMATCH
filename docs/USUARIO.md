@@ -31,6 +31,8 @@ El progreso cuenta cromos publicados distintos. Inicio muestra el porcentaje de 
 
 ## Amigos y coincidencias
 
+En Amigos, elige «Intercambiar» para ver la propuesta automática. «Ver colección» abre su álbum sin preparar un cambio. Puedes revisar los cromos incluidos con los botones de cada carta; arriba verás cuántos das y recibes y el botón «Solicitar intercambio». Después, «Ver solicitud enviada» abre el seguimiento. «Ver mis intercambios» permite aceptar propuestas y confirmar entregas. Las opciones de eliminar o bloquear están dentro de «Gestionar amistad».
+
 Busca por el prefijo del nombre de usuario. Envía una solicitud y espera a que la acepten. La amistad no abre una colección privada automáticamente: cada persona debe elegir en Perfil «Solo amigos» o «Usuarios registrados» para permitir la comparación.
 
 Las mejores oportunidades aparecen en Inicio cuando tienes amigos y se ordenan por utilidad recíproca. «Ver perfil» abre una pantalla propia, sin repetir la búsqueda. «Ver colección» permite recorrer su álbum, filtrar y consultar lo que tiene y le falta, sin modificarlo. Una colección privada requiere que su propietario cambie la visibilidad.
@@ -39,7 +41,7 @@ Puedes eliminar amistades, bloquear o denunciar desde las vistas disponibles. Un
 
 ## Intercambiar
 
-1. Abre Repetidos → Cambiar con amigos y selecciona un amigo. La app prepara una copia de cada repetido disponible que falta en el otro álbum, con hasta 50 cromos por lado.
+1. En Amigos pulsa «Intercambiar» junto a la persona. También puedes entrar por Repetidos → Cambiar con amigos. La app prepara una copia de cada repetido disponible que falta en el otro álbum, con hasta 50 cromos por lado.
 2. Revisa «Tú das» y «Tú recibes». Puedes desmarcar cartas. Pulsa «Solicitar intercambio» para enviarlo; el destinatario puede aceptarlo o rechazarlo. Hace falta al menos un cromo por lado; no se exige igual cantidad ni se supone que los especiales tengan el mismo valor.
 3. Aceptar revalida existencias y reserva los cromos de ambos. Todavía no cambia la posesión.
 4. Realizad la entrega acordada. Cada persona debe confirmar únicamente cuando se haya realizado la entrega/recepción.

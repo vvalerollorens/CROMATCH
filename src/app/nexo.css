@@ -1736,3 +1736,24 @@ html {
     font-size: max(16px, 1rem);
   }
 }
+
+.friends-trade-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.trade-friend-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin: 20px 0; }
+.trade-friend-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; border: 1px solid var(--border); border-radius: 18px; min-width: 0; }
+.trade-friend-card.selected { border-color: var(--nexo-orange); background: #f6a16b0a; }
+.trade-friend-card > div { grid-column: 1 / -1; overflow-wrap: anywhere; }
+.trade-friend-card small { display: block; color: var(--muted); }
+.trade-friend-card button { min-height: 46px; padding: 10px; font-size: 12px; }
+.trade-send-summary { display: grid; gap: 12px; padding: 20px; margin: 18px 0; border: 1px solid #f6a16b65; border-radius: 18px; background: linear-gradient(125deg, #f6a16b12, #e87b9d0a); }
+.trade-send-summary p { font-size: 20px; margin: 0; }
+.trade-send-summary p span { padding: 0 10px; color: var(--nexo-orange); }
+.trade-send-summary > button { width: 100%; min-height: 50px; }
+.trade-send-summary small, .trade-selection-hint { font-size: 12px; color: var(--muted); }
+.trade-sticker-choice { width: 100%; text-align: left; justify-content: flex-start; border-radius: 12px; background: transparent; color: var(--ink); padding: 12px; margin-top: 8px; min-height: 58px; }
+.trade-sticker-choice[aria-pressed="true"] { border-color: #f6a16b60; background: #f6a16b0a; }
+.trade-sticker-choice > svg { flex: 0 0 auto; color: var(--nexo-orange); }
+.trade-sticker-choice > span { flex: 1; }
+.trade-sticker-choice > small { flex: 0 0 auto; font-size: 10px; }
+.trade-sent-notice { padding: 18px; border: 1px solid #efdc9b70; border-radius: 16px; }
+.friend-management { border-top: 1px solid var(--border); padding: 12px 0; }
+.friend-management summary { cursor: pointer; padding: 10px 0; overflow-wrap: anywhere; }

@@ -558,14 +558,11 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       path: `test-results/live-${info.project.name}-friend-album.png`,
       fullPage: true,
     });
-    await nav(page, "Repetidos");
-    await nav(page, "Cambiar con amigos");
+    await nav(page, "Amigos");
     await page.route("**/rest/v1/rpc/can_view_inventory", (route) =>
       route.abort("failed"),
     );
-    await page
-      .getByLabel("Amigo para intercambiar", { exact: true })
-      .selectOption(accounts[1].id);
+    await nav(page, `Intercambiar con @${accounts[1].name}`);
     const suggestion = page.getByRole("region", {
       name: "Preparar intercambio automático",
     });
@@ -577,6 +574,21 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await nav(page, "Actualizar coincidencias");
     await expect(suggestion).toContainText("Sivera");
     await expect(suggestion).toContainText("Tenaglia");
+    const giveCard = suggestion.getByRole("button", {
+      name: `Dar Sivera, ${sivera.official_code}`,
+      exact: true,
+    });
+    await expect(giveCard).toHaveAttribute("aria-pressed", "true");
+    await giveCard.click();
+    await expect(giveCard).toHaveAttribute("aria-pressed", "false");
+    await expect(
+      suggestion.getByRole("button", {
+        name: "Solicitar intercambio",
+        exact: true,
+      }),
+    ).toBeDisabled();
+    await giveCard.click();
+    await expect(giveCard).toHaveAttribute("aria-pressed", "true");
     await expect(
       page.getByRole("button", { name: "Solicitar intercambio", exact: true }),
     ).toBeEnabled();
@@ -627,6 +639,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     expect(proposalPayloads).toHaveLength(2);
     expect(proposalPayloads[1]).toEqual(proposalPayloads[0]);
     await page.unroute("**/rest/v1/rpc/propose_trade");
+    await nav(page, "Ver solicitud enviada");
     await rpc(0, "change_quantity", {
       p_sticker: sivera.id,
       p_delta: 1,
