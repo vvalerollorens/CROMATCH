@@ -20,14 +20,14 @@ it("aplica el esquema real una sola vez y rechaza cambios retroactivos sin modif
     query: (sql: string, args?: unknown[]) =>
       !args && sql.includes(";") ? db.exec(sql) : db.query(sql, args),
   };
-  expect(await applyMigrations(client, migrations)).toHaveLength(7);
+  expect(await applyMigrations(client, migrations)).toHaveLength(8);
   expect(await applyMigrations(client, migrations)).toEqual([]);
   await expect(
     applyMigrations(client, [{ ...migrations[0], checksum: "changed" }]),
   ).rejects.toThrow("MIGRATION_CHANGED");
   expect(
     (await db.query("select name from nexo_migrations.applied")).rows,
-  ).toHaveLength(7);
+  ).toHaveLength(8);
   expect(
     (await db.query("select * from public.collections")).rows,
   ).toHaveLength(1);

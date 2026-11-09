@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type ReactNode,
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
@@ -108,6 +109,8 @@ import { referenceStickers } from "@/lib/catalogue";
 import { useLocalAlbum } from "@/lib/use-local-album";
 import { QuickAdd } from "./quick-add";
 import { DuplicatesList } from "./duplicates-list";
+import { DuplicateEntry } from "./duplicate-entry";
+import { DuplicateEntryError } from "@/lib/duplicate-entry";
 import { useCollectionCelebration } from "@/lib/use-collection-celebration";
 import { CollectionCelebration } from "./collection-celebration";
 import dynamic from "next/dynamic";
@@ -115,6 +118,28 @@ const ScanAlbum = dynamic(
   () => import("./scan-album").then((m) => m.ScanAlbum),
   { loading: () => <p role="status">Preparando el escáner…</p> },
 );
+function ListOptions({
+  collapsed,
+  activeFilters,
+  children,
+}: {
+  collapsed: boolean;
+  activeFilters: boolean;
+  children: ReactNode;
+}) {
+  return collapsed ? (
+    <details className="duplicate-list-options">
+      <summary>
+        Filtrar o exportar mis repetidos
+        {activeFilters ? " · Filtros activos" : ""}
+      </summary>
+      {children}
+    </details>
+  ) : (
+    <>{children}</>
+  );
+}
+
 export function Cromatch({
   initialVisitor = false,
 }: {
@@ -275,12 +300,13 @@ export function Cromatch({
       "change_quantity",
       "trade_action",
       "recover_album_from_history",
+      "add_duplicates",
     ].includes(name);
     const requestedBy = activeUser.current;
     if (changesInventory) inventoryRevision.current++;
     try {
-      const { data, error } = await database().rpc(name, args);
-      if (error) throw new Error(error.message);
+      const { data, error, status } = await database().rpc(name, args);
+      if (error) throw Object.assign(new Error(error.message), { status });
       return data;
     } finally {
       if (changesInventory && requestedBy === activeUser.current)
@@ -614,6 +640,14 @@ export function Cromatch({
       (section !== "faltantes" || !own.get(s.id)?.quantity),
   );
   const [page, setPage] = useState(0);
+  const listHasFilters = Boolean(search || team || series || edition);
+  useEffect(
+    () =>
+      setPage((p) =>
+        Math.min(p, Math.max(0, Math.ceil(filtered.length / 48) - 1)),
+      ),
+    [filtered.length],
+  );
   useEffect(
     () => setPage(0),
     [search, team, series, edition, section, collection],
@@ -687,6 +721,47 @@ export function Cromatch({
       setPeople(data ?? []);
     });
   }
+  async function addDuplicates(s: Sticker, extras: number, operation: string) {
+    if (visitor) {
+      localAlbum.addDuplicates(s.id, extras);
+      return;
+    }
+    const requestedBy = activeUser.current;
+    let failure: unknown;
+    const saved = await act(async () => {
+      const q = await rpc("add_duplicates", {
+        p_sticker: s.id,
+        p_extras: extras,
+        p_operation: operation,
+      }).catch((e) => {
+        failure = e;
+        throw e;
+      });
+      if (requestedBy !== activeUser.current) return;
+      setInventory((v) => [
+        ...v.filter((i) => i.sticker_id !== s.id),
+        {
+          user_id: requestedBy!,
+          sticker_id: s.id,
+          quantity: q,
+          reserved: v.find((i) => i.sticker_id === s.id)?.reserved ?? 0,
+        },
+      ]);
+    }, "Repetidos guardados");
+    if (!saved) {
+      const rejectedMessage =
+        failure instanceof Error &&
+        "status" in failure &&
+        failure.status === 400
+          ? failure.message
+          : null;
+      throw new DuplicateEntryError(
+        rejectedMessage ?? "No se ha podido confirmar la entrada de repetidos.",
+        rejectedMessage === null,
+      );
+    }
+  }
+
   async function openComparison(
     p: Profile,
     intent: "collection" | "trade" = "collection",
@@ -1304,134 +1379,163 @@ export function Cromatch({
           {(section === "faltantes" ||
             (section === "repetidos" && repeatView === "copies")) && (
             <>
-              <div className="collection-add-actions">
-                <button
-                  className="glow-cta"
-                  onClick={() => setQuickAddOpen(true)}
-                >
-                  <Plus size={18} />{" "}
-                  {section === "repetidos"
-                    ? "Añadir repetidos"
-                    : "Añadir cromos"}
-                </button>
-                <button className="secondary" onClick={() => go("escaner")}>
-                  <Camera size={18} /> Escanear foto
-                </button>
-              </div>
-              <div className="tabs">
-                {[
-                  { id: "album", label: "Todos los cromos" },
-                  {
-                    id: "repetidos",
-                    label: `Mis repetidos · ${stats.duplicates}`,
-                  },
-                  { id: "faltantes", label: `Me faltan · ${stats.missing}` },
-                ].map((x) => (
+              {section === "repetidos" ? (
+                <DuplicateEntry
+                  key={`${viewerId}:${collection}`}
+                  stickers={stickers}
+                  inventory={inventory}
+                  busy={busy || (visitor && !localAlbum.ready)}
+                  onAdd={addDuplicates}
+                  onScan={() => go("escaner")}
+                />
+              ) : (
+                <div className="collection-add-actions">
                   <button
-                    key={x.id}
-                    className={section === x.id ? "active" : ""}
-                    onClick={() => go(x.id as Section)}
+                    className="glow-cta"
+                    onClick={() => setQuickAddOpen(true)}
                   >
-                    {x.label}
+                    <Plus size={18} /> Añadir cromos
                   </button>
-                ))}
-              </div>
-              <div className="toolbar">
-                <label className="search-field">
-                  <Search size={18} />
-                  <input
-                    aria-label="Buscar cromo"
-                    placeholder="Número, jugador o equipo…"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </label>
-                <select
-                  aria-label="Filtrar por equipo"
-                  value={team}
-                  onChange={(e) => setTeam(e.target.value)}
-                >
-                  <option value="">Todos los equipos</option>
-                  {Array.from(
-                    new Set(stickers.map((s) => s.teams?.name).filter(Boolean)),
-                  ).map((x) => (
-                    <option key={x}>{x}</option>
+                  <button className="secondary" onClick={() => go("escaner")}>
+                    <Camera size={18} /> Escanear foto
+                  </button>
+                </div>
+              )}
+              <ListOptions
+                collapsed={section === "repetidos"}
+                activeFilters={listHasFilters}
+              >
+                <div className="tabs">
+                  {[
+                    { id: "album", label: "Todos los cromos" },
+                    {
+                      id: "repetidos",
+                      label: `Mis repetidos · ${stats.duplicates}`,
+                    },
+                    { id: "faltantes", label: `Me faltan · ${stats.missing}` },
+                  ].map((x) => (
+                    <button
+                      key={x.id}
+                      className={section === x.id ? "active" : ""}
+                      onClick={() => go(x.id as Section)}
+                    >
+                      {x.label}
+                    </button>
                   ))}
-                </select>
-                <select
-                  aria-label="Filtrar por serie"
-                  value={series}
-                  onChange={(e) => setSeries(e.target.value)}
-                >
-                  <option value="">Todas las series</option>
-                  {Array.from(
-                    new Set(
-                      stickers
-                        .map((s) => s.sticker_series?.name)
-                        .filter(Boolean),
-                    ),
-                  ).map((x) => (
-                    <option key={x}>{x}</option>
-                  ))}
-                </select>
-                <select
-                  aria-label="Filtrar por edición"
-                  value={edition}
-                  onChange={(e) => setEdition(e.target.value)}
-                >
-                  <option value="">Todas las ediciones</option>
-                  {Array.from(new Set(stickers.map((s) => s.edition))).map(
-                    (x) => (
+                </div>
+                <div className="toolbar">
+                  <label className="search-field">
+                    <Search size={18} />
+                    <input
+                      aria-label="Buscar cromo"
+                      placeholder="Número, jugador o equipo…"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </label>
+                  <select
+                    aria-label="Filtrar por equipo"
+                    value={team}
+                    onChange={(e) => setTeam(e.target.value)}
+                  >
+                    <option value="">Todos los equipos</option>
+                    {Array.from(
+                      new Set(
+                        stickers.map((s) => s.teams?.name).filter(Boolean),
+                      ),
+                    ).map((x) => (
                       <option key={x}>{x}</option>
-                    ),
-                  )}
-                </select>
+                    ))}
+                  </select>
+                  <select
+                    aria-label="Filtrar por serie"
+                    value={series}
+                    onChange={(e) => setSeries(e.target.value)}
+                  >
+                    <option value="">Todas las series</option>
+                    {Array.from(
+                      new Set(
+                        stickers
+                          .map((s) => s.sticker_series?.name)
+                          .filter(Boolean),
+                      ),
+                    ).map((x) => (
+                      <option key={x}>{x}</option>
+                    ))}
+                  </select>
+                  <select
+                    aria-label="Filtrar por edición"
+                    value={edition}
+                    onChange={(e) => setEdition(e.target.value)}
+                  >
+                    <option value="">Todas las ediciones</option>
+                    {Array.from(new Set(stickers.map((s) => s.edition))).map(
+                      (x) => (
+                        <option key={x}>{x}</option>
+                      ),
+                    )}
+                  </select>
+                  <button
+                    className="icon-button"
+                    aria-label={
+                      list ? "Mostrar cuadrícula" : "Mostrar lista rápida"
+                    }
+                    onClick={() => setList(!list)}
+                  >
+                    {list ? <Grid2X2 size={20} /> : <LayoutList size={20} />}
+                  </button>
+                </div>
+                <div className="export-actions">
+                  <button
+                    className="secondary"
+                    onClick={() =>
+                      download(
+                        `nexo-${section}.txt`,
+                        filtered
+                          .map(
+                            (s) =>
+                              `#${s.official_code} ${s.name}${section === "repetidos" ? ` · ${available(own.get(s.id))} disponibles` : ""}`,
+                          )
+                          .join("\n"),
+                      )
+                    }
+                  >
+                    <Download size={16} /> Exportar lista
+                  </button>
+                  <button
+                    className="secondary"
+                    disabled={busy}
+                    onClick={() =>
+                      void act(async () => {
+                        const token = await rpc("create_shared_list", {
+                          p_collection: collection,
+                          p_kind:
+                            section === "repetidos" ? "duplicates" : "missing",
+                        });
+                        const url = `${location.origin}/?lista=${token}`;
+                        await navigator.clipboard.writeText(url);
+                        await load();
+                      }, "Enlace copiado. Caduca en 7 días y puedes revocarlo en Perfil.")
+                    }
+                  >
+                    <Copy size={16} /> Crear enlace compartido
+                  </button>
+                </div>
+              </ListOptions>
+              {section === "repetidos" && listHasFilters && (
                 <button
-                  className="icon-button"
-                  aria-label={
-                    list ? "Mostrar cuadrícula" : "Mostrar lista rápida"
-                  }
-                  onClick={() => setList(!list)}
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    setSearch("");
+                    setTeam("");
+                    setSeries("");
+                    setEdition("");
+                  }}
                 >
-                  {list ? <Grid2X2 size={20} /> : <LayoutList size={20} />}
+                  Quitar filtros de mi lista
                 </button>
-              </div>
-              <div className="export-actions">
-                <button
-                  className="secondary"
-                  onClick={() =>
-                    download(
-                      `nexo-${section}.txt`,
-                      filtered
-                        .map(
-                          (s) =>
-                            `#${s.official_code} ${s.name}${section === "repetidos" ? ` · ${available(own.get(s.id))} disponibles` : ""}`,
-                        )
-                        .join("\n"),
-                    )
-                  }
-                >
-                  <Download size={16} /> Exportar lista
-                </button>
-                <button
-                  className="secondary"
-                  disabled={busy}
-                  onClick={() =>
-                    void act(async () => {
-                      const token = await rpc("create_shared_list", {
-                        p_collection: collection,
-                        p_kind:
-                          section === "repetidos" ? "duplicates" : "missing",
-                      });
-                      const url = `${location.origin}/?lista=${token}`;
-                      await navigator.clipboard.writeText(url);
-                      await load();
-                    }, "Enlace copiado. Caduca en 7 días y puedes revocarlo en Perfil.")
-                  }
-                >
-                  <Copy size={16} /> Crear enlace compartido
-                </button>
-              </div>
+              )}
               <p className="results-count">
                 {filtered.length} cromos · {stats.reserved} unidades reservadas
               </p>
@@ -1473,14 +1577,14 @@ export function Cromatch({
                 <section className="panel">
                   <Empty
                     title={
-                      section === "repetidos" && !search
+                      section === "repetidos" && !listHasFilters
                         ? "Todavía no tienes repetidos"
                         : stickers.length
                           ? "No hay cromos con estos filtros"
                           : "El catálogo está esperando su primer cromo verificado"
                     }
                   >
-                    {section === "repetidos" && !search
+                    {section === "repetidos" && !listHasFilters
                       ? "Busca un nombre en Añadir repetidos y registra las copias que tienes para cambiar."
                       : stickers.length
                         ? "Prueba otra búsqueda o filtro."

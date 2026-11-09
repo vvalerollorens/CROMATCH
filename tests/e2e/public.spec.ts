@@ -444,60 +444,84 @@ test("apartado Repetidos: buscar, añadir copias y mantener la plantilla limpia"
     ),
   ).toBe(true);
   await repeatsNav.click();
-  await page
-    .getByRole("button", { name: "Añadir repetidos", exact: true })
-    .click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Buscar para añadir").fill("sivera");
-  await expect(dialog).toContainText(
-    "Se guardará 1 para el álbum y 1 repetido",
+  const entry = page.getByRole("region", {
+    name: "Entrada rápida de repetidos",
+  });
+  await expect(entry).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await entry
+    .getByLabel("Equipo para añadir repetidos", { exact: true })
+    .selectOption("team:Deportivo Alavés");
+  const search = entry.getByLabel("Buscar repetido por nombre o número", {
+    exact: true,
+  });
+  const amount = entry.getByLabel("Repetidos a añadir", { exact: true });
+  await search.fill("3");
+  await amount.fill("3");
+  await search.press("Enter");
+  await expect(entry.getByRole("status")).toContainText(
+    "+3 repetidos guardados",
   );
-  await dialog
+  await expect(search).toHaveValue("3");
+  await expect(
+    entry.getByLabel("Equipo para añadir repetidos", { exact: true }),
+  ).toHaveValue("team:Deportivo Alavés");
+  await amount.fill("2");
+  await entry
     .getByRole("button", {
-      name: "Añadir un repetido de Sivera, 3",
+      name: "Añadir 2 repetidos de Sivera, 3",
       exact: true,
     })
     .click();
   await expect(
-    dialog.getByLabel("Repetidos de Sivera, 3", { exact: true }),
-  ).toHaveText("1");
-  await dialog
-    .getByRole("button", {
-      name: "Añadir un repetido de Sivera, 3",
-      exact: true,
-    })
-    .click();
+    page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
+  ).toContainText("5");
+  await search.fill("tenaglia");
+  await amount.fill("1");
+  await search.press("Enter");
+  await expect(entry.getByRole("status")).toContainText("Tenaglia");
   await expect(
-    dialog.getByLabel("Repetidos de Sivera, 3", { exact: true }),
-  ).toHaveText("2");
-  await dialog.getByRole("button", { name: "Cerrar búsqueda" }).click();
-  await expect(page.locator(".duplicate-row")).toHaveCount(1);
+    page.getByLabel("Repetidos de Tenaglia, 7", { exact: true }),
+  ).toContainText("1");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
   await page.reload();
   await expect(
     page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
-  ).toContainText("2");
+  ).toContainText("5");
+  for (let i = 0; i < 5; i++)
+    await page
+      .getByRole("button", {
+        name: "Quitar un repetido de Sivera, 3",
+        exact: true,
+      })
+      .click();
   await page
     .getByRole("button", {
-      name: "Quitar un repetido de Sivera, 3",
-      exact: true,
-    })
-    .click();
-  await expect(
-    page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
-  ).toContainText("1");
-  await page
-    .getByRole("button", {
-      name: "Quitar un repetido de Sivera, 3",
+      name: "Quitar un repetido de Tenaglia, 7",
       exact: true,
     })
     .click();
   await expect(page.locator(".duplicate-row")).toHaveCount(0);
   await page
-    .getByRole("button", { name: "Todos los cromos", exact: true })
+    .getByRole("navigation")
+    .getByRole("button", { name: "Mi álbum", exact: true })
     .click();
   await expect(
     page.getByRole("button", {
       name: "Desmarcar Sivera, número 3",
+      exact: true,
+    }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    page.getByRole("button", {
+      name: "Desmarcar Tenaglia, número 7",
       exact: true,
     }),
   ).toHaveAttribute("aria-pressed", "true");

@@ -63,6 +63,11 @@ describe.skipIf(!url)(
           readFileSync(
             "supabase/migrations/202611090006_album_recovery.sql",
             "utf8",
+          ) +
+          "\n" +
+          readFileSync(
+            "supabase/migrations/202611090008_duplicate_entry.sql",
+            "utf8",
           ),
       );
       await pool.query("insert into auth.users(id) values($1),($2)", [A, B]);
@@ -198,6 +203,36 @@ describe.skipIf(!url)(
           )
         ).rows[0].quantity,
       ).toBe(10);
+    });
+    it("dos altas de repetidos simultáneas guardan una única copia para el álbum", async () => {
+      const u = id();
+      await pool.query("insert into auth.users(id) values($1)", [u]);
+      await Promise.all([
+        asUser(u, "select public.add_duplicates($1,2,$2)", [s1, id()]),
+        asUser(u, "select public.add_duplicates($1,3,$2)", [s1, id()]),
+      ]);
+      expect(
+        (
+          await pool.query(
+            "select quantity,reserved from public.user_inventory where user_id=$1 and sticker_id=$2",
+            [u, s1],
+          )
+        ).rows,
+      ).toEqual([{ quantity: 6, reserved: 0 }]);
+      const op = id();
+      await Promise.all([
+        asUser(u, "select public.add_duplicates($1,2,$2)", [s1, op]),
+        asUser(u, "select public.add_duplicates($1,2,$2)", [s1, op]),
+      ]);
+      expect(
+        (
+          await pool.query(
+            "select quantity from public.user_inventory where user_id=$1 and sticker_id=$2",
+            [u, s1],
+          )
+        ).rows[0].quantity,
+      ).toBe(8);
+      await asUser(u, "select public.delete_my_account()");
     });
   },
 );

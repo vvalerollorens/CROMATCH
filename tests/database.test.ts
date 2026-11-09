@@ -76,6 +76,11 @@ beforeAll(async () => {
       readFileSync(
         "supabase/migrations/202611090006_album_recovery.sql",
         "utf8",
+      ) +
+      "\n" +
+      readFileSync(
+        "supabase/migrations/202611090008_duplicate_entry.sql",
+        "utf8",
       ),
   );
   for (const id of [A, B, C])
@@ -97,6 +102,52 @@ afterAll(async () => {
   await db.close();
 });
 describe("PostgreSQL, RLS y flujo completo", () => {
+  it("añade varios repetidos con una sola copia de álbum y reintenta sin duplicar ni perder reservas", async () => {
+    await owner();
+    const d = uuid();
+    await db.query("insert into auth.users(id) values($1)", [d]);
+    await user(d);
+    const op = uuid();
+    expect(await rpc("add_duplicates", [S1, 3, op])).toBe(4);
+    expect(await rpc("add_duplicates", [S1, 3, op])).toBe(4);
+    expect(await rpc("add_duplicates", [S1, 1, uuid()])).toBe(5);
+    expect(await rpc("add_duplicates", [S1, 3, op])).toBe(5);
+    expect(await rpc("add_duplicates", [S2, 99, uuid()])).toBe(100);
+    await expect(rpc("add_duplicates", [S1, 2, op])).rejects.toThrow(
+      "ya usado",
+    );
+    await expect(rpc("change_quantity", [S1, 4, op])).rejects.toThrow(
+      "ya usado",
+    );
+    await owner();
+    await db.query(
+      "update public.user_inventory set reserved=1 where user_id=$1 and sticker_id=$2",
+      [d, S1],
+    );
+    await user(d);
+    expect(await rpc("add_duplicates", [S1, 2, uuid()])).toBe(7);
+    expect(await qty(d, S1)).toMatchObject({ quantity: 7, reserved: 1 });
+    await user(d);
+    for (const invalid of [0, -1, 100, null])
+      await expect(
+        rpc("add_duplicates", [S1, invalid, uuid()]),
+      ).rejects.toThrow();
+    await user(A);
+    await expect(rpc("add_duplicates", [S1, 3, op])).rejects.toThrow(
+      "ya usado",
+    );
+    await user(null);
+    await expect(rpc("add_duplicates", [S1, 1, uuid()])).rejects.toThrow();
+    await owner();
+    await db.query(
+      "update public.user_inventory set quantity=998,reserved=0 where user_id=$1 and sticker_id=$2",
+      [d, S1],
+    );
+    await user(d);
+    await expect(rpc("add_duplicates", [S1, 2, uuid()])).rejects.toThrow("999");
+    expect(await rpc("add_duplicates", [S1, 1, uuid()])).toBe(999);
+    await rpc("delete_my_account");
+  });
   it("diagnostica y recupera solo el inventario propio desde el historial, sin duplicarlo y conservando reservas", async () => {
     await owner();
     const d = uuid(),
@@ -176,7 +227,7 @@ describe("PostgreSQL, RLS y flujo completo", () => {
     expect(await rpc("change_quantity", [S1, 2, op])).toBe(2);
     expect(await rpc("change_quantity", [S1, 2, op])).toBe(2);
     expect(await rpc("change_quantity", [S1, 9, uuid()])).toBe(11);
-    for (const invalid of [-2, 0, 10, null])
+    for (const invalid of [-2, 0, 101, null])
       await expect(
         rpc("change_quantity", [S1, invalid, uuid()]),
       ).rejects.toThrow("Incremento");

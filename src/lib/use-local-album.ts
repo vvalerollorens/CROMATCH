@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { referenceStickers } from "./catalogue";
+import { duplicateAddition } from "./duplicate-entry";
 import {
   LOCAL_ALBUM_KEY,
   changeLocalQuantity,
@@ -59,5 +60,8 @@ export function useLocalAlbum() {
     setValue(next);
     setError("");
   }
-  return { inventory, ready, error, change };
+  function addDuplicates(id: string, extras: number) {
+    change(id, duplicateAddition(current.current.quantities[id] ?? 0, extras));
+  }
+  return { inventory, ready, error, change, addDuplicates };
 }

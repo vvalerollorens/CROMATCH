@@ -258,22 +258,55 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await page.unroute("**/rest/v1/user_inventory?**");
     await unmark.click();
     await expect(mark).toHaveAttribute("aria-pressed", "false");
-    // First duplicate adds two copies atomically, including the album copy.
+    // Add three extra copies at once, keeping one album copy, without a dialog.
     await nav(page, "Repetidos");
-    await nav(page, "Añadir repetidos");
-    await page.getByLabel("Buscar para añadir", { exact: true }).fill("Sivera");
-    await page
-      .getByRole("button", {
-        name: "Añadir un repetido de Sivera, 3",
-        exact: true,
-      })
+    const entry = page.getByRole("region", {
+      name: "Entrada rápida de repetidos",
+    });
+    await entry
+      .getByLabel("Equipo para añadir repetidos", { exact: true })
+      .selectOption("team:Deportivo Alavés");
+    const repeatedSearch = entry.getByLabel(
+      "Buscar repetido por nombre o número",
+      { exact: true },
+    );
+    await repeatedSearch.fill("3");
+    await entry.getByLabel("Repetidos a añadir", { exact: true }).fill("3");
+    const repeatedPayloads: unknown[] = [];
+    let loseRepeatedReply = true;
+    await page.route("**/rest/v1/rpc/add_duplicates", async (route) => {
+      repeatedPayloads.push(route.request().postDataJSON());
+      if (!loseRepeatedReply) return route.continue();
+      loseRepeatedReply = false;
+      expect((await route.fetch()).ok()).toBe(true);
+      await route.abort("failed");
+    });
+    await repeatedSearch.press("Enter");
+    await expect(entry.getByRole("alert")).toContainText(
+      "No se ha podido confirmar Sivera",
+    );
+    await entry
+      .getByRole("button", { name: "Reintentar +3 de Sivera", exact: true })
       .click();
+    await expect(entry.getByRole("status")).toContainText(
+      "+3 repetidos guardados",
+    );
+    expect(repeatedPayloads).toHaveLength(2);
+    expect(repeatedPayloads[1]).toEqual(repeatedPayloads[0]);
+    await page.unroute("**/rest/v1/rpc/add_duplicates");
     await expect(
       page
-        .getByRole("dialog")
-        .getByLabel("Repetidos de Sivera, 3", { exact: true }),
-    ).toHaveText("1");
-    await nav(page, "Cerrar búsqueda");
+        .getByLabel("Repetidos de Sivera, 3", { exact: true })
+        .locator("strong"),
+    ).toHaveText("3");
+    await expect(repeatedSearch).toHaveValue("3");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-repeat-entry.png`,
+      fullPage: true,
+    });
+    for (let i = 0; i < 2; i++)
+      await nav(page, "Quitar un repetido de Sivera, 3");
     await page.reload();
     await nav(page, "Repetidos");
     await expect(
@@ -286,6 +319,9 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       accounts[1].token,
     );
     expect(privateRows).toEqual([]);
+    await page
+      .getByText("Filtrar o exportar mis repetidos", { exact: true })
+      .click();
     await page.getByLabel("Buscar cromo", { exact: true }).fill("alaves");
     await expect(
       page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
