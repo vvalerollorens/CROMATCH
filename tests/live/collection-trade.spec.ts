@@ -2,6 +2,34 @@ import { test, expect, type Page } from "@playwright/test";
 import { randomUUID, randomBytes } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 
+test.beforeAll(async ({ request }) => {
+  const expectedRevision = process.env.GITHUB_SHA;
+  if (!expectedRevision) return;
+  test.setTimeout(180000);
+  await expect
+    .poll(
+      async () => {
+        const response = await request.get(
+          `https://cromatch-six.vercel.app/?check-version=${Date.now()}`,
+          { timeout: 10000, headers: { "Cache-Control": "no-cache" } },
+        );
+        if (!response.ok()) return `HTTP ${response.status()}`;
+        return (
+          (await response.text()).match(
+            /<meta name="nexo-revision" content="([^"]+)"/,
+          )?.[1] ?? "sin versión publicada"
+        );
+      },
+      {
+        timeout: 150000,
+        intervals: [1000, 3000, 5000],
+        message:
+          "Las pruebas alojadas requieren el mismo commit publicado, no una versión anterior",
+      },
+    )
+    .toBe(expectedRevision);
+});
+
 // No secrets or service keys: use the same public config and APIs as the app.
 // Only temporary accounts; no fixture cards are inserted into the catalogue.
 test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
@@ -213,6 +241,11 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       accounts[1].token,
     );
     expect(privateRows).toEqual([]);
+    await page.getByLabel("Buscar cromo", { exact: true }).fill("alaves");
+    await expect(
+      page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
+    ).toBeVisible();
+    await page.getByLabel("Buscar cromo", { exact: true }).fill("");
     await nav(page, "Mi álbum");
     await nav(page, "Ver lista de lo que tengo");
     const compact = page.getByRole("region", {
@@ -296,6 +329,16 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(
       page.getByLabel("Buscar en lo que tengo", { exact: true }),
     ).toHaveValue("");
+    await page.route("**/fonts/manrope-pdf-*.ttf", (route) =>
+      route.abort("failed"),
+    );
+    await compact
+      .getByRole("button", { name: "Descargar PDF", exact: true })
+      .click();
+    await expect(compact.getByRole("alert")).toContainText(
+      "No se ha podido crear el PDF",
+    );
+    await page.unroute("**/fonts/manrope-pdf-*.ttf");
     const downloaded = page.waitForEvent("download");
     await compact
       .getByRole("button", { name: "Descargar PDF", exact: true })
@@ -305,7 +348,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     expect(await pdf.failure()).toBeNull();
     const pdfBytes = await readFile((await pdf.path())!);
     expect(pdfBytes.subarray(0, 5).toString()).toBe("%PDF-");
-    expect(pdfBytes.toString("latin1")).toContain("Sivera");
+    expect(pdfBytes.toString("latin1")).toContain("/ToUnicode");
     await page.screenshot({
       path: `test-results/live-${info.project.name}-owned-list.png`,
       fullPage: true,

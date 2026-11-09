@@ -101,6 +101,7 @@ import { TradeProgress } from "./trade-progress";
 import { AlbumSaveCheck } from "./album-save-check";
 import { QuickTrade } from "./quick-trade";
 import { OwnedCollectionList } from "./owned-collection-list";
+import { searchText } from "@/lib/scan-matching";
 import { VisualAlbum } from "./visual-album";
 import { HomeOverview, type HomeFriend } from "./home-overview";
 import { referenceStickers } from "@/lib/catalogue";
@@ -595,9 +596,9 @@ export function Cromatch({
   const unread = notifications.filter((n) => !n.read_at).length;
   const filtered = stickers.filter(
     (s) =>
-      `${s.official_code} ${s.name} ${s.teams?.name ?? ""}`
-        .toLocaleLowerCase("es")
-        .includes(search.toLocaleLowerCase("es")) &&
+      searchText(
+        `${s.official_code} ${s.name} ${s.teams?.name ?? ""} ${s.sticker_series?.name ?? ""}`,
+      ).includes(searchText(search)) &&
       (!team || s.teams?.name === team) &&
       (!series || s.sticker_series?.name === series) &&
       (!edition || s.edition === edition) &&

@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     "Tu álbum de fútbol, tus repetidos y tu próximo intercambio. Colecciona y conecta.",
   manifest: "/manifest.webmanifest",
   robots: { index: false, follow: false, noarchive: true },
+  other: { "nexo-revision": process.env.NEXT_PUBLIC_NEXO_REVISION ?? "local" },
   appleWebApp: { capable: true, title: "NEXO", statusBarStyle: "default" },
 };
 export default function RootLayout({

@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
   poweredByHeader: false,
+  env: {
+    NEXT_PUBLIC_NEXO_REVISION:
+      process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local",
+  },
   async headers() {
     return [
       {

@@ -38,7 +38,9 @@ export function OwnedCollectionList({
     setExporting(true);
     setExportError("");
     try {
-      const { ownedCollectionPdf } = await import("@/lib/owned-pdf");
+      const { ownedCollectionPdf, loadOwnedPdfFonts } =
+        await import("@/lib/owned-pdf");
+      const fonts = await loadOwnedPdfFonts();
       const pdf = ownedCollectionPdf(
         rows.map((s) => ({
           code: s.official_code,
@@ -48,6 +50,7 @@ export function OwnedCollectionList({
           variant: s.variant,
           quantity: quantities.get(s.id)!,
         })),
+        fonts,
         collectionName,
         [query.trim(), group].filter(Boolean).join(" · "),
       );
