@@ -1472,4 +1472,48 @@ html {
     left: 0;
     right: 0;
   }
+  .welcome-art {
+    min-height: 160px;
+    height: 160px;
+  }
+  .welcome-art .tile-front {
+    width: 92px;
+    height: 124px;
+    top: 12%;
+    gap: 10px;
+  }
+  .welcome-art .tile-back {
+    width: 82px;
+    height: 114px;
+    top: 8%;
+  }
+  .welcome-art .tile-front > svg {
+    width: 30px;
+    height: 30px;
+  }
+  .welcome-art .tile-front > span {
+    font-size: 17px;
+  }
+  .welcome-art .welcome-star {
+    top: 3%;
+    font-size: 22px;
+  }
+  .welcome-art .welcome-orbit {
+    width: 145px;
+    height: 50px;
+    top: 60%;
+    left: 20%;
+  }
+  .welcome-copy h1 {
+    font-size: 42px;
+    line-height: 1.06;
+    margin: 10px 0 12px;
+  }
+  .welcome-copy > p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .welcome-copy > .welcome-register {
+    margin-top: 14px;
+  }
 }

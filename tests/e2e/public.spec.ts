@@ -15,13 +15,22 @@ test("bienvenida en español y sin datos ficticios", async ({ page }) => {
     ),
   ).toBe(true);
 });
-test("registro accesible y conexión pendiente explícita", async ({ page }) => {
+test("registro accesible y conexión pendiente explícita", async ({
+  page,
+}, testInfo) => {
   await page.goto("/");
   const create = page.getByRole("button", {
     name: "Crear cuenta",
     exact: true,
   });
   await expect(create).toHaveClass(/glow-cta/);
+  const ctaBox = await create.boundingBox();
+  expect(ctaBox!.y + ctaBox!.height).toBeLessThanOrEqual(
+    page.viewportSize()!.height,
+  );
+  await page.screenshot({
+    path: testInfo.outputPath("crear-cuenta-visible.png"),
+  });
   await expect(
     page.getByRole("button", {
       name: "Ver por dentro sin cuenta",

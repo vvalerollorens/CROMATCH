@@ -45,17 +45,14 @@ export function Landing({
           <div className="welcome-copy">
             <span className="eyebrow">TU ÁLBUM. TUS AMIGOS.</span>
             <h1>
-              Ese cromo
-              <br />
+              Ese cromo <br />
               que te falta.
               <br />
               <span>Más cerca.</span>
             </h1>
             <p>
-              Marca los que tienes.
-              <br />
-              Encuentra los que te faltan.
-              <br />
+              Marca los que tienes. <br />
+              Encuentra los que te faltan. <br />
               Cámbialos con tu gente.
             </p>
             <button
