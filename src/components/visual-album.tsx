@@ -84,6 +84,7 @@ export function VisualAlbum({
   collectionName,
   local = false,
   readOnly = false,
+  duplicates = false,
   onScan,
   onOwnedList,
   onQuantity,
@@ -96,6 +97,7 @@ export function VisualAlbum({
   collectionName?: string;
   local?: boolean;
   readOnly?: boolean;
+  duplicates?: boolean;
   onScan?: () => void;
   onOwnedList?: () => void;
   onQuantity: (s: Sticker, d: number) => Promise<void>;
@@ -161,11 +163,13 @@ export function VisualAlbum({
   const section = sections.find((t) => t.id === selected);
   const own = new Map(inventory.map((i) => [i.sticker_id, i]));
   const quantity = (s: Sticker) =>
-    reference && !local
-      ? marked[s.id]
-        ? 1
-        : 0
-      : (own.get(s.id)?.quantity ?? 0);
+    duplicates
+      ? Math.max(0, (own.get(s.id)?.quantity ?? 0) - 1)
+      : reference && !local
+        ? marked[s.id]
+          ? 1
+          : 0
+        : (own.get(s.id)?.quantity ?? 0);
   const rows = entries.filter((s) => sectionOf(s) === selected);
   const count = rows.filter((s) => quantity(s) > 0).length;
   const albumOwned = entries.filter((s) => quantity(s) > 0).length;
@@ -187,6 +191,10 @@ export function VisualAlbum({
   };
   const open = (s: Sticker) => {
     if (readOnly) return;
+    if (duplicates) {
+      if (!busy) void onQuantity(s, 1).catch(() => {});
+      return;
+    }
     if (local) {
       const q = quantity(s);
       if (q > 1) onNavigate("repetidos");
@@ -210,7 +218,9 @@ export function VisualAlbum({
   return (
     <section
       className={`visual-album ${readOnly ? "is-readonly" : ""} ${group === "team" ? "team-page" : "specials-page"}`}
-      aria-label="Álbum visual por equipos"
+      aria-label={
+        duplicates ? "Repetidos por equipos" : "Álbum visual por equipos"
+      }
       style={
         { "--club-a": colours[0], "--club-b": colours[1] } as CSSProperties
       }
@@ -322,47 +332,60 @@ export function VisualAlbum({
           </span>
           <h2>{section?.name ?? "Elige un apartado"}</h2>
           <p>
-            {reference
-              ? "Nombres y numeración de los listados consultados."
-              : readOnly
-                ? "Consulta los cromos que tiene tu amigo."
-                : "Toca los que tienes para completar tu página."}
+            {duplicates
+              ? "Toca un cromo para añadir una copia repetida."
+              : reference
+                ? "Nombres y numeración de los listados consultados."
+                : readOnly
+                  ? "Consulta los cromos que tiene tu amigo."
+                  : "Toca los que tienes para completar tu página."}
           </p>
         </div>
         {section && <TeamBadge short={section.short} teamId={section.id} />}
       </div>
-      <p className="album-total-progress">
-        {readOnly ? "Su colección" : "Tu colección"}: {albumOwned} de{" "}
-        {entries.length} cromos ·{" "}
-        {entries.length ? Math.round((albumOwned / entries.length) * 100) : 0}%
-        del total
-      </p>
-      <div className="album-progress">
-        <span>
-          <strong>{count}</strong>
-          <span> / {rows.length}</span>{" "}
-          {local
-            ? "cromos en tu álbum"
-            : reference
-              ? "marcados en esta visita"
-              : "conseguidos"}
-        </span>
-        <span>
-          {rows.length ? Math.round((count / rows.length) * 100) : 0}%
-          {group === "team" ? " del equipo" : " de esta serie"}
-        </span>
-        <progress
-          aria-label={
-            local
-              ? "Progreso del equipo"
-              : reference
-                ? "Cromos marcados en esta visita"
-                : "Progreso del equipo"
-          }
-          max={Math.max(1, rows.length)}
-          value={count}
-        />
-      </div>
+      {duplicates ? (
+        <p className="album-total-progress">
+          {rows.reduce((n, s) => n + quantity(s), 0)} repetidos en este apartado
+          · {count} cromos distintos con repetidos
+        </p>
+      ) : (
+        <>
+          <p className="album-total-progress">
+            {readOnly ? "Su colección" : "Tu colección"}: {albumOwned} de{" "}
+            {entries.length} cromos ·{" "}
+            {entries.length
+              ? Math.round((albumOwned / entries.length) * 100)
+              : 0}
+            % del total
+          </p>
+          <div className="album-progress">
+            <span>
+              <strong>{count}</strong>
+              <span> / {rows.length}</span>{" "}
+              {local
+                ? "cromos en tu álbum"
+                : reference
+                  ? "marcados en esta visita"
+                  : "conseguidos"}
+            </span>
+            <span>
+              {rows.length ? Math.round((count / rows.length) * 100) : 0}%
+              {group === "team" ? " del equipo" : " de esta serie"}
+            </span>
+            <progress
+              aria-label={
+                local
+                  ? "Progreso del equipo"
+                  : reference
+                    ? "Cromos marcados en esta visita"
+                    : "Progreso del equipo"
+              }
+              max={Math.max(1, rows.length)}
+              value={count}
+            />
+          </div>
+        </>
+      )}
       <div className="album-controls">
         <div className="album-segments" aria-label="Filtrar casilleros">
           {[
@@ -379,13 +402,19 @@ export function VisualAlbum({
                 setPage(0);
               }}
             >
-              {readOnly
+              {duplicates
                 ? m.id === "missing"
-                  ? "Le faltan"
+                  ? "Sin repetidos"
                   : m.id === "owned"
-                    ? "Tiene"
-                    : m.label
-                : m.label}
+                    ? "Con repetidos"
+                    : "Todos"
+                : readOnly
+                  ? m.id === "missing"
+                    ? "Le faltan"
+                    : m.id === "owned"
+                      ? "Tiene"
+                      : m.label
+                  : m.label}
             </button>
           ))}
         </div>
@@ -458,17 +487,19 @@ export function VisualAlbum({
                 className="slot-main"
                 disabled={readOnly || (busy && (!reference || local))}
                 aria-label={
-                  readOnly
-                    ? `${q ? "Tiene" : "Le falta"} ${s.name}, código ${s.official_code}`
-                    : reference
-                      ? q > 1
-                        ? `Gestionar repetidos de ${s.name}`
-                        : `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
-                      : q > 1
-                        ? `Gestionar repetidos de ${s.name}`
-                        : q === 1
-                          ? `Desmarcar ${s.name}, código ${s.official_code}`
-                          : `Desbloquear ${s.name}, código ${s.official_code}`
+                  duplicates
+                    ? `Añadir repetido de ${s.name}, ${s.official_code}`
+                    : readOnly
+                      ? `${q ? "Tiene" : "Le falta"} ${s.name}, código ${s.official_code}`
+                      : reference
+                        ? q > 1
+                          ? `Gestionar repetidos de ${s.name}`
+                          : `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
+                        : q > 1
+                          ? `Gestionar repetidos de ${s.name}`
+                          : q === 1
+                            ? `Desmarcar ${s.name}, código ${s.official_code}`
+                            : `Desbloquear ${s.name}, código ${s.official_code}`
                 }
                 aria-pressed={q > 0}
                 onClick={() => open(s)}
@@ -510,7 +541,9 @@ export function VisualAlbum({
                 )}
                 <span className="slot-caption">{s.name}</span>
                 <span className="slot-corner">
-                  {q ? (
+                  {duplicates ? (
+                    <span>{q ? `×${q}` : <Plus size={13} />}</span>
+                  ) : q ? (
                     <Check size={13} />
                   ) : (
                     <span className="slot-empty-dot" />
@@ -518,6 +551,27 @@ export function VisualAlbum({
                 </span>
                 {review && <span className="slot-review">Revisar</span>}
               </button>
+              {duplicates && (
+                <div className="duplicate-slot-controls">
+                  <button
+                    type="button"
+                    className="secondary"
+                    aria-label={`Quitar repetido de ${s.name}, ${s.official_code}`}
+                    disabled={busy || available(i) < 1}
+                    onClick={() => void onQuantity(s, -1).catch(() => {})}
+                  >
+                    <Minus size={15} />
+                  </button>
+                  <output
+                    aria-label={`Copias repetidas de ${s.name}, ${s.official_code}`}
+                  >
+                    {q} {q === 1 ? "repetido" : "repetidos"}
+                  </output>
+                  {Boolean(i?.reserved) && (
+                    <small>{i?.reserved} reservados</small>
+                  )}
+                </div>
+              )}
             </article>
           );
         })}
@@ -599,7 +653,7 @@ export function VisualAlbum({
           </p>
         </details>
       )}
-      {!readOnly && (
+      {!readOnly && !duplicates && (
         <div className="album-shortcuts">
           <button className="secondary" onClick={() => onNavigate("repetidos")}>
             Mis repetidos ·{" "}

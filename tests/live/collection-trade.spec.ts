@@ -260,6 +260,36 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(mark).toHaveAttribute("aria-pressed", "false");
     // Add three extra copies at once, keeping one album copy, without a dialog.
     await nav(page, "Repetidos");
+    const repeatedAlbum = page.getByRole("region", {
+      name: "Repetidos por equipos",
+      exact: true,
+    });
+    const addRepeated = repeatedAlbum.getByRole("button", {
+      name: "Añadir repetido de Sivera, 3",
+      exact: true,
+    });
+    await addRepeated.click();
+    await expect(
+      repeatedAlbum.getByLabel("Copias repetidas de Sivera, 3", {
+        exact: true,
+      }),
+    ).toHaveText("1 repetido");
+    await repeatedAlbum
+      .getByRole("button", {
+        name: "Quitar repetido de Sivera, 3",
+        exact: true,
+      })
+      .click();
+    await expect(
+      repeatedAlbum.getByLabel("Copias repetidas de Sivera, 3", {
+        exact: true,
+      }),
+    ).toHaveText("0 repetidos");
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-repeat-album.png`,
+      fullPage: true,
+    });
+    await nav(page, "Buscar por nombre");
     const entry = page.getByRole("region", {
       name: "Entrada rápida de repetidos",
     });
@@ -305,17 +335,18 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     expect(repeatedPayloads).toHaveLength(2);
     expect(repeatedPayloads[1]).toEqual(repeatedPayloads[0]);
     await page.unroute("**/rest/v1/rpc/add_duplicates");
-    await expect(
-      page
-        .getByLabel("Repetidos de Sivera, 3", { exact: true })
-        .locator("strong"),
-    ).toHaveText("3");
     await expect(repeatedSearch).toHaveValue("3");
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await page.screenshot({
       path: `test-results/live-${info.project.name}-repeat-entry.png`,
       fullPage: true,
     });
+    await nav(page, "Mi lista de repetidos");
+    await expect(
+      page
+        .getByLabel("Repetidos de Sivera, 3", { exact: true })
+        .locator("strong"),
+    ).toHaveText("3");
     for (let i = 0; i < 2; i++) {
       await nav(page, "Quitar un repetido de Sivera, 3");
       // Wait for the confirmed write before reloading or issuing the next one.
@@ -327,6 +358,7 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     }
     await page.reload();
     await nav(page, "Repetidos");
+    await nav(page, "Mi lista de repetidos");
     await expect(
       page
         .getByLabel("Repetidos de Sivera, 3", { exact: true })

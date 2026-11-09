@@ -1822,3 +1822,12 @@ button.trade-visual-card:hover:not(:disabled), button.trade-visual-card:focus-vi
 .quick-trade .trade-send-summary p { font-size: 14px; }
 .quick-trade .trade-send-summary p span { padding: 0 3px; }
 @media (max-width: 380px) { .quick-trade .trade-send-summary { grid-template-columns: 1fr; } }
+
+.duplicate-album-instructions { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.duplicate-album-status { min-height: 24px; margin: 8px 0; color: var(--nexo-yellow); font-size: 12px; }
+.duplicate-slot-controls { display: flex; align-items: center; justify-content: space-between; gap: 5px; padding: 7px; flex-wrap: wrap; background: #151118; border-top: 1px solid #ffffff18; }
+.duplicate-slot-controls button { min-width: 34px; min-height: 34px; padding: 6px; border-radius: 10px; }
+.duplicate-slot-controls output { font-size: 10px; color: var(--nexo-yellow); }
+.duplicate-slot-controls small { flex-basis: 100%; font-size: 9px; color: var(--muted); }
+.duplicate-album-entry .slot-corner { min-width: 24px; width: auto; padding: 3px 5px; font-size: 10px; }
+.duplicate-album-entry .slot-main { touch-action: manipulation; }

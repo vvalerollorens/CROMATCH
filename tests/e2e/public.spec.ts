@@ -133,6 +133,9 @@ test("visita sin correo recorre pantallas sin peticiones de datos", async ({
     page.getByRole("heading", { name: "Mis repetidos", exact: true }),
   ).toBeVisible();
   await page
+    .getByRole("button", { name: "Mi lista de repetidos", exact: true })
+    .click();
+  await page
     .getByText("Filtrar o exportar mis repetidos", { exact: true })
     .click();
   await page
@@ -447,6 +450,37 @@ test("apartado Repetidos: buscar, añadir copias y mantener la plantilla limpia"
     ),
   ).toBe(true);
   await repeatsNav.click();
+  const repeatedAlbum = page.getByRole("region", {
+    name: "Repetidos por equipos",
+    exact: true,
+  });
+  await expect(repeatedAlbum).toBeVisible();
+  const addRepeated = repeatedAlbum.getByRole("button", {
+    name: "Añadir repetido de Sivera, 3",
+    exact: true,
+  });
+  const repeatedCount = repeatedAlbum.getByLabel(
+    "Copias repetidas de Sivera, 3",
+    { exact: true },
+  );
+  const removeRepeated = repeatedAlbum.getByRole("button", {
+    name: "Quitar repetido de Sivera, 3",
+    exact: true,
+  });
+  await expect(removeRepeated).toBeDisabled();
+  await addRepeated.click();
+  await expect(repeatedCount).toHaveText("1 repetido");
+  await addRepeated.click();
+  await expect(repeatedCount).toHaveText("2 repetidos");
+  await removeRepeated.click();
+  await expect(repeatedCount).toHaveText("1 repetido");
+  await removeRepeated.click();
+  await expect(repeatedCount).toHaveText("0 repetidos");
+  await expect(removeRepeated).toBeDisabled();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Buscar por nombre", exact: true })
+    .click();
   const entry = page.getByRole("region", {
     name: "Entrada rápida de repetidos",
   });
@@ -484,15 +518,15 @@ test("apartado Repetidos: buscar, añadir copias y mantener la plantilla limpia"
     })
     .click();
   await expect(
-    page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
-  ).toContainText("5");
+    entry.locator(".duplicate-entry-row").filter({ hasText: "Sivera" }),
+  ).toContainText("5 repetidos");
   await search.fill("tenaglia");
   await amount.fill("1");
   await search.press("Enter");
   await expect(entry.getByRole("status")).toContainText("Tenaglia");
   await expect(
-    page.getByLabel("Repetidos de Tenaglia, 7", { exact: true }),
-  ).toContainText("1");
+    entry.locator(".duplicate-entry-row").filter({ hasText: "Tenaglia" }),
+  ).toContainText("1 repetido");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(
     await page.evaluate(
@@ -502,6 +536,9 @@ test("apartado Repetidos: buscar, añadir copias y mantener la plantilla limpia"
     ),
   ).toBe(true);
   await page.reload();
+  await page
+    .getByRole("button", { name: "Mi lista de repetidos", exact: true })
+    .click();
   await expect(
     page.getByLabel("Repetidos de Sivera, 3", { exact: true }),
   ).toContainText("5");

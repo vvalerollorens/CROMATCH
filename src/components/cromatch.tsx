@@ -109,6 +109,7 @@ import { referenceStickers } from "@/lib/catalogue";
 import { useLocalAlbum } from "@/lib/use-local-album";
 import { QuickAdd } from "./quick-add";
 import { DuplicatesList } from "./duplicates-list";
+import { DuplicateAlbum } from "./duplicate-album";
 import { DuplicateEntry } from "./duplicate-entry";
 import { DuplicateEntryError } from "@/lib/duplicate-entry";
 import { useCollectionCelebration } from "@/lib/use-collection-celebration";
@@ -244,6 +245,9 @@ export function Cromatch({
     { official_code: string; name: string; quantity: number }[] | null
   >(null);
   const [tradeFilter, setTradeFilter] = useState("all");
+  const [repeatLayout, setRepeatLayout] = useState<"album" | "search" | "list">(
+    "album",
+  );
   const [repeatView, setRepeatView] = useState<"copies" | "trades">("copies");
   const [albumView, setAlbumView] = useState<"pages" | "owned">("pages");
   const [profileTab, setProfileTab] = useState<"collection" | "trade">(
@@ -1368,15 +1372,54 @@ export function Cromatch({
           {(section === "faltantes" ||
             (section === "repetidos" && repeatView === "copies")) && (
             <>
+              {section === "repetidos" && (
+                <div
+                  className="tabs"
+                  role="group"
+                  aria-label="Cómo añadir repetidos"
+                >
+                  {[
+                    { id: "album", label: "Por equipos" },
+                    { id: "search", label: "Buscar por nombre" },
+                    { id: "list", label: "Mi lista de repetidos" },
+                  ].map((v) => (
+                    <button
+                      type="button"
+                      key={v.id}
+                      aria-pressed={repeatLayout === v.id}
+                      className={repeatLayout === v.id ? "active" : ""}
+                      onClick={() =>
+                        setRepeatLayout(v.id as typeof repeatLayout)
+                      }
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               {section === "repetidos" ? (
-                <DuplicateEntry
-                  key={`${viewerId}:${collection}`}
-                  stickers={stickers}
-                  inventory={inventory}
-                  busy={busy || (visitor && !localAlbum.ready)}
-                  onAdd={addDuplicates}
-                  onScan={() => go("escaner")}
-                />
+                repeatLayout === "album" ? (
+                  <DuplicateAlbum
+                    key={`${viewerId}:${collection}`}
+                    stickers={stickers}
+                    inventory={inventory}
+                    busy={busy || (visitor && !localAlbum.ready)}
+                    visitor={visitor}
+                    collectionName={current?.name}
+                    onAdd={addDuplicates}
+                    onRemove={(s) => quantity(s, -1)}
+                    onScan={() => go("escaner")}
+                  />
+                ) : repeatLayout === "search" ? (
+                  <DuplicateEntry
+                    key={`${viewerId}:${collection}`}
+                    stickers={stickers}
+                    inventory={inventory}
+                    busy={busy || (visitor && !localAlbum.ready)}
+                    onAdd={addDuplicates}
+                    onScan={() => go("escaner")}
+                  />
+                ) : null
               ) : (
                 <div className="collection-add-actions">
                   <button
@@ -1390,196 +1433,210 @@ export function Cromatch({
                   </button>
                 </div>
               )}
-              <ListOptions
-                collapsed={section === "repetidos"}
-                activeFilters={listHasFilters}
-              >
-                <div className="tabs">
-                  {[
-                    { id: "album", label: "Todos los cromos" },
-                    {
-                      id: "repetidos",
-                      label: `Mis repetidos · ${stats.duplicates}`,
-                    },
-                    { id: "faltantes", label: `Me faltan · ${stats.missing}` },
-                  ].map((x) => (
-                    <button
-                      key={x.id}
-                      className={section === x.id ? "active" : ""}
-                      onClick={() => go(x.id as Section)}
-                    >
-                      {x.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="toolbar">
-                  <label className="search-field">
-                    <Search size={18} />
-                    <input
-                      aria-label="Buscar cromo"
-                      placeholder="Número, jugador o equipo…"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
-                  </label>
-                  <select
-                    aria-label="Filtrar por equipo"
-                    value={team}
-                    onChange={(e) => setTeam(e.target.value)}
-                  >
-                    <option value="">Todos los equipos</option>
-                    {Array.from(
-                      new Set(
-                        stickers.map((s) => s.teams?.name).filter(Boolean),
-                      ),
-                    ).map((x) => (
-                      <option key={x}>{x}</option>
-                    ))}
-                  </select>
-                  <select
-                    aria-label="Filtrar por serie"
-                    value={series}
-                    onChange={(e) => setSeries(e.target.value)}
-                  >
-                    <option value="">Todas las series</option>
-                    {Array.from(
-                      new Set(
-                        stickers
-                          .map((s) => s.sticker_series?.name)
-                          .filter(Boolean),
-                      ),
-                    ).map((x) => (
-                      <option key={x}>{x}</option>
-                    ))}
-                  </select>
-                  <select
-                    aria-label="Filtrar por edición"
-                    value={edition}
-                    onChange={(e) => setEdition(e.target.value)}
-                  >
-                    <option value="">Todas las ediciones</option>
-                    {Array.from(new Set(stickers.map((s) => s.edition))).map(
-                      (x) => (
-                        <option key={x}>{x}</option>
-                      ),
-                    )}
-                  </select>
-                  <button
-                    className="icon-button"
-                    aria-label={
-                      list ? "Mostrar cuadrícula" : "Mostrar lista rápida"
-                    }
-                    onClick={() => setList(!list)}
-                  >
-                    {list ? <Grid2X2 size={20} /> : <LayoutList size={20} />}
-                  </button>
-                </div>
-                <div className="export-actions">
-                  <button
-                    className="secondary"
-                    onClick={() =>
-                      download(
-                        `nexo-${section}.txt`,
-                        filtered
-                          .map(
-                            (s) =>
-                              `#${s.official_code} ${s.name}${section === "repetidos" ? ` · ${available(own.get(s.id))} disponibles` : ""}`,
-                          )
-                          .join("\n"),
-                      )
-                    }
-                  >
-                    <Download size={16} /> Exportar lista
-                  </button>
-                  <button
-                    className="secondary"
-                    disabled={busy}
-                    onClick={() =>
-                      void act(async () => {
-                        const token = await rpc("create_shared_list", {
-                          p_collection: collection,
-                          p_kind:
-                            section === "repetidos" ? "duplicates" : "missing",
-                        });
-                        const url = `${location.origin}/?lista=${token}`;
-                        await navigator.clipboard.writeText(url);
-                        await load();
-                      }, "Enlace copiado. Caduca en 7 días y puedes revocarlo en Perfil.")
-                    }
-                  >
-                    <Copy size={16} /> Crear enlace compartido
-                  </button>
-                </div>
-              </ListOptions>
-              {section === "repetidos" && listHasFilters && (
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => {
-                    setSearch("");
-                    setTeam("");
-                    setSeries("");
-                    setEdition("");
-                  }}
-                >
-                  Quitar filtros de mi lista
-                </button>
-              )}
-              <p className="results-count">
-                {filtered.length} cromos · {stats.reserved} unidades reservadas
-              </p>
-              {filtered.length ? (
+              {(section === "faltantes" || repeatLayout === "list") && (
                 <>
-                  {section === "repetidos" ? (
-                    <DuplicatesList
-                      stickers={filtered.slice(page * 48, (page + 1) * 48)}
-                      inventory={inventory}
-                      busy={busy}
-                      onChange={quantity}
-                    />
-                  ) : (
-                    <div className={list ? "sticker-list" : "sticker-grid"}>
-                      {filtered.slice(page * 48, (page + 1) * 48).map(card)}
-                    </div>
-                  )}
-                  <div className="pagination">
-                    <button
-                      className="secondary"
-                      disabled={page === 0}
-                      onClick={() => setPage((p) => p - 1)}
-                    >
-                      Anterior
-                    </button>
-                    <span>
-                      Página {page + 1} de {Math.ceil(filtered.length / 48)}
-                    </span>
-                    <button
-                      className="secondary"
-                      disabled={(page + 1) * 48 >= filtered.length}
-                      onClick={() => setPage((p) => p + 1)}
-                    >
-                      Siguiente
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <section className="panel">
-                  <Empty
-                    title={
-                      section === "repetidos" && !listHasFilters
-                        ? "Todavía no tienes repetidos"
-                        : stickers.length
-                          ? "No hay cromos con estos filtros"
-                          : "El catálogo está esperando su primer cromo verificado"
-                    }
+                  <ListOptions
+                    collapsed={section === "repetidos"}
+                    activeFilters={listHasFilters}
                   >
-                    {section === "repetidos" && !listHasFilters
-                      ? "Busca un nombre en Añadir repetidos y registra las copias que tienes para cambiar."
-                      : stickers.length
-                        ? "Prueba otra búsqueda o filtro."
-                        : "El administrador debe importar un listado contrastado. No añadimos jugadores, códigos ni cantidades inventadas."}
-                  </Empty>
-                </section>
+                    <div className="tabs">
+                      {[
+                        { id: "album", label: "Todos los cromos" },
+                        {
+                          id: "repetidos",
+                          label: `Mis repetidos · ${stats.duplicates}`,
+                        },
+                        {
+                          id: "faltantes",
+                          label: `Me faltan · ${stats.missing}`,
+                        },
+                      ].map((x) => (
+                        <button
+                          key={x.id}
+                          className={section === x.id ? "active" : ""}
+                          onClick={() => go(x.id as Section)}
+                        >
+                          {x.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="toolbar">
+                      <label className="search-field">
+                        <Search size={18} />
+                        <input
+                          aria-label="Buscar cromo"
+                          placeholder="Número, jugador o equipo…"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                        />
+                      </label>
+                      <select
+                        aria-label="Filtrar por equipo"
+                        value={team}
+                        onChange={(e) => setTeam(e.target.value)}
+                      >
+                        <option value="">Todos los equipos</option>
+                        {Array.from(
+                          new Set(
+                            stickers.map((s) => s.teams?.name).filter(Boolean),
+                          ),
+                        ).map((x) => (
+                          <option key={x}>{x}</option>
+                        ))}
+                      </select>
+                      <select
+                        aria-label="Filtrar por serie"
+                        value={series}
+                        onChange={(e) => setSeries(e.target.value)}
+                      >
+                        <option value="">Todas las series</option>
+                        {Array.from(
+                          new Set(
+                            stickers
+                              .map((s) => s.sticker_series?.name)
+                              .filter(Boolean),
+                          ),
+                        ).map((x) => (
+                          <option key={x}>{x}</option>
+                        ))}
+                      </select>
+                      <select
+                        aria-label="Filtrar por edición"
+                        value={edition}
+                        onChange={(e) => setEdition(e.target.value)}
+                      >
+                        <option value="">Todas las ediciones</option>
+                        {Array.from(
+                          new Set(stickers.map((s) => s.edition)),
+                        ).map((x) => (
+                          <option key={x}>{x}</option>
+                        ))}
+                      </select>
+                      <button
+                        className="icon-button"
+                        aria-label={
+                          list ? "Mostrar cuadrícula" : "Mostrar lista rápida"
+                        }
+                        onClick={() => setList(!list)}
+                      >
+                        {list ? (
+                          <Grid2X2 size={20} />
+                        ) : (
+                          <LayoutList size={20} />
+                        )}
+                      </button>
+                    </div>
+                    <div className="export-actions">
+                      <button
+                        className="secondary"
+                        onClick={() =>
+                          download(
+                            `nexo-${section}.txt`,
+                            filtered
+                              .map(
+                                (s) =>
+                                  `#${s.official_code} ${s.name}${section === "repetidos" ? ` · ${available(own.get(s.id))} disponibles` : ""}`,
+                              )
+                              .join("\n"),
+                          )
+                        }
+                      >
+                        <Download size={16} /> Exportar lista
+                      </button>
+                      <button
+                        className="secondary"
+                        disabled={busy}
+                        onClick={() =>
+                          void act(async () => {
+                            const token = await rpc("create_shared_list", {
+                              p_collection: collection,
+                              p_kind:
+                                section === "repetidos"
+                                  ? "duplicates"
+                                  : "missing",
+                            });
+                            const url = `${location.origin}/?lista=${token}`;
+                            await navigator.clipboard.writeText(url);
+                            await load();
+                          }, "Enlace copiado. Caduca en 7 días y puedes revocarlo en Perfil.")
+                        }
+                      >
+                        <Copy size={16} /> Crear enlace compartido
+                      </button>
+                    </div>
+                  </ListOptions>
+                  {section === "repetidos" && listHasFilters && (
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={() => {
+                        setSearch("");
+                        setTeam("");
+                        setSeries("");
+                        setEdition("");
+                      }}
+                    >
+                      Quitar filtros de mi lista
+                    </button>
+                  )}
+                  <p className="results-count">
+                    {filtered.length} cromos · {stats.reserved} unidades
+                    reservadas
+                  </p>
+                  {filtered.length ? (
+                    <>
+                      {section === "repetidos" ? (
+                        <DuplicatesList
+                          stickers={filtered.slice(page * 48, (page + 1) * 48)}
+                          inventory={inventory}
+                          busy={busy}
+                          onChange={quantity}
+                        />
+                      ) : (
+                        <div className={list ? "sticker-list" : "sticker-grid"}>
+                          {filtered.slice(page * 48, (page + 1) * 48).map(card)}
+                        </div>
+                      )}
+                      <div className="pagination">
+                        <button
+                          className="secondary"
+                          disabled={page === 0}
+                          onClick={() => setPage((p) => p - 1)}
+                        >
+                          Anterior
+                        </button>
+                        <span>
+                          Página {page + 1} de {Math.ceil(filtered.length / 48)}
+                        </span>
+                        <button
+                          className="secondary"
+                          disabled={(page + 1) * 48 >= filtered.length}
+                          onClick={() => setPage((p) => p + 1)}
+                        >
+                          Siguiente
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <section className="panel">
+                      <Empty
+                        title={
+                          section === "repetidos" && !listHasFilters
+                            ? "Todavía no tienes repetidos"
+                            : stickers.length
+                              ? "No hay cromos con estos filtros"
+                              : "El catálogo está esperando su primer cromo verificado"
+                        }
+                      >
+                        {section === "repetidos" && !listHasFilters
+                          ? "Busca un nombre en Añadir repetidos y registra las copias que tienes para cambiar."
+                          : stickers.length
+                            ? "Prueba otra búsqueda o filtro."
+                            : "El administrador debe importar un listado contrastado. No añadimos jugadores, códigos ni cantidades inventadas."}
+                      </Empty>
+                    </section>
+                  )}
+                </>
               )}
             </>
           )}
