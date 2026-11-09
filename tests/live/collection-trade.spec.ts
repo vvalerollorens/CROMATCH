@@ -221,6 +221,62 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(compact.locator("li")).toHaveCount(1);
     await expect(compact.locator("li")).toContainText("Sivera");
     await expect(compact.locator("li")).toContainText("2 copias");
+    // Two refreshes may return out of order, without a local quantity write.
+    let releaseOlder = () => {};
+    let captureOlder = () => {};
+    let deliverOlder = () => {};
+    let olderHeld = false;
+    const olderCaptured = new Promise<void>((resolve) => {
+      captureOlder = resolve;
+    });
+    const olderReleased = new Promise<void>((resolve) => {
+      releaseOlder = resolve;
+      releaseDelayedRead = resolve;
+    });
+    const olderDelivered = new Promise<void>((resolve) => {
+      deliverOlder = resolve;
+    });
+    await page.route("**/rest/v1/user_inventory?**", async (route) => {
+      const url = new URL(route.request().url());
+      if (
+        olderHeld ||
+        !url.searchParams.get("user_id")?.includes(accounts[0].id)
+      )
+        return route.continue();
+      olderHeld = true;
+      const response = await route.fetch();
+      captureOlder();
+      await olderReleased;
+      await route.fulfill({ response });
+      deliverOlder();
+    });
+    await page.evaluate(() =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+    await olderCaptured;
+    await rpc(0, "change_quantity", {
+      p_sticker: sivera.id,
+      p_delta: 1,
+      p_operation: randomUUID(),
+    });
+    await page.evaluate(() =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+    await expect(compact.locator("li")).toContainText("3 copias");
+    releaseOlder();
+    await olderDelivered;
+    await page.waitForLoadState("networkidle");
+    await expect(compact.locator("li")).toContainText("3 copias");
+    await page.unroute("**/rest/v1/user_inventory?**");
+    await rpc(0, "change_quantity", {
+      p_sticker: sivera.id,
+      p_delta: -1,
+      p_operation: randomUUID(),
+    });
+    await page.evaluate(() =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+    await expect(compact.locator("li")).toContainText("2 copias");
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth + 1,
@@ -261,6 +317,31 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     });
     await expect(saveCheck).toContainText("1 cromo distinto");
     await expect(saveCheck).toContainText("no tiene marcas pendientes");
+    const privacy = page.getByLabel("Visibilidad de tu colección", {
+      exact: true,
+    });
+    await privacy.selectOption("friends");
+    const refreshedPrivacy = page.waitForResponse(
+      (r) =>
+        r.url().includes("/rest/v1/user_privacy_settings?") &&
+        r.request().method() === "GET",
+    );
+    await page.evaluate(() =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+    await refreshedPrivacy;
+    await page.waitForLoadState("networkidle");
+    await expect(privacy).toHaveValue("friends");
+    await expect(
+      page.getByText("Tu privacidad tiene cambios sin guardar.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await privacy.selectOption("private");
+    await nav(page, "Guardar cambios");
+    await expect(
+      page.getByText("Perfil guardado", { exact: true }),
+    ).toBeVisible();
     await rpc(1, "change_quantity", {
       p_sticker: tenaglia.id,
       p_delta: 2,
@@ -357,8 +438,50 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       path: `test-results/live-${info.project.name}-automatic-trade.png`,
       fullPage: true,
     });
+    // Commit the proposal, but lose the HTTP reply. The retry must confirm the
+    // same immutable payload even if available copies changed in the meantime.
+    const proposalPayloads: unknown[] = [];
+    let loseReply = true;
+    await page.route("**/rest/v1/rpc/propose_trade", async (route) => {
+      const payload = route.request().postDataJSON();
+      proposalPayloads.push(payload);
+      if (!loseReply) return route.continue();
+      loseReply = false;
+      tradeId = payload.p_id;
+      const response = await route.fetch();
+      expect(response.ok()).toBe(true);
+      await route.abort("failed");
+    });
     await nav(page, "Solicitar intercambio");
+    await expect(
+      page.getByRole("button", { name: "Reintentar envío", exact: true }),
+    ).toBeEnabled();
+    await rpc(0, "change_quantity", {
+      p_sticker: sivera.id,
+      p_delta: -1,
+      p_operation: randomUUID(),
+    });
+    const refreshedStock = page.waitForResponse(
+      (r) =>
+        r.url().includes("/rest/v1/user_inventory?") &&
+        r.url().includes(accounts[0].id),
+    );
+    await page.evaluate(() =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+    await refreshedStock;
+    await page.waitForLoadState("networkidle");
+    await expect(suggestion).not.toContainText("Sivera");
+    await nav(page, "Reintentar envío");
     await expect(suggestion).toContainText("Solicitud enviada");
+    expect(proposalPayloads).toHaveLength(2);
+    expect(proposalPayloads[1]).toEqual(proposalPayloads[0]);
+    await page.unroute("**/rest/v1/rpc/propose_trade");
+    await rpc(0, "change_quantity", {
+      p_sticker: sivera.id,
+      p_delta: 1,
+      p_operation: randomUUID(),
+    });
     await expect(page.locator(".trade-panel")).toHaveCount(1);
     tradeId =
       (await page.locator(".trade-panel").getAttribute("data-trade-id")) ??

@@ -130,6 +130,9 @@ export function Cromatch({
     Record<string, { operation: string; delta: number }>
   >({});
   const inventoryRevision = useRef(0);
+  const loadSequence = useRef(0);
+  const privacyDraftRevision = useRef(0);
+  const privacySavedRevision = useRef(0);
   const [rankedMatches, setRankedMatches] = useState<
     {
       user_id: string;
@@ -284,6 +287,10 @@ export function Cromatch({
       const id = next?.user.id ?? null;
       if (activeUser.current !== id) {
         inventoryRevision.current++;
+        loadSequence.current++;
+        privacyDraftRevision.current = 0;
+        privacySavedRevision.current = 0;
+        setLoading(false);
         setBusy(false);
         setProfile(null);
         setCollections([]);
@@ -333,6 +340,10 @@ export function Cromatch({
   }, []);
   const load = useCallback(async () => {
     if (!session || visitor) return;
+    const sequence = ++loadSequence.current;
+    const isCurrent = () =>
+      activeUser.current === session.user.id &&
+      loadSequence.current === sequence;
     setLoading(true);
     const db = database();
     const revisionAtStart = inventoryRevision.current;
@@ -374,7 +385,7 @@ export function Cromatch({
           .order("created_at", { ascending: false })
           .limit(100),
       ]);
-      if (activeUser.current !== session.user.id) return;
+      if (!isCurrent()) return;
       for (const res of [p, c, inv, f, t, ti, n, pr, sh, b, h])
         if (res.error) throw new Error(res.error.message);
       const tradeIds = (t.data ?? []).map((row) => row.id);
@@ -406,7 +417,7 @@ export function Cromatch({
               .in("id", partnerIds)
           : Promise.resolve({ data: [], error: null }),
       ]);
-      if (activeUser.current !== session.user.id) return;
+      if (!isCurrent()) return;
       for (const res of [participants, partners])
         if (res.error) throw new Error(res.error.message);
       setTradeConfirmations(participants.data ?? []);
@@ -424,15 +435,18 @@ export function Cromatch({
       setShared(sh.data ?? []);
       setBlocks(b.data ?? []);
       setHistory(h.data ?? []);
-      setVisibility(pr.data.visibility);
-      setMatchNotify(pr.data.match_notifications);
+      if (privacyDraftRevision.current === privacySavedRevision.current) {
+        setVisibility(pr.data.visibility);
+        setMatchNotify(pr.data.match_notifications);
+      }
       setCollection((v) => v || c.data?.[0]?.id || "");
     } catch (e) {
+      if (!isCurrent()) return;
       setError(
         e instanceof Error ? e.message : "No se pudieron cargar los datos",
       );
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
   }, [session, visitor]);
   useEffect(() => {
@@ -639,7 +653,7 @@ export function Cromatch({
           user_id: session!.user.id,
           sticker_id: s.id,
           quantity: q,
-          reserved: own.get(s.id)?.reserved ?? 0,
+          reserved: v.find((i) => i.sticker_id === s.id)?.reserved ?? 0,
         },
       ]);
     }, "Cantidad guardada");
@@ -657,7 +671,7 @@ export function Cromatch({
       const { data, error } = await database()
         .from("profiles")
         .select("id,username,display_name,is_admin")
-        .like("username", `${safe.toLowerCase()}%`)
+        .like("username", `${safe.toLowerCase().replace(/_/g, "\\_")}%`)
         .neq("id", session!.user.id)
         .limit(30);
       if (error) throw error;
@@ -2250,6 +2264,8 @@ export function Cromatch({
                   onSubmit={(e) => {
                     e.preventDefault();
                     const f = new FormData(e.currentTarget);
+                    const submittedRevision = privacyDraftRevision.current;
+                    const submittedBy = activeUser.current;
                     void act(async () => {
                       await rpc("update_profile", {
                         p_username: String(f.get("username")),
@@ -2257,6 +2273,8 @@ export function Cromatch({
                         p_visibility: visibility,
                         p_matches: matchNotify,
                       });
+                      if (activeUser.current !== submittedBy) return;
+                      privacySavedRevision.current = submittedRevision;
                       await load();
                     }, "Perfil guardado");
                   }}
@@ -2290,7 +2308,10 @@ export function Cromatch({
                     Visibilidad de tu colección
                     <select
                       value={visibility}
-                      onChange={(e) => setVisibility(e.target.value)}
+                      onChange={(e) => {
+                        privacyDraftRevision.current++;
+                        setVisibility(e.target.value);
+                      }}
                     >
                       <option value="private">Privada</option>
                       <option value="friends">Solo amigos</option>
@@ -2301,11 +2322,20 @@ export function Cromatch({
                     <input
                       type="checkbox"
                       checked={matchNotify}
-                      onChange={(e) => setMatchNotify(e.target.checked)}
+                      onChange={(e) => {
+                        privacyDraftRevision.current++;
+                        setMatchNotify(e.target.checked);
+                      }}
                     />
                     Guardar preferencia para futuras alertas de coincidencias
                     (envío aún no activado).
                   </label>
+                  {privacyDraftRevision.current !==
+                    privacySavedRevision.current && (
+                    <p role="status">
+                      Tu privacidad tiene cambios sin guardar.
+                    </p>
+                  )}
                   <button disabled={busy}>Guardar cambios</button>
                 </form>
               </section>
