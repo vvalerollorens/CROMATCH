@@ -762,6 +762,13 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       ).toBe(true);
     }
     await nav(partnerPage, "Aceptar y reservar");
+    await expect(
+      partnerPage.getByRole("button", {
+        name: "Ya he hecho el cambio",
+        exact: true,
+      }),
+    ).toBeVisible();
+
     for (let i = 0; i < 2; i++) {
       const reservedStock = await call(
         `/rest/v1/user_inventory?select=reserved&user_id=eq.${accounts[i].id}`,

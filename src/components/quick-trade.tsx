@@ -299,7 +299,7 @@ export function QuickTrade({
                       <button
                         type="button"
                         className="secondary trade-pile-select-all"
-                        aria-label="Elegir todos para dar"
+                        aria-label={`${gives.length === Math.min(matched.offer.length, 50) ? "Quitar selección" : "Elegir todos"} para dar`}
                         disabled={
                           sending ||
                           Boolean(message) ||
@@ -356,7 +356,7 @@ export function QuickTrade({
                       <button
                         type="button"
                         className="secondary trade-pile-select-all"
-                        aria-label="Elegir todos para recibir"
+                        aria-label={`${receives.length === Math.min(matched.receive.length, 50) ? "Quitar selección" : "Elegir todos"} para recibir`}
                         disabled={
                           sending ||
                           Boolean(message) ||
