@@ -10,7 +10,7 @@ Abre directamente **`/visita`**, o en la bienvenida pulsa **Ver por dentro sin c
 
 ## Álbum visual para móvil
 
-La dirección visual actual usa cristal oscuro, acentos naranja, rosa y amarillo, Manrope y nuevos iconos de trazo fino. Cada equipo activa sus colores y un campo sutil. Incluye los veinte escudos blancos y 641 casilleros con imágenes de jugadores y entrenadores de FootyLogos, LaLiga y clubes. Las fotos aparecen desenfocadas cuando faltan y se enfocan al marcarlas; los casilleros sin retrato se identifican. El detalle conserva la temporada real de cada foto.
+La dirección visual actual usa cristal oscuro, acentos naranja, rosa y amarillo, Manrope y nuevos iconos de trazo fino. Cada equipo activa sus colores y un campo sutil. Incluye los veinte escudos blancos y 641 casilleros con imágenes de jugadores y entrenadores de FootyLogos, LaLiga y clubes. Las fotos aparecen desenfocadas cuando faltan y se enfocan al marcarlas; los casilleros sin retrato se identifican. Las fuentes conservan la temporada real de cada foto. Tocar una casilla marca o desmarca, sin abrir información del jugador; las fotos llevan el escudo del equipo.
 
 El listado de consulta contiene 661 registros y 29 apartados, con nombres, números y sus fuentes. Siete registros requieren revisión y **no se declara completitud oficial**. El [PDF de cuarta edición indicado por el usuario](https://www.panini.es//media/paniniFiles/Checklist_LALIGA_2026-27-4aED.pdf) devuelve 403 desde este entorno y sigue pendiente de cotejo. Véase [catálogo y fuentes](docs/CATALOGO.md).
 
@@ -23,6 +23,10 @@ Acceso directo: `/visita#album`. El enlace de visita sigue siendo público por U
 `/visita#escaner` permite fotografiar varias cartas o seleccionar una imagen. Tesseract.js y el modelo español se sirven desde el propio sitio y procesan la foto en un Worker local. Se comparan nombres contra el listado; los números por sí solos nunca identifican cartas. Las variantes se muestran para elegirlas y se exige confirmar las coincidencias antes de sumar copias. Cada carta muestra si ya estaba en el álbum. No se almacenan ni suben las fotos. Es una ayuda OCR, con revisión manual, no reconocimiento visual garantizado de cualquier edición o fotografía.
 
 La plantilla solo permite marcar la posesión del cromo. El apartado Repetidos tiene acceso propio en la navegación: allí se buscan nombres y se gestionan las copias adicionales, conservando siempre una para el álbum. Si se registra un repetido sin tener todavía la casilla marcada, el buscador informa de que guardará una copia para el álbum y otra repetida. Las páginas completas y las cartas de series especiales activan celebraciones suaves. La animación respeta la preferencia de movimiento reducido y no se dispara por abrir una página ya completada. Perfil permite exportar el álbum local.
+
+Repetidos → Cambiar con amigos reúne las propuestas y su gestión: elegir amigo prepara automáticamente los repetidos útiles para ambos, permite desmarcar cartas y enviar «Solicitar intercambio». Su perfil muestra el álbum compartido en modo consulta. Inicio también ofrece las coincidencias entre amigos. Mi perfil → Revisar mi guardado consulta el historial propio y ofrece recuperar diferencias verificables sin reducir existencias; no sustituye los backups ni confirma la recuperación de una incidencia concreta.
+
+Mi álbum → Ver lista de lo que tengo reúne todos los cromos propios del catálogo seleccionado en una lista compacta, en orden del álbum, con número, nombre, equipo/apartado y copias. Incluye búsqueda, filtro y exportación; cuenta también las copias reservadas que todavía te pertenecen.
 
 ## Instalar
 

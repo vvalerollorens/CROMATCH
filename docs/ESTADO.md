@@ -5,9 +5,10 @@
 - Bienvenida, registro/acceso por usuario y contraseña (identificador interno de Supabase Auth, sin correo personal). Recuperación por correo y nueva contraseña conservadas para cuentas anteriores.
 - Perfil, privacidad, nombre de usuario, exportación y eliminación de cuenta.
 - Catálogo por colecciones, importador JSON con revisión previa, fuentes y auditoría.
-- Álbum/lista, cantidades persistentes por RPC, detalle, filtros, repetidos, faltantes y exportación de listas.
+- Álbum/lista, marcado sin detalle de jugador, cantidades persistentes por RPC, escudos sobre las fotos, filtros, repetidos, faltantes y exportación de listas.
 - Amistades, búsqueda por nombre de usuario, bloqueos, denuncias, permisos y comparador.
-- Ranking de coincidencias entre amigos autorizados, selección manual y propuestas de cantidades desiguales.
+- Coincidencias de amigos en Inicio, propuestas automáticas en Repetidos → Cambiar con amigos, selección manual y cantidades desiguales. Perfil del amigo con álbum compartido de consulta.
+- Revisión del guardado propio y recuperación conservadora desde el historial, respetando reservas. Se descartan respuestas de inventario anteriores a una escritura o de otra sesión. La recuperación de una incidencia de un usuario concreto requiere su diagnóstico; las pruebas con cuentas temporales no la demuestran.
 - Aceptación/reservas, cancelación/rechazo, confirmación bilateral y movimientos atómicos idempotentes.
 - Notificaciones internas, historial, estadísticas básicas, suscripción Realtime con reconsulta de respaldo.
 - Manifest PWA, navegación inferior móvil, estados vacíos/carga/error, diálogos con foco y controles con etiquetas.

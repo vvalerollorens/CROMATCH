@@ -213,6 +213,27 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       accounts[1].token,
     );
     expect(privateRows).toEqual([]);
+    await nav(page, "Mi álbum");
+    await nav(page, "Ver lista de lo que tengo");
+    const compact = page.getByRole("region", {
+      name: "Lista compacta de cromos que tienes",
+    });
+    await expect(compact.locator("li")).toHaveCount(1);
+    await expect(compact.locator("li")).toContainText("Sivera");
+    await expect(compact.locator("li")).toContainText("2 copias");
+    await page
+      .getByLabel("Buscar en lo que tengo", { exact: true })
+      .fill("Tenaglia");
+    await expect(compact.locator("li")).toHaveCount(0);
+    await page
+      .getByLabel("Buscar en lo que tengo", { exact: true })
+      .fill("Sivera");
+    await expect(compact.locator("li")).toHaveCount(1);
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-owned-list.png`,
+      fullPage: true,
+    });
+    await nav(page, "Por equipos");
     await nav(page, "Mi perfil");
     const saveCheck = page.getByRole("region", {
       name: "Revisión de guardado",
@@ -289,6 +310,10 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         exact: true,
       }),
     ).toBeDisabled();
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-friend-album.png`,
+      fullPage: true,
+    });
     await nav(page, "Repetidos");
     await nav(page, "Cambiar con amigos");
     await page
@@ -302,6 +327,15 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(
       page.getByRole("button", { name: "Solicitar intercambio", exact: true }),
     ).toBeEnabled();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-automatic-trade.png`,
+      fullPage: true,
+    });
     await nav(page, "Solicitar intercambio");
     await expect(suggestion).toContainText("Solicitud enviada");
     await expect(page.locator(".trade-panel")).toHaveCount(1);

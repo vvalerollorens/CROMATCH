@@ -8,7 +8,7 @@ Dos personas autenticadas registran cromos propios, autorizan su comparación, p
 
 - `npm run typecheck`: comprobación estática de TypeScript.
 - `npm run build`: compilación de producción Next.js.
-- `npm test`: 38 pruebas locales de dominio, álbum, fotos, OCR y PostgreSQL embebido; 4 pruebas de concurrencia se omiten sin `TEST_DATABASE_URL`.
+- `npm test`: pruebas locales de dominio, álbum, fotos, OCR y PostgreSQL embebido; 4 pruebas de concurrencia se omiten sin `TEST_DATABASE_URL`. Las cifras de cada ejecución se indican abajo.
 - El esquema se aplica de cero en PGlite. Se utiliza `SET ROLE authenticated` y claims de identidad, de modo que la prueba no se limita a comprobar cadenas de texto de las políticas.
 
 Las pruebas de dominio cubren repetidos y reservas, identidad exacta, aislamiento por catálogo proporcionado, variantes, posiciones físicas, validación y duplicados del importador.
@@ -32,11 +32,11 @@ La limpieza de datos en cambios de cuenta y el descarte de respuestas de sesione
 | Frontera                                       | Situación                                                               |
 | ---------------------------------------------- | ----------------------------------------------------------------------- |
 | UI pública → formularios                       | Implementada; pruebas de navegador incluidas                            |
-| Formulario → Supabase Auth                     | SDK configurado; servicio real pendiente de credenciales                |
+| Formulario → Supabase Auth                     | Registro y acceso por usuario verificados con dos cuentas temporales    |
 | Verificación de correo / recuperación / Google | Requiere SMTP, callbacks y proveedor; no verificado en servicio alojado |
-| JWT → PostgREST/RLS                            | Contrato implementado; RLS comprobada en PostgreSQL embebido            |
-| RPC → inventarios y reservas                   | Integración SQL comprobada localmente                                   |
-| Realtime → interfaz                            | Suscripción y reconsulta implementadas; pendientes de servicio real     |
+| JWT → PostgREST/RLS                            | Privacidad verificada en PostgreSQL y en el servicio alojado             |
+| RPC → inventarios y reservas                   | Ciclo completo alojado verificado con dos cuentas temporales             |
+| Realtime → interfaz                            | Suscripción y reconsulta de respaldo; latencia de push no certificada    |
 | Catálogo oficial → importación                 | Bloqueado por falta de una fuente oficial contrastada accesible         |
 
 ## Prueba de aceptación antes del lanzamiento
@@ -76,3 +76,11 @@ La interfaz de cambios muestra el usuario del amigo, «Tú das», «Tú recibes�
 La [ejecución de calidad 42576779807](https://github.com/vvalerollorens/CROMATCH/actions/runs/42576779807) pasó TypeScript, build, **52 pruebas de lógica/base de datos y 30 de navegador**. La [ejecución alojada 42576780062](https://github.com/vvalerollorens/CROMATCH/actions/runs/42576780062) pasó el recorrido completo en escritorio y móvil: acceso con dos cuentas temporales, álbum con 654 fichas, marcar/desmarcar, primer repetido (2 copias), persistencia al recargar, inventario privado, comparación, envío de propuesta, aceptación, primera confirmación con espera, segunda confirmación y ambos inventarios actualizados. También comprueba nombres/números de cartas en la propuesta terminada. Las capturas se revisaron, incluida la visibilidad inicial de Crear cuenta en móvil. Ambas cuentas se eliminaron mediante su propio RPC.
 
 La inspección visual detectó que la vista de intercambio mostraba IDs mientras cargaba el catálogo. Las cartas se consultan ahora junto con la propuesta, de modo que aparecen nombres y números sin atribuirlas incorrectamente a otra colección.
+
+## Intercambios sencillos y guardado (9 de noviembre de 2026)
+
+Sobre `e7c06d2`, [calidad 42582671380](https://github.com/vvalerollorens/CROMATCH/actions/runs/42582671380) pasó TypeScript, build, **58 pruebas de lógica/base de datos y 30 de navegador**. [Alojado 42582671359](https://github.com/vvalerollorens/CROMATCH/actions/runs/42582671359) pasó en escritorio y móvil: Repetidos → Cambiar con amigos → selección de amigo → propuesta automática → solicitud → aceptación → ambas confirmaciones y actualización de los dos inventarios. También verifica perfil sin repetir búsqueda, colección del amigo con controles de marcado deshabilitados, escudo sobre la foto y ausencia de diálogo de información del jugador.
+
+El recorrido alojado retrasa deliberadamente una lectura real del inventario, marca un cromo y entrega después la respuesta antigua: la nueva marca se conserva. La cuenta espera a cargar catálogo e inventario antes de presentar cantidades. Inicio identifica el progreso de toda la colección y el álbum diferencia el porcentaje del equipo/serie; una prueba comprueba 0% sin cromos y las posiciones desconocidas no se presentan como cero.
+
+La migración `202611090006_album_recovery.sql` proporciona diagnóstico y recuperación explícita del historial propio. Las pruebas eliminan una fila únicamente en la base desechable, comprueban restauración conservadora con reservas activas, reintento sin inflación, aislamiento entre usuarios y conservación de cantidades mayores. El diagnóstico del propietario se consulta desde Mi perfil y puede copiarse sin credenciales. **Esto no demuestra que se hayan recuperado las marcas de una incidencia real comunicada por un usuario**: ese caso permanece pendiente de su resumen de guardado; no se han borrado ni restablecido inventarios reales para investigarlo.

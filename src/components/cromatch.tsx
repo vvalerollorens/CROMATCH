@@ -100,6 +100,7 @@ import { Landing } from "./landing";
 import { TradeProgress } from "./trade-progress";
 import { AlbumSaveCheck } from "./album-save-check";
 import { QuickTrade } from "./quick-trade";
+import { OwnedCollectionList } from "./owned-collection-list";
 import { VisualAlbum } from "./visual-album";
 import { HomeOverview, type HomeFriend } from "./home-overview";
 import { referenceStickers } from "@/lib/catalogue";
@@ -208,6 +209,7 @@ export function Cromatch({
   >(null);
   const [tradeFilter, setTradeFilter] = useState("all");
   const [repeatView, setRepeatView] = useState<"copies" | "trades">("copies");
+  const [albumView, setAlbumView] = useState<"pages" | "owned">("pages");
   const [profileTab, setProfileTab] = useState<"collection" | "trade">(
     "collection",
   );
@@ -1207,17 +1209,43 @@ export function Cromatch({
             />
           )}
           {section === "album" && (
-            <VisualAlbum
-              stickers={stickers}
-              inventory={inventory}
-              visitor={visitor}
-              busy={busy || (visitor && !localAlbum.ready)}
-              local={visitor}
-              onScan={() => go("escaner")}
-              collectionName={current?.name}
-              onQuantity={quantity}
-              onNavigate={go}
-            />
+            <>
+              <div className="tabs" role="group" aria-label="Vista de mi álbum">
+                <button
+                  type="button"
+                  className={albumView === "pages" ? "active" : ""}
+                  onClick={() => setAlbumView("pages")}
+                >
+                  Por equipos
+                </button>
+                <button
+                  type="button"
+                  className={albumView === "owned" ? "active" : ""}
+                  onClick={() => setAlbumView("owned")}
+                >
+                  Ver lista de lo que tengo
+                </button>
+              </div>
+              {albumView === "owned" ? (
+                <OwnedCollectionList
+                  key={collection}
+                  stickers={stickers}
+                  inventory={inventory}
+                />
+              ) : (
+                <VisualAlbum
+                  stickers={stickers}
+                  inventory={inventory}
+                  visitor={visitor}
+                  busy={busy || (visitor && !localAlbum.ready)}
+                  local={visitor}
+                  onScan={() => go("escaner")}
+                  collectionName={current?.name}
+                  onQuantity={quantity}
+                  onNavigate={go}
+                />
+              )}
+            </>
           )}
           {section === "repetidos" && (
             <div

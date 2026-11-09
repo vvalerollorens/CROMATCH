@@ -10,33 +10,35 @@ Guarda bien tu contraseña: las cuentas sin correo todavía no tienen recuperaci
 
 Elige colección en la cabecera. Mi álbum organiza los cromos publicados y verificados. Busca por código, nombre o equipo; filtra por equipo, serie y edición. Alterna cuadrícula y lista rápida.
 
-Pulsa + o − para cambiar una unidad. El guardado se confirma tras responder la base de datos. Si falla la conexión, reintenta el mismo botón; no pulses el contrario mientras el cambio siga pendiente. No se guardan cambios desconectados.
+En Mi álbum → Ver lista de lo que tengo puedes consultar juntos todos tus cromos de la colección seleccionada, en orden del álbum, con número, nombre, equipo o apartado y copias. La lista admite búsqueda, filtro por equipo/apartado y exportación. Las copias reservadas siguen contándose mientras sean tuyas.
+
+Toca una casilla para marcar o desmarcar el cromo. No se abre información del jugador. Las copias adicionales se gestionan en Repetidos. El guardado se confirma tras responder la base de datos. Si falla la conexión, reintenta el mismo botón; no pulses el contrario mientras el cambio siga pendiente. No se guardan cambios desconectados.
 
 - 0 unidades: falta.
 - 1 unidad: lo tienes.
 - 2 o más: las sobrantes son repetidas.
 - Disponibles: repetidas menos unidades reservadas.
 
-No puedes quitar una unidad comprometida en un intercambio aceptado. Cancela primero ese intercambio si corresponde. El detalle muestra código, edición, variante, posición física y fuentes de verificación, sin fotografías no autorizadas.
+No puedes quitar una unidad comprometida en un intercambio aceptado. Cancela primero ese intercambio si corresponde. Las fotografías de la plantilla llevan el escudo del equipo.
 
 ## Repetidos, faltantes y estadísticas
 
 Las pestañas del álbum se actualizan con el inventario. Puedes descargar la lista en texto. Un enlace compartido permite verla a otras personas registradas durante siete días; revócalo desde Perfil para retirar el acceso. Puedes enviar ese enlace mediante el servicio de mensajería que prefieras; esta versión no envía mensajes a WhatsApp por sí misma.
 
-El progreso cuenta cromos publicados distintos. Las variantes pueden compartir posición física, por lo que el número de cromos y el de posiciones del álbum no son equivalentes. Una nueva edición puede aumentar el total y reducir el porcentaje sin que desaparezcan tus unidades.
+El progreso cuenta cromos publicados distintos. Inicio muestra el porcentaje de toda la colección; cada equipo o serie muestra también su propio porcentaje, identificado como tal. Sin cromos, el progreso total es 0%. Las variantes pueden compartir posición física, por lo que el número de cromos y el de posiciones del álbum no son equivalentes. Las posiciones desconocidas aparecen como no verificadas. Una nueva edición puede aumentar el total y reducir el porcentaje sin que desaparezcan tus unidades.
 
 ## Amigos y coincidencias
 
 Busca por el prefijo del nombre de usuario. Envía una solicitud y espera a que la acepten. La amistad no abre una colección privada automáticamente: cada persona debe elegir en Perfil «Solo amigos» o «Usuarios registrados» para permitir la comparación.
 
-Las mejores oportunidades aparecen ordenadas por utilidad recíproca. Abre el comparador para elegir manualmente qué unidades ofreces y recibes. No se exige igual cantidad ni se supone que un cromo especial vale lo mismo que uno normal.
+Las mejores oportunidades aparecen en Inicio cuando tienes amigos y se ordenan por utilidad recíproca. «Ver perfil» abre una pantalla propia, sin repetir la búsqueda. «Ver colección» permite recorrer su álbum, filtrar y consultar lo que tiene y le falta, sin modificarlo. Una colección privada requiere que su propietario cambie la visibilidad.
 
 Puedes eliminar amistades, bloquear o denunciar desde las vistas disponibles. Un bloqueo impide nuevas consultas y solicitudes. Los intercambios ya aceptados se deben completar o cancelar.
 
 ## Intercambiar
 
-1. Compara una colección autorizada y selecciona unidades en ambas partes.
-2. Envía la propuesta; el destinatario puede aceptarla o rechazarla.
+1. Abre Repetidos → Cambiar con amigos y selecciona un amigo. La app prepara una copia de cada repetido disponible que falta en el otro álbum, con hasta 50 cromos por lado.
+2. Revisa «Tú das» y «Tú recibes». Puedes desmarcar cartas. Pulsa «Solicitar intercambio» para enviarlo; el destinatario puede aceptarlo o rechazarlo. Hace falta al menos un cromo por lado; no se exige igual cantidad ni se supone que los especiales tengan el mismo valor.
 3. Aceptar revalida existencias y reserva los cromos de ambos. Todavía no cambia la posesión.
 4. Realizad la entrega acordada. Cada persona debe confirmar únicamente cuando se haya realizado la entrega/recepción.
 5. Con las dos confirmaciones, ambos inventarios cambian en una transacción y se guarda el historial.
@@ -47,7 +49,7 @@ Los borradores de la selección permanecen solo durante la sesión actual. No co
 
 ## Cámara
 
-Puedes seleccionar una foto con la cámara del móvil. En esta versión la imagen no se sube y el OCR no está activo. Busca y confirma manualmente el código; no se añade ninguna identificación automáticamente.
+Puedes seleccionar una foto o usar la cámara del móvil. El OCR local propone coincidencias por nombre para que las revises; no añade cromos sin confirmación. La imagen no se sube. No se garantiza identificar todas las cartas de una fotografía.
 
 ## Tu privacidad
 
@@ -59,8 +61,14 @@ Puedes instalar el acceso PWA desde el menú de tu navegador compatible. Los dat
 
 1. En Repetidos busca el jugador y añade las copias que quieres cambiar. Se conserva una para el álbum. Si aún no lo tenías, añadir el primer repetido registra dos copias a la vez.
 2. Añade a tu amigo y permite compartir tu colección con amigos en Mi perfil.
-3. En Amigos abre «Ver colección y comparar»: elige cartas en «Tú das» y «Tú recibes» y pulsa «Proponer este cambio».
+3. En Repetidos → Cambiar con amigos selecciona a tu amigo, revisa la propuesta automática y pulsa «Solicitar intercambio». Desde el mismo apartado puedes abrir su perfil y colección.
 4. Tu amigo revisa la propuesta y pulsa «Aceptar propuesta». Las copias quedan reservadas; todavía no cambian de dueño.
 5. Haced el cambio y pulsad cada uno «Ya he hecho el cambio». Si solo confirma uno, la pantalla indica a quién se espera. Cuando confirman ambos, los álbumes se actualizan y las reservas se liberan.
 
 El catálogo de cuentas incluye 654 registros contrastados; siete con discrepancias siguen fuera hasta resolverlas. Las series sin fichas publicadas se identifican como pendientes de revisión.
+
+## Comprobar el guardado
+
+Mi perfil → Revisar mi guardado consulta las cifras reales de tu cuenta y su historial. «Copiar resumen» permite comunicar el resultado sin contraseñas ni claves. Si el historial registra marcas que faltan en el inventario, aparece «Recuperar marcas del historial»: repone únicamente esas diferencias, sin reducir tus cantidades ni duplicarlas al reintentarlo. Respeta las reservas activas.
+
+Las marcas del modo visita se conservan aparte en el navegador y pueden descargarse como copia. No se mezclan automáticamente con tu cuenta. No borres los datos del navegador para investigar marcas desaparecidas.

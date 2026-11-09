@@ -25,7 +25,7 @@ Hay siete registros marcados para revisión: Altay Bayındır, Hugo Burcio, Marc
 
 Los Extra Sticker aparecen como **S/N** porque los identificadores E1 o LY-B empleados por algunas webs no acreditan numeración impresa. Para los colocas con número compartido, no se presentan los sufijos internos BIS2/BisB como número oficial confirmado. Una misma posición física no se cuenta automáticamente como dos posiciones de álbum.
 
-Racing/Rayo también presentan diferencias de agrupación en una fuente. JR y Cromolista sitúan Pedro Díaz 11A y Nteka 11B en Rayo; no se duplica Nteka en Racing. Las discrepancias y valores originales pueden consultarse desde el botón de fuentes de cada ficha.
+Racing/Rayo también presentan diferencias de agrupación en una fuente. JR y Cromolista sitúan Pedro Díaz 11A y Nteka 11B en Rayo; no se duplica Nteka en Racing. Las discrepancias y valores originales se conservan en los archivos de catálogo y sus revisiones; la plantilla no abre fichas de información del jugador.
 
 Las ediciones se muestran cuando una fuente las identifica. «Edición por confirmar» significa que no se ha inferido la edición a partir de la posición del registro.
 

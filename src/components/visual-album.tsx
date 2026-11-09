@@ -576,8 +576,8 @@ export function VisualAlbum({
           </p>
           <p>
             Retratos de FootyLogos, LaLiga y las webs oficiales de los clubes.
-            Algunas fotos corresponden a temporadas anteriores; puedes consultar
-            la temporada de cada retrato en su detalle. Si no hay una imagen
+            Algunas fotos corresponden a temporadas anteriores; las fuentes y
+            temporadas están registradas en el catálogo. Si no hay una imagen
             identificada, el casillero muestra «Retrato pendiente».
           </p>
           <p>
