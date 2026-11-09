@@ -96,6 +96,7 @@ const titles: Record<Section, string> = {
 import { Empty, Logo, Legal } from "./ui";
 import { Dialog } from "./dialog";
 import { Landing } from "./landing";
+import { TradeProgress } from "./trade-progress";
 import { VisualAlbum } from "./visual-album";
 import { HomeOverview } from "./home-overview";
 import { playerPhoto } from "@/lib/player-photos";
@@ -163,6 +164,12 @@ export function Cromatch({
   );
   const [trades, setTrades] = useState<Trade[]>([]);
   const [tradeItems, setTradeItems] = useState<TradeItem[]>([]);
+  const [tradePeople, setTradePeople] = useState<
+    Record<string, Pick<Profile, "username" | "display_name">>
+  >({});
+  const [tradeConfirmations, setTradeConfirmations] = useState<
+    { trade_id: string; user_id: string; confirmed_at: string | null }[]
+  >([]);
   const [notifications, setNotifications] = useState<
     {
       id: string;
@@ -261,6 +268,8 @@ export function Cromatch({
         setInventory([]);
         setTrades([]);
         setTradeItems([]);
+        setTradePeople({});
+        setTradeConfirmations([]);
         setNotifications([]);
         setFriends([]);
         setPeople([]);
@@ -340,6 +349,35 @@ export function Cromatch({
       if (activeUser.current !== session.user.id) return;
       for (const res of [p, c, inv, f, t, ti, n, pr, sh, b, h])
         if (res.error) throw new Error(res.error.message);
+      const tradeIds = (t.data ?? []).map((row) => row.id);
+      const partnerIds = [
+        ...new Set(
+          (t.data ?? []).map((row) =>
+            row.sender_id === session.user.id ? row.receiver_id : row.sender_id,
+          ),
+        ),
+      ];
+      const [participants, partners] = await Promise.all([
+        tradeIds.length
+          ? db
+              .from("trade_participants")
+              .select("trade_id,user_id,confirmed_at")
+              .in("trade_id", tradeIds)
+          : Promise.resolve({ data: [], error: null }),
+        partnerIds.length
+          ? db
+              .from("profiles")
+              .select("id,username,display_name")
+              .in("id", partnerIds)
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (activeUser.current !== session.user.id) return;
+      for (const res of [participants, partners])
+        if (res.error) throw new Error(res.error.message);
+      setTradeConfirmations(participants.data ?? []);
+      setTradePeople(
+        Object.fromEntries((partners.data ?? []).map((row) => [row.id, row])),
+      );
       setProfile(p.data);
       setCollections(c.data ?? []);
       setInventory(inv.data ?? []);
@@ -1441,20 +1479,19 @@ export function Cromatch({
                 </button>
               </div>
               <p>
-                Solo puedes consultar datos autorizados. Una colección privada
-                puede aparecer vacía. Los bloqueos y permisos también se aplican
-                en la base de datos.
+                Elige los repetidos que quieres cambiar con @{other.username}.
+                Selecciona al menos uno en cada lado.
               </p>
               <div className="compare-columns">
                 {[
                   {
-                    label: "Puedes ofrecer",
+                    label: "Tú das",
                     items: matches.offer,
                     map: own,
                     giver: viewerId,
                   },
                   {
-                    label: "Puedes recibir",
+                    label: "Tú recibes",
                     items: matches.receive,
                     map: their,
                     giver: other.id,
@@ -1505,8 +1542,8 @@ export function Cromatch({
                 ))}
               </div>
               <p>
-                Las cantidades y rarezas no tienen por qué ser equivalentes.
-                Revisa y acuerda la propuesta con la otra persona.
+                No hace falta dar y recibir el mismo número de cromos. Revisa
+                las cartas especiales antes de acordar el cambio.
               </p>
               <div className="export-actions">
                 <button
@@ -1522,7 +1559,15 @@ export function Cromatch({
                   Guardar borrador
                 </button>
                 <button
-                  disabled={busy}
+                  disabled={
+                    busy ||
+                    !Object.entries(draft ?? selection).some(
+                      ([key, n]) => key.startsWith(`${viewerId}:`) && n > 0,
+                    ) ||
+                    !Object.entries(draft ?? selection).some(
+                      ([key, n]) => key.startsWith(`${other.id}:`) && n > 0,
+                    )
+                  }
                   onClick={() =>
                     void act(async () => {
                       const chosen = draft ?? selection;
@@ -1546,7 +1591,7 @@ export function Cromatch({
                     }, "Propuesta enviada")
                   }
                 >
-                  Enviar propuesta <ArrowRight size={16} />
+                  Proponer este cambio <ArrowRight size={16} />
                 </button>
                 <button
                   className="text-button"
@@ -1576,6 +1621,17 @@ export function Cromatch({
           )}
           {section === "intercambios" && (
             <>
+              <section className="panel trade-intro">
+                <h2>De repetido a conseguido.</h2>
+                <p>
+                  Elige un amigo, propone qué das y qué recibes. Cuando acepte,
+                  esas copias quedan reservadas. Los álbumes se actualizan
+                  después de que los dos confirméis el cambio.
+                </p>
+                <button className="secondary" onClick={() => go("amigos")}>
+                  Elegir amigo para un cambio <ArrowRight size={16} />
+                </button>
+              </section>
               <div className="tabs">
                 {[
                   { id: "all", label: "Todos" },
@@ -1592,23 +1648,12 @@ export function Cromatch({
                   </button>
                 ))}
               </div>
-              <div className="notice">
-                <ShieldCheck size={19} />
-                <span>
-                  Aceptar reserva los cromos. Las cantidades cambian cuando
-                  ambos confirmáis la entrega. Confirma solo cuando la hayáis
-                  realizado.
-                </span>
-              </div>
               {!trades.length && (
                 <section className="panel">
                   <Empty title="Aquí empezarán los buenos cambios">
-                    Compara el álbum de un amigo y envía una propuesta con lo
-                    que cada uno necesita.
+                    Tus propuestas enviadas y recibidas aparecerán aquí. Empieza
+                    eligiendo un amigo.
                   </Empty>
-                  <button onClick={() => go("amigos")}>
-                    Buscar coincidencias <ArrowRight size={17} />
-                  </button>
                 </section>
               )}
               {trades
@@ -1623,128 +1668,157 @@ export function Cromatch({
                         t.status,
                       )),
                 )
-                .map((t) => (
-                  <article className="panel trade-panel" key={t.id}>
-                    <div className="section-heading">
-                      <div>
-                        <span className="eyebrow">
-                          {t.sender_id === viewerId
-                            ? "PROPUESTA ENVIADA"
-                            : "PROPUESTA RECIBIDA"}
-                        </span>
-                        <h2>Intercambio #{t.id.slice(0, 8)}</h2>
-                      </div>
-                      <span
-                        className={`tag ${t.status === "completed" ? "green" : ""}`}
-                      >
-                        {statusLabel[t.status]}
-                      </span>
-                    </div>
-                    <p>{new Date(t.created_at).toLocaleString("es-ES")}</p>
-                    <div className="compare-columns">
-                      {[true, false].map((give) => (
-                        <div key={String(give)}>
-                          <h3>{give ? "Entregas" : "Recibes"}</h3>
-                          {tradeItems
-                            .filter(
-                              (i) =>
-                                i.trade_id === t.id &&
-                                (give
-                                  ? i.giver_id === viewerId
-                                  : i.giver_id !== viewerId),
-                            )
-                            .map((i) => {
-                              const s = stickers.find(
-                                (s) => s.id === i.sticker_id,
-                              );
-                              return (
-                                <p key={i.sticker_id}>
-                                  {i.quantity} ×{" "}
-                                  {s
-                                    ? `#${s.official_code} · ${s.name}`
-                                    : `Cromo ${i.sticker_id.slice(0, 8)} · otra colección`}
-                                </p>
-                              );
-                            })}
+                .map((t) => {
+                  const partnerId =
+                    t.sender_id === viewerId ? t.receiver_id : t.sender_id;
+                  const partner = tradePeople[partnerId]?.username
+                    ? `@${tradePeople[partnerId].username}`
+                    : "tu amigo";
+                  const mineConfirmed = tradeConfirmations.some(
+                    (p) =>
+                      p.trade_id === t.id &&
+                      p.user_id === viewerId &&
+                      p.confirmed_at,
+                  );
+                  const otherConfirmed = tradeConfirmations.some(
+                    (p) =>
+                      p.trade_id === t.id &&
+                      p.user_id === partnerId &&
+                      p.confirmed_at,
+                  );
+                  return (
+                    <article
+                      className="panel trade-panel"
+                      key={t.id}
+                      data-trade-id={t.id}
+                    >
+                      <div className="section-heading">
+                        <div>
+                          <span className="eyebrow">
+                            {t.sender_id === viewerId
+                              ? "PROPUESTA ENVIADA"
+                              : "PROPUESTA RECIBIDA"}
+                          </span>
+                          <h2>Cambio con {partner}</h2>
                         </div>
-                      ))}
-                    </div>
-                    <div className="export-actions">
-                      {t.status === "proposed" &&
-                        t.receiver_id === viewerId && (
-                          <>
-                            <button
-                              disabled={busy}
-                              onClick={() =>
-                                void act(async () => {
-                                  await rpc("trade_action", {
-                                    p_trade: t.id,
-                                    p_action: "accept",
-                                  });
-                                  await load();
-                                }, "Propuesta aceptada y unidades reservadas")
-                              }
-                            >
-                              Aceptar
-                            </button>
-                            <button
-                              className="secondary"
-                              disabled={busy}
-                              onClick={() =>
-                                void act(async () => {
-                                  await rpc("trade_action", {
-                                    p_trade: t.id,
-                                    p_action: "reject",
-                                  });
-                                  await load();
-                                })
-                              }
-                            >
-                              Rechazar
-                            </button>
-                          </>
-                        )}
-                      {t.status === "accepted" && (
-                        <button
-                          disabled={busy}
-                          onClick={() => {
-                            if (
-                              confirm(
-                                "¿Has realizado la entrega y recepción acordadas? Esta confirmación no se puede retirar.",
+                        <span
+                          className={`tag ${t.status === "completed" ? "green" : ""}`}
+                        >
+                          {statusLabel[t.status]}
+                        </span>
+                      </div>
+                      <p>{new Date(t.created_at).toLocaleString("es-ES")}</p>
+                      <TradeProgress
+                        status={t.status}
+                        partner={partner}
+                        mineConfirmed={mineConfirmed}
+                        otherConfirmed={otherConfirmed}
+                      />
+                      <div className="compare-columns">
+                        {[true, false].map((give) => (
+                          <div key={String(give)}>
+                            <h3>{give ? "Tú das" : "Tú recibes"}</h3>
+                            {tradeItems
+                              .filter(
+                                (i) =>
+                                  i.trade_id === t.id &&
+                                  (give
+                                    ? i.giver_id === viewerId
+                                    : i.giver_id !== viewerId),
                               )
-                            )
+                              .map((i) => {
+                                const s = stickers.find(
+                                  (s) => s.id === i.sticker_id,
+                                );
+                                return (
+                                  <p key={i.sticker_id}>
+                                    {i.quantity} ×{" "}
+                                    {s
+                                      ? `#${s.official_code} · ${s.name}`
+                                      : `Cromo ${i.sticker_id.slice(0, 8)} · otra colección`}
+                                  </p>
+                                );
+                              })}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="export-actions">
+                        {t.status === "proposed" &&
+                          t.receiver_id === viewerId && (
+                            <>
+                              <button
+                                disabled={busy}
+                                onClick={() =>
+                                  void act(async () => {
+                                    await rpc("trade_action", {
+                                      p_trade: t.id,
+                                      p_action: "accept",
+                                    });
+                                    await load();
+                                  }, "Propuesta aceptada y unidades reservadas")
+                                }
+                              >
+                                Aceptar propuesta
+                              </button>
+                              <button
+                                className="secondary"
+                                disabled={busy}
+                                onClick={() =>
+                                  void act(async () => {
+                                    await rpc("trade_action", {
+                                      p_trade: t.id,
+                                      p_action: "reject",
+                                    });
+                                    await load();
+                                  })
+                                }
+                              >
+                                Rechazar
+                              </button>
+                            </>
+                          )}
+                        {t.status === "accepted" && !mineConfirmed && (
+                          <button
+                            disabled={busy}
+                            onClick={() => {
+                              if (
+                                confirm(
+                                  "¿Has realizado la entrega y recepción acordadas? Esta confirmación no se puede retirar.",
+                                )
+                              )
+                                void act(async () => {
+                                  await rpc("trade_action", {
+                                    p_trade: t.id,
+                                    p_action: "confirm",
+                                  });
+                                  await load();
+                                }, "Confirmación registrada. El intercambio se completa cuando ambos confirman.");
+                            }}
+                          >
+                            Ya he hecho el cambio
+                          </button>
+                        )}
+                        {["accepted", "proposed"].includes(t.status) && (
+                          <button
+                            className="text-button"
+                            disabled={busy}
+                            onClick={() =>
                               void act(async () => {
                                 await rpc("trade_action", {
                                   p_trade: t.id,
-                                  p_action: "confirm",
+                                  p_action: "cancel",
                                 });
                                 await load();
-                              }, "Confirmación registrada. El intercambio se completa cuando ambos confirman.");
-                          }}
-                        >
-                          Confirmar entrega realizada
-                        </button>
-                      )}
-                      {["accepted", "proposed"].includes(t.status) && (
-                        <button
-                          className="text-button"
-                          disabled={busy}
-                          onClick={() =>
-                            void act(async () => {
-                              await rpc("trade_action", {
-                                p_trade: t.id,
-                                p_action: "cancel",
-                              });
-                              await load();
-                            }, "Intercambio cancelado y reservas liberadas")
-                          }
-                        >
-                          Cancelar intercambio
-                        </button>
-                      )}
-                    </div>
-                  </article>
-                ))}
+                              }, "Intercambio cancelado y reservas liberadas")
+                            }
+                          >
+                            Cancelar intercambio
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
             </>
           )}
           {section === "notificaciones" && (

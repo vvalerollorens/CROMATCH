@@ -58,14 +58,17 @@ export function Landing({
               <br />
               Cámbialos con tu gente.
             </p>
-            <button className="glow-cta" onClick={enterVisitor}>
-              Ver por dentro sin cuenta <ArrowRight size={19} />
-            </button>
             <button
-              className="text-button welcome-register"
+              className="glow-cta welcome-register"
               onClick={() => setAuth("register")}
             >
-              Empieza tu colección <ArrowRight size={15} />
+              Crear cuenta <ArrowRight size={19} />
+            </button>
+            <button
+              className="text-button welcome-preview"
+              onClick={enterVisitor}
+            >
+              Ver por dentro sin cuenta <ArrowRight size={15} />
             </button>
             <span className="welcome-privacy">
               <ShieldCheck size={14} /> Tu colección es privada por defecto.

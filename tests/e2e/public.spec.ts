@@ -17,7 +17,18 @@ test("bienvenida en español y sin datos ficticios", async ({ page }) => {
 });
 test("registro accesible y conexión pendiente explícita", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Empieza tu colección" }).click();
+  const create = page.getByRole("button", {
+    name: "Crear cuenta",
+    exact: true,
+  });
+  await expect(create).toHaveClass(/glow-cta/);
+  await expect(
+    page.getByRole("button", {
+      name: "Ver por dentro sin cuenta",
+      exact: true,
+    }),
+  ).toHaveClass(/text-button/);
+  await create.click();
   await expect(
     page.getByRole("heading", { name: "Únete al equipo." }),
   ).toBeVisible();

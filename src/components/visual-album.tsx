@@ -425,9 +425,11 @@ export function VisualAlbum({
                     ? q > 1
                       ? `Ver ${s.name}, ${q} unidades`
                       : `${q ? "Desmarcar" : "Marcar"} ${s.name}, número ${s.official_code}`
-                    : q
+                    : q > 1
                       ? `Ver ${s.name}, ${q} unidades`
-                      : `Desbloquear ${s.name}, código ${s.official_code}`
+                      : q === 1
+                        ? `Desmarcar ${s.name}, código ${s.official_code}`
+                        : `Desbloquear ${s.name}, código ${s.official_code}`
                 }
                 aria-pressed={q > 0}
                 onClick={() => open(s)}

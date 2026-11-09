@@ -1384,6 +1384,89 @@ textarea::placeholder {
 html {
   overflow-x: clip;
 }
+.welcome-copy > .welcome-register {
+  width: min(100%, 340px);
+  min-height: 56px;
+  margin: 22px 0 8px;
+  font-size: 17px;
+  font-weight: 750;
+  justify-content: center;
+  box-shadow:
+    0 8px 35px #ef9f7833,
+    inset 0 1px 1px #fff5;
+}
+.welcome-copy > .welcome-preview,
+.landing-header > .text-button {
+  font-size: 12px;
+  color: #b8abb8;
+  min-height: 44px;
+}
+.welcome-copy > .welcome-preview {
+  margin: 0;
+  padding-inline: 0;
+}
+.trade-intro h2 {
+  margin: 0 0 10px;
+}
+.trade-intro p {
+  max-width: 640px;
+  color: #c3b7c3;
+  line-height: 1.65;
+}
+.trade-journey {
+  margin: 18px 0;
+}
+.trade-journey ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+  margin: 0 0 14px;
+  list-style: none;
+}
+.trade-journey li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 8px;
+  border-top: 2px solid #ffffff15;
+  color: #a99baa;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.trade-journey li > span {
+  font-size: 17px;
+  font-weight: 700;
+}
+.trade-journey li.current {
+  border-color: #edbf87;
+  color: #f2d1ab;
+}
+.trade-journey li.done {
+  border-color: #aa9ab5;
+  color: #ded1e2;
+}
+.trade-next {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #ead6c00b;
+  color: #ddcbd4;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.trade-panel .compare-columns > div {
+  padding: 16px;
+  border: 1px solid #ffffff12;
+  border-radius: 16px;
+  background: #ffffff03;
+}
+.trade-panel .compare-columns h3 {
+  color: #efc498;
+  font-size: 14px;
+}
+.trade-panel .compare-columns > div + div h3 {
+  color: #e4b1ce;
+}
 @media (max-width: 600px) {
   .team-pitch {
     left: 0;
