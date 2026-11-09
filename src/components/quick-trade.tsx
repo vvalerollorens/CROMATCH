@@ -2,10 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 import { compare, type Inventory, type Sticker } from "@/lib/domain";
 import { database, inventoryFor } from "@/lib/supabase";
-import { ArrowRight, Check, Plus } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
+import { TradeBoard, TradeSticker } from "./trade-board";
 import type { HomeFriend } from "./home-overview";
 export function QuickTrade({
   userId,
+  myName = "Tú",
   friends,
   stickers,
   inventory,
@@ -16,6 +18,7 @@ export function QuickTrade({
   initialFriendId = "",
 }: {
   userId: string;
+  myName?: string;
   friends: HomeFriend[];
   stickers: Sticker[];
   inventory: Inventory[];
@@ -162,48 +165,57 @@ export function QuickTrade({
       <span className="eyebrow">
         1 · ELIGE AMIGO · 2 · REVISA · 3 · SOLICITA
       </span>
-      <h2>¿Con quién quieres cambiar?</h2>
-      <p>Elige un amigo. Preparamos los cromos que os faltan a los dos.</p>
-      <div
-        className="trade-friend-buttons"
-        role="group"
-        aria-label="Elegir amigo para intercambiar"
-      >
-        {friends.map((f) => (
-          <div
-            className={`trade-friend-card ${friendId === f.user_id ? "selected" : ""}`}
-            key={f.user_id}
-          >
-            <div>
-              <strong>{f.display_name}</strong>
-              <small>@{f.username}</small>
+      <h2>{friend ? "Vuestro intercambio" : "¿Con quién quieres cambiar?"}</h2>
+      <p>
+        {friend
+          ? "Dos montones. Elige los cromos y prepara vuestro cambio."
+          : "Elige un amigo. Preparamos los cromos que os faltan a los dos."}
+      </p>
+      <details className="trade-friend-picker" open={!friend}>
+        <summary>
+          {friend ? "Cambiar amigo o ver su colección" : "Tus amigos"}
+        </summary>
+        <div
+          className="trade-friend-buttons"
+          role="group"
+          aria-label="Elegir amigo para intercambiar"
+        >
+          {friends.map((f) => (
+            <div
+              className={`trade-friend-card ${friendId === f.user_id ? "selected" : ""}`}
+              key={f.user_id}
+            >
+              <div>
+                <strong>{f.display_name}</strong>
+                <small>@{f.username}</small>
+              </div>
+              <button
+                type="button"
+                aria-label={`Intercambiar con @${f.username}`}
+                aria-pressed={friendId === f.user_id}
+                disabled={sending || Boolean(operation.current) || refreshing}
+                onClick={() => setFriendId(f.user_id)}
+              >
+                {friendId === f.user_id ? (
+                  <Check size={18} />
+                ) : (
+                  <ArrowRight size={18} />
+                )}
+                {friendId === f.user_id ? "Seleccionado" : "Intercambiar"}
+              </button>
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => onProfile(f)}
+                disabled={sending || Boolean(operation.current)}
+                aria-label={`Ver colección de @${f.username}`}
+              >
+                Ver colección
+              </button>
             </div>
-            <button
-              type="button"
-              aria-label={`Intercambiar con @${f.username}`}
-              aria-pressed={friendId === f.user_id}
-              disabled={sending || Boolean(operation.current) || refreshing}
-              onClick={() => setFriendId(f.user_id)}
-            >
-              {friendId === f.user_id ? (
-                <Check size={18} />
-              ) : (
-                <ArrowRight size={18} />
-              )}
-              {friendId === f.user_id ? "Seleccionado" : "Intercambiar"}
-            </button>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => onProfile(f)}
-              disabled={sending || Boolean(operation.current)}
-              aria-label={`Ver colección de @${f.username}`}
-            >
-              Ver colección
-            </button>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </details>
       {!friends.length && (
         <p>Añade primero un amigo para preparar vuestro cambio.</p>
       )}
@@ -252,7 +264,6 @@ export function QuickTrade({
                 className="trade-send-summary"
                 aria-label="Resumen del intercambio"
               >
-                <h3>Tu propuesta para @{friend.username}</h3>
                 <p>
                   <strong>{gives.length}</strong> para dar{" "}
                   <span aria-hidden="true">↔</span>{" "}
@@ -282,66 +293,66 @@ export function QuickTrade({
                 Los cromos ya están seleccionados. Pulsa una carta para quitarla
                 o añadirla.
               </p>
-              <div className="compare-columns">
-                {[
-                  { key: "give", label: "Tú das", rows: matched.offer },
-                  {
-                    key: "receive",
-                    label: "Tú recibes",
-                    rows: matched.receive,
-                  },
-                ].map((part) => (
-                  <div key={part.key}>
-                    <h3>
-                      {part.label} ·{" "}
-                      {part.key === "give" ? gives.length : receives.length}
-                    </h3>
-                    {part.rows.length === 0 && (
-                      <p>
-                        No hay repetidos disponibles que os falten en este lado.
-                      </p>
-                    )}
-                    {part.rows.slice(0, 50).map((s) => (
-                      <button
-                        type="button"
-                        className="suggested-sticker trade-sticker-choice"
+              <TradeBoard
+                mineName={myName}
+                otherName={friend.display_name}
+                mineCount={gives.length}
+                otherCount={receives.length}
+                mine={
+                  matched.offer.length ? (
+                    matched.offer.slice(0, 50).map((s) => (
+                      <TradeSticker
                         key={s.id}
-                        aria-label={`${part.key === "give" ? "Dar" : "Recibir"} ${s.name}, ${s.official_code}`}
-                        aria-pressed={Boolean(choices[`${part.key}:${s.id}`])}
+                        sticker={s}
+                        selected={Boolean(choices[`give:${s.id}`])}
+                        label={`Dar ${s.name}, ${s.official_code}`}
                         disabled={
                           sending ||
                           Boolean(message) ||
                           Boolean(operation.current)
                         }
-                        onClick={() =>
+                        onToggle={() =>
                           setChoices((v) => ({
                             ...v,
-                            [`${part.key}:${s.id}`]: !v[`${part.key}:${s.id}`],
+                            [`give:${s.id}`]: !v[`give:${s.id}`],
                           }))
                         }
-                      >
-                        {choices[`${part.key}:${s.id}`] ? (
-                          <Check size={20} />
-                        ) : (
-                          <Plus size={20} />
-                        )}
-                        <span>
-                          #{s.official_code} · {s.name}
-                          <small>
-                            {s.teams?.name ?? s.sticker_series?.name}
-                            {s.sticker_series ? " · Especial" : ""}
-                          </small>
-                        </span>
-                        <small>
-                          {choices[`${part.key}:${s.id}`]
-                            ? "Incluido"
-                            : "Añadir"}
-                        </small>
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div>
+                      />
+                    ))
+                  ) : (
+                    <p className="trade-pile-empty">
+                      No tienes repetidos que le falten.
+                    </p>
+                  )
+                }
+                other={
+                  matched.receive.length ? (
+                    matched.receive.slice(0, 50).map((s) => (
+                      <TradeSticker
+                        key={s.id}
+                        sticker={s}
+                        selected={Boolean(choices[`receive:${s.id}`])}
+                        label={`Recibir ${s.name}, ${s.official_code}`}
+                        disabled={
+                          sending ||
+                          Boolean(message) ||
+                          Boolean(operation.current)
+                        }
+                        onToggle={() =>
+                          setChoices((v) => ({
+                            ...v,
+                            [`receive:${s.id}`]: !v[`receive:${s.id}`],
+                          }))
+                        }
+                      />
+                    ))
+                  ) : (
+                    <p className="trade-pile-empty">
+                      No tiene repetidos que te falten.
+                    </p>
+                  )
+                }
+              />
               {(matched.offer.length > 50 || matched.receive.length > 50) && (
                 <p>
                   Esta propuesta muestra hasta 50 cartas por lado. Puedes

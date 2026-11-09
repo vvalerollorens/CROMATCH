@@ -590,6 +590,28 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await giveCard.click();
     await expect(giveCard).toHaveAttribute("aria-pressed", "true");
     await giveCard.hover();
+    const board = suggestion.getByRole("group", {
+      name: "Cromos de los dos coleccionistas",
+      exact: true,
+    });
+    const leftPile = await board
+      .getByRole("region", { name: "Tú das", exact: true })
+      .boundingBox();
+    const rightPile = await board
+      .getByRole("region", { name: "Tú recibes", exact: true })
+      .boundingBox();
+    expect(leftPile && rightPile).toBeTruthy();
+    expect(leftPile!.x + leftPile!.width).toBeLessThanOrEqual(rightPile!.x);
+    expect(Math.abs(leftPile!.y - rightPile!.y)).toBeLessThan(2);
+    const portrait = giveCard.locator(
+      ".trade-card-portrait > img:not(.trade-card-crest)",
+    );
+    await expect(portrait).toBeVisible();
+    await expect
+      .poll(() =>
+        portrait.evaluate((el) => (el as HTMLImageElement).naturalWidth),
+      )
+      .toBeGreaterThan(0);
     await expect(
       page.getByRole("button", { name: "Solicitar intercambio", exact: true }),
     ).toBeEnabled();

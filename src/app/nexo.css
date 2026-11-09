@@ -1760,3 +1760,65 @@ html {
 
 .quick-trade .trade-sticker-choice:hover:not(:disabled),
 .quick-trade .trade-sticker-choice:focus-visible { background: #f6a16b1f; color: var(--ink); transform: none; }
+
+/* Two collectors, two piles: the same board for selection and tracking. */
+.trade-board { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(14px, 4vw, 40px); margin: 26px 0; isolation: isolate; }
+.trade-board-arrow { position: absolute; left: 50%; top: 110px; transform: translateX(-50%); color: var(--nexo-orange); z-index: 2; }
+.trade-pile { --pile-color: var(--nexo-yellow); --pile-glow: #efdc9b18; min-width: 0; }
+.trade-pile-theirs { --pile-color: #e9a2bb; --pile-glow: #e87b9d18; }
+.trade-person { text-align: center; min-height: 66px; }
+.trade-person strong { display: inline-block; background: #ffffff0b; border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px; font-size: 14px; max-width: 100%; overflow-wrap: anywhere; }
+.trade-person > span { display: block; font-size: 11px; color: var(--muted); margin-top: 5px; }
+.trade-stack { width: 102px; height: 98px; position: relative; margin: 22px auto 30px; }
+.trade-stack > span, .trade-stack > div { position: absolute; inset: 0; border: 1px solid #ffffff45; border-radius: 13px; }
+.trade-stack > span:first-child { transform: rotate(-13deg) translate(-5px, 3px); background: #aa657e; }
+.trade-stack > span:nth-child(2) { transform: rotate(11deg) translate(5px, 1px); background: #e8a679; }
+.trade-stack > div { display: flex; flex-direction: column; justify-content: center; align-items: center; transform: rotate(-5deg); background: var(--pile-color); color: #221a23; box-shadow: 0 10px 35px var(--pile-glow); }
+.trade-pile-theirs .trade-stack > div { transform: rotate(5deg); }
+.trade-stack b { font-size: 37px; line-height: 1.1; font-weight: 600; }
+.trade-stack small { font-size: 11px; }
+.trade-pile-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 126px), 1fr)); gap: 12px; align-content: start; }
+.trade-pile-empty { grid-column: 1 / -1; color: var(--muted); font-size: 12px; padding: 16px 8px; text-align: center; border: 1px dashed var(--border); border-radius: 16px; }
+.trade-visual-card { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 0; width: 100%; min-width: 0; overflow: hidden; text-align: left; padding: 0; margin: 0; border: 1px solid #ffffff25; border-radius: 16px; background: #19151c; color: var(--ink); box-shadow: 0 8px 24px #0002; }
+button.trade-visual-card { justify-content: flex-start; transition: border-color .18s, box-shadow .18s, opacity .18s; }
+button.trade-visual-card[aria-pressed="true"] { border-color: var(--pile-color); box-shadow: 0 0 0 1px var(--pile-glow), 0 8px 24px #0002; }
+button.trade-visual-card[aria-pressed="false"] { opacity: .6; }
+button.trade-visual-card:hover:not(:disabled), button.trade-visual-card:focus-visible { background: #241e28; color: var(--ink); transform: none; border-color: var(--pile-color); }
+.trade-card-portrait { position: relative; display: block; height: 158px; background: radial-gradient(ellipse at 50% 90%, var(--pile-glow), transparent 75%), linear-gradient(145deg, #ffffff09, #ffffff02); overflow: hidden; }
+.trade-card-portrait > img:not(.trade-card-crest) { width: 100%; height: 100%; display: block; }
+.trade-card-portrait .trade-card-crest { position: absolute; left: 9px; top: 9px; object-fit: contain; opacity: .85; }
+.trade-card-quantity { position: absolute; right: 8px; top: 8px; font-size: 11px; padding: 3px 7px; border-radius: 20px; background: #16121bce; color: var(--pile-color); border: 1px solid #ffffff25; }
+.trade-card-placeholder { display: grid; place-items: center; height: 100%; font-size: 36px; color: var(--pile-color); }
+.trade-card-caption { display: flex; flex-direction: column; gap: 3px; padding: 10px; }
+.trade-card-caption > small { font-size: 10px; color: var(--pile-color); }
+.trade-card-caption > strong { font-size: 13px; line-height: 1.3; overflow-wrap: anywhere; }
+.trade-card-caption > span { font-size: 10px; color: var(--muted); line-height: 1.35; overflow-wrap: anywhere; }
+.trade-card-selection { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 5px; border-top: 1px solid #ffffff12; font-size: 10px; color: var(--muted); margin-top: auto; }
+[aria-pressed="true"] .trade-card-selection { color: var(--pile-color); background: var(--pile-glow); }
+.trade-card-special { position: absolute; bottom: 5px; left: 8px; border: 1px solid #efdc9b80; border-radius: 20px; background: #201724d9; color: #efdc9b; padding: 2px 7px; font-size: 9px; }
+.trade-visual-card.is-special { background: linear-gradient(135deg, #3d292b, #211a29 45%, #302830); }
+.quick-trade .trade-send-summary { gap: 10px; padding: 16px; }
+.quick-trade .trade-send-summary h3 { font-size: 14px; overflow-wrap: anywhere; }
+.quick-trade .trade-send-summary p { font-size: 16px; }
+@media (max-width: 600px) {
+  .trade-board { gap: 16px; margin-inline: -4px; }
+  .trade-person strong { font-size: 12px; padding: 7px 9px; }
+  .trade-stack { width: 82px; height: 82px; margin: 18px auto 24px; }
+  .trade-stack b { font-size: 31px; }
+  .trade-board-arrow { top: 100px; }
+  .trade-board-arrow svg { width: 19px; }
+  .trade-pile-cards { gap: 10px; }
+  .trade-card-portrait { height: 132px; }
+  .trade-card-caption { padding: 8px; }
+  .trade-card-caption > strong { font-size: 12px; }
+  .trade-card-caption > span { font-size: 9px; }
+}
+
+.trade-friend-picker { margin: 16px 0; }
+.trade-friend-picker > summary { color: var(--muted); font-size: 12px; padding: 8px 0; cursor: pointer; }
+.quick-trade .trade-send-summary { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: center; }
+.quick-trade .trade-send-summary > small { grid-column: 1 / -1; font-size: 11px; }
+.quick-trade .trade-send-summary > button { font-size: 13px; padding: 12px 10px; }
+.quick-trade .trade-send-summary p { font-size: 14px; }
+.quick-trade .trade-send-summary p span { padding: 0 3px; }
+@media (max-width: 380px) { .quick-trade .trade-send-summary { grid-template-columns: 1fr; } }

@@ -99,6 +99,7 @@ import { Empty, Logo, Legal } from "./ui";
 import { Landing } from "./landing";
 import { TradeProgress } from "./trade-progress";
 import { AlbumSaveCheck } from "./album-save-check";
+import { TradeBoard, TradeSticker } from "./trade-board";
 import { QuickTrade } from "./quick-trade";
 import { OwnedCollectionList } from "./owned-collection-list";
 import { searchText } from "@/lib/scan-matching";
@@ -1597,6 +1598,7 @@ export function Cromatch({
               {!visitor ? (
                 <QuickTrade
                   userId={viewerId}
+                  myName={profile?.display_name ?? "Tú"}
                   friends={homeFriends}
                   stickers={stickers}
                   inventory={inventory}
@@ -1835,6 +1837,7 @@ export function Cromatch({
                     <QuickTrade
                       key={`${viewerId}:${collection}:${other.id}`}
                       userId={viewerId}
+                      myName={profile?.display_name ?? "Tú"}
                       friends={homeFriends}
                       stickers={stickers}
                       inventory={inventory}
@@ -1892,6 +1895,7 @@ export function Cromatch({
               {!visitor ? (
                 <QuickTrade
                   userId={viewerId}
+                  myName={profile?.display_name ?? "Tú"}
                   friends={homeFriends}
                   stickers={stickers}
                   inventory={inventory}
@@ -2002,34 +2006,54 @@ export function Cromatch({
                         mineConfirmed={mineConfirmed}
                         otherConfirmed={otherConfirmed}
                       />
-                      <div className="compare-columns">
-                        {[true, false].map((give) => (
-                          <div key={String(give)}>
-                            <h3>{give ? "Tú das" : "Tú recibes"}</h3>
-                            {tradeItems
-                              .filter(
-                                (i) =>
-                                  i.trade_id === t.id &&
-                                  (give
-                                    ? i.giver_id === viewerId
-                                    : i.giver_id !== viewerId),
-                              )
-                              .map((i) => {
-                                const s =
-                                  i.stickers ??
-                                  stickers.find((s) => s.id === i.sticker_id);
-                                return (
-                                  <p key={i.sticker_id}>
-                                    {i.quantity} ×{" "}
-                                    {s
-                                      ? `#${s.official_code} · ${s.name}`
-                                      : "Cromo no disponible"}
-                                  </p>
-                                );
-                              })}
-                          </div>
-                        ))}
-                      </div>
+                      <TradeBoard
+                        mineName={profile?.display_name ?? "Tú"}
+                        otherName={
+                          tradePeople[partnerId]?.display_name ?? partner
+                        }
+                        mineCount={tradeItems
+                          .filter(
+                            (i) =>
+                              i.trade_id === t.id && i.giver_id === viewerId,
+                          )
+                          .reduce((n, i) => n + i.quantity, 0)}
+                        otherCount={tradeItems
+                          .filter(
+                            (i) =>
+                              i.trade_id === t.id && i.giver_id !== viewerId,
+                          )
+                          .reduce((n, i) => n + i.quantity, 0)}
+                        mine={tradeItems
+                          .filter(
+                            (i) =>
+                              i.trade_id === t.id && i.giver_id === viewerId,
+                          )
+                          .map((i) => (
+                            <TradeSticker
+                              key={i.sticker_id}
+                              quantity={i.quantity}
+                              fallback={i.stickers ?? undefined}
+                              sticker={stickers.find(
+                                (s) => s.id === i.sticker_id,
+                              )}
+                            />
+                          ))}
+                        other={tradeItems
+                          .filter(
+                            (i) =>
+                              i.trade_id === t.id && i.giver_id !== viewerId,
+                          )
+                          .map((i) => (
+                            <TradeSticker
+                              key={i.sticker_id}
+                              quantity={i.quantity}
+                              fallback={i.stickers ?? undefined}
+                              sticker={stickers.find(
+                                (s) => s.id === i.sticker_id,
+                              )}
+                            />
+                          ))}
+                      />
                       <div className="export-actions">
                         {t.status === "proposed" &&
                           t.receiver_id === viewerId && (
