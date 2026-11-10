@@ -264,6 +264,19 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       name: "Repetidos por equipos",
       exact: true,
     });
+    const crestPhoto = repeatedAlbum
+      .getByRole("button", {
+        name: "Añadir repetido de Escudo, 1",
+        exact: true,
+      })
+      .locator(".slot-crest-art img");
+    await expect(crestPhoto).toBeVisible();
+    await expect(crestPhoto).toHaveAttribute("src", "/badges/alaves-white.svg");
+    await expect
+      .poll(() =>
+        crestPhoto.evaluate((el) => (el as HTMLImageElement).naturalWidth),
+      )
+      .toBeGreaterThan(0);
     const addRepeated = repeatedAlbum.getByRole("button", {
       name: "Añadir repetido de Sivera, 3",
       exact: true,
@@ -619,6 +632,17 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(mineToggle).toHaveAttribute("aria-expanded", "false");
     await expect(theirsToggle).toHaveAttribute("aria-expanded", "false");
     await expect(board.locator(".trade-visual-card")).toHaveCount(0);
+    const closedPortraits = board.locator(".trade-stack-photo img");
+    await expect(closedPortraits).toHaveCount(2);
+    for (const portrait of await closedPortraits.all()) {
+      await expect(portrait).toBeVisible();
+      await expect
+        .poll(() =>
+          portrait.evaluate((el) => (el as HTMLImageElement).naturalWidth),
+        )
+        .toBeGreaterThan(0);
+    }
+
     await expect(
       suggestion.getByRole("button", {
         name: "Solicitar reserva",

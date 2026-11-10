@@ -477,6 +477,10 @@ export function VisualAlbum({
           const q = quantity(s);
           const review = s.catalog_review === "needs_review";
           const photo = playerPhoto(s);
+          const crest =
+            s.name === "Escudo" && s.teams
+              ? seasonTeams.find((t) => t.id === teamKey(s.teams!.name))
+              : undefined;
           return (
             <article
               className={`album-slot finish-${cardFinish(s)} real-slot ${reference ? "reference-slot" : ""} ${q ? "unlocked" : ""} ${review ? "needs-review" : ""}`}
@@ -516,7 +520,18 @@ export function VisualAlbum({
                     .replace("Edición por confirmar", "ED. ?")}
                 </span>
                 <strong className="slot-number">{s.official_code}</strong>
-                {photo ? (
+                {crest ? (
+                  <span className="slot-crest-art" aria-hidden="true">
+                    <img
+                      src={`/badges/${crest.id}-white.svg`}
+                      alt=""
+                      width={160}
+                      height={176}
+                      decoding="async"
+                      draggable={false}
+                    />
+                  </span>
+                ) : photo ? (
                   <PlayerPortrait photo={photo} />
                 ) : (
                   <span className="slot-symbol">

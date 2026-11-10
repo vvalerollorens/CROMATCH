@@ -14,6 +14,8 @@ export function TradeBoard({
   other,
   mineSelected,
   otherSelected,
+  minePreview = [],
+  otherPreview = [],
 }: {
   mineName: string;
   otherName: string;
@@ -23,6 +25,8 @@ export function TradeBoard({
   other: ReactNode;
   mineSelected?: number;
   otherSelected?: number;
+  minePreview?: Sticker[];
+  otherPreview?: Sticker[];
 }) {
   const id = useId();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -42,6 +46,7 @@ export function TradeBoard({
           count: mineCount,
           label: "Tú das",
           content: mine,
+          preview: minePreview,
           chosen: mineSelected,
           hint:
             mineSelected === undefined
@@ -54,6 +59,7 @@ export function TradeBoard({
           count: otherCount,
           label: "Tú recibes",
           content: other,
+          preview: otherPreview,
           chosen: otherSelected,
           hint:
             otherSelected === undefined
@@ -80,16 +86,12 @@ export function TradeBoard({
               setExpanded((v) => ({ ...v, [part.side]: !v[part.side] }))
             }
           >
-            <span className="trade-stack" aria-hidden="true">
-              <span />
-              <span />
-              <span className="trade-stack-front">
-                <b>{part.count}</b>
-                <small>{part.count === 1 ? "cromo" : "cromos"}</small>
-              </span>
-            </span>
+            <TradePilePreview stickers={part.preview} />
             <span className="trade-stack-action">
-              {expanded[part.side] ? "Cerrar montón" : "Ver cromos"}
+              <span>
+                {part.count} {part.count === 1 ? "cromo" : "cromos"} ·{" "}
+                {expanded[part.side] ? "Cerrar" : "Ver"}
+              </span>
               <ChevronDown size={16} />
             </span>
           </button>
@@ -109,6 +111,55 @@ export function TradeBoard({
         </section>
       ))}
     </div>
+  );
+}
+
+function TradePilePreview({ stickers }: { stickers: Sticker[] }) {
+  return (
+    <span className="trade-photo-stack" aria-hidden="true">
+      {stickers.length ? (
+        stickers.slice(0, 3).map((s, index) => {
+          const photo = playerPhoto(s);
+          const club =
+            s.teams && seasonTeams.find((t) => t.id === teamKey(s.teams!.name));
+          const crest =
+            s.name === "Escudo" && club ? `/badges/${club.id}-white.svg` : null;
+          return (
+            <span
+              className={`trade-stack-photo photo-layer-${index}${crest ? " is-crest" : ""}`}
+              key={s.id}
+            >
+              {crest || photo ? (
+                <img
+                  src={crest ?? photo!.src}
+                  alt=""
+                  width={128}
+                  height={168}
+                  decoding="async"
+                  draggable={false}
+                  style={{
+                    objectFit:
+                      crest || photo?.fit !== "cover" ? "contain" : "cover",
+                    objectPosition: photo?.position ?? "center bottom",
+                  }}
+                />
+              ) : (
+                <span className="trade-stack-no-photo">
+                  #{s.official_code}
+                  <small>Sin retrato</small>
+                </span>
+              )}
+              <span className="trade-stack-player">
+                <small>#{s.official_code}</small>
+                <strong>{s.name}</strong>
+              </span>
+            </span>
+          );
+        })
+      ) : (
+        <span className="trade-stack-empty">Sin cromos útiles</span>
+      )}
+    </span>
   );
 }
 
@@ -138,7 +189,17 @@ export function TradeSticker({
   const content = (
     <>
       <span className="trade-card-portrait">
-        {photo ? (
+        {name === "Escudo" && club ? (
+          <img
+            className="trade-card-large-crest"
+            src={`/badges/${club.id}-white.svg`}
+            alt=""
+            width={160}
+            height={176}
+            decoding="async"
+            draggable={false}
+          />
+        ) : photo ? (
           <img
             src={photo.src}
             alt=""
@@ -157,7 +218,7 @@ export function TradeSticker({
             {code}
           </span>
         )}
-        {club && (
+        {club && name !== "Escudo" && (
           <img
             className="trade-card-crest"
             src={`/badges/${club.id}-white.svg`}

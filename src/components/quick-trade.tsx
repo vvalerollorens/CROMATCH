@@ -291,6 +291,8 @@ export function QuickTrade({
                 otherName={friend.display_name}
                 mineCount={matched.offer.length}
                 otherCount={matched.receive.length}
+                minePreview={matched.offer.slice(0, 3)}
+                otherPreview={matched.receive.slice(0, 3)}
                 mineSelected={gives.length}
                 otherSelected={receives.length}
                 mine={

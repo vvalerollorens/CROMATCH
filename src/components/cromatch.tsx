@@ -2064,6 +2064,30 @@ export function Cromatch({
                         otherConfirmed={otherConfirmed}
                       />
                       <TradeBoard
+                        minePreview={tradeItems
+                          .filter(
+                            (i) =>
+                              i.trade_id === t.id && i.giver_id === viewerId,
+                          )
+                          .flatMap((i) => {
+                            const s = stickers.find(
+                              (s) => s.id === i.sticker_id,
+                            );
+                            return s ? [s] : [];
+                          })
+                          .slice(0, 3)}
+                        otherPreview={tradeItems
+                          .filter(
+                            (i) =>
+                              i.trade_id === t.id && i.giver_id !== viewerId,
+                          )
+                          .flatMap((i) => {
+                            const s = stickers.find(
+                              (s) => s.id === i.sticker_id,
+                            );
+                            return s ? [s] : [];
+                          })
+                          .slice(0, 3)}
                         mineName={profile?.display_name ?? "Tú"}
                         otherName={
                           tradePeople[partnerId]?.display_name ?? partner
