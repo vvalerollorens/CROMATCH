@@ -1913,3 +1913,7 @@ button.trade-visual-card:hover:not(:disabled), button.trade-visual-card:focus-vi
 .app-header { position: sticky; top: 0; z-index: 55; }
 @media (max-width: 600px) { .section-album .app-header { display: flex; } }
 html { scroll-padding-block: 90px 110px; }
+@media (max-width: 600px) {
+  .section-album .page-heading > p,
+  .section-album .album-topline { display: none; }
+}
