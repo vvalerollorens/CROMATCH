@@ -103,7 +103,8 @@ import { TradeBoard, TradeSticker } from "./trade-board";
 import { QuickTrade } from "./quick-trade";
 import { OwnedCollectionList } from "./owned-collection-list";
 import { searchText } from "@/lib/scan-matching";
-import { VisualAlbum } from "./visual-album";
+import { GlobalStickerSearch } from "./global-sticker-search";
+import { VisualAlbum, type AlbumTarget } from "./visual-album";
 import { HomeOverview, type HomeFriend } from "./home-overview";
 import { referenceStickers } from "@/lib/catalogue";
 import { useLocalAlbum } from "@/lib/use-local-album";
@@ -198,6 +199,9 @@ export function Cromatch({
   const stickers = visitor ? referenceStickers : publishedStickers;
   const inventory = visitor ? localAlbum.inventory : remoteInventory;
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [albumTarget, setAlbumTarget] = useState<AlbumTarget | null>(null);
+  const searchRequest = useRef(0);
   const [scanBusy, setScanBusy] = useState(false);
   const award = useCollectionCelebration(
     stickers,
@@ -260,6 +264,7 @@ export function Cromatch({
     { created_at: string; delta: number }[]
   >([]);
   const go = (s: Section) => {
+    setAlbumTarget(null);
     if (s === "repetidos") setRepeatView("copies");
     setSection(s);
     setOther(null);
@@ -355,6 +360,8 @@ export function Cromatch({
         setMessage("");
         setError("");
         setSection("inicio");
+        setGlobalSearchOpen(false);
+        setAlbumTarget(null);
         pendingQuantity.current = {};
       }
       activeUser.current = id;
@@ -1170,6 +1177,15 @@ export function Cromatch({
             <strong>{section === "inicio" ? "Inicio" : titles[section]}</strong>
           </div>
           <div className="header-actions">
+            <button
+              type="button"
+              className="icon-button global-search-trigger"
+              disabled={busy}
+              aria-label="Buscar jugador en toda la colección"
+              onClick={() => setGlobalSearchOpen(true)}
+            >
+              <Search size={21} />
+            </button>
             {!visitor && (
               <select
                 aria-label="Colección activa"
@@ -1204,6 +1220,20 @@ export function Cromatch({
             </button>
           </div>
         </header>
+        {globalSearchOpen && (
+          <GlobalStickerSearch
+            key={`${viewerId}:${collection}`}
+            stickers={stickers}
+            inventory={inventory}
+            close={() => setGlobalSearchOpen(false)}
+            onOpen={(s) => {
+              setGlobalSearchOpen(false);
+              go("album");
+              setAlbumView("pages");
+              setAlbumTarget({ id: s.id, request: ++searchRequest.current });
+            }}
+          />
+        )}
         <main className="workspace" id="contenido">
           {visitor && (
             <div className="notice visitor-banner" role="status">
@@ -1332,12 +1362,16 @@ export function Cromatch({
                   collectionName={current?.name}
                 />
               ) : (
-                <VisualAlbum
+                <DuplicateAlbum
+                  key={`${viewerId}:${collection}`}
+                  duplicates={false}
+                  target={albumTarget}
+                  onAdd={addDuplicates}
+                  onRemove={(s) => quantity(s, -1)}
                   stickers={stickers}
                   inventory={inventory}
                   visitor={visitor}
                   busy={busy || (visitor && !localAlbum.ready)}
-                  local={visitor}
                   onScan={() => go("escaner")}
                   onOwnedList={() => setAlbumView("owned")}
                   collectionName={current?.name}

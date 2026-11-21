@@ -12,7 +12,7 @@ Elige colección en la cabecera. Mi álbum organiza los cromos publicados y veri
 
 En Mi álbum → Mis cromos (lista compacta) puedes consultar juntos todos tus cromos de la colección seleccionada, en orden del álbum, con número, nombre, equipo o apartado y copias. Desplázate por la pantalla para recorrer toda la lista. Admite búsqueda y filtro por equipo/apartado; «Ver todos mis cromos» limpia esos filtros. «Descargar PDF» guarda un PDF con los cromos de la búsqueda actual y páginas numeradas. Las copias reservadas siguen contándose mientras sean tuyas.
 
-Toca una casilla para marcar o desmarcar el cromo. No se abre información del jugador. Las copias adicionales se gestionan en Repetidos. El guardado se confirma tras responder la base de datos. Si falla la conexión, reintenta el mismo botón; no pulses el contrario mientras el cambio siga pendiente. No se guardan cambios desconectados.
+Toca una casilla para marcar o desmarcar el cromo. No se abre información del jugador. Desde Mi álbum, el botón + de cada casilla añade una copia repetida y − la quita sin cambiar de sección; el contador muestra solo las copias extra. Repetidos mantiene su vista dedicada. Si todavía no tenías el cromo, añadir un repetido guarda una copia para el álbum y otra extra. El guardado se confirma tras responder la base de datos. Si falla la conexión, reintenta el mismo botón; no pulses el contrario mientras el cambio siga pendiente. No se guardan cambios desconectados.
 
 - 0 unidades: falta.
 - 1 unidad: lo tienes.
@@ -20,6 +20,10 @@ Toca una casilla para marcar o desmarcar el cromo. No se abre información del j
 - Disponibles: repetidas menos unidades reservadas.
 
 No puedes quitar una unidad comprometida en un intercambio aceptado. Cancela primero ese intercambio si corresponde. Las fotografías de la plantilla llevan el escudo del equipo.
+
+## Búsqueda desde cualquier sección
+
+La lupa de la cabecera busca en toda la colección activa por jugador, entrenador, equipo o número, incluidos variantes y especiales. Los resultados muestran si te falta el cromo y cuántos repetidos tienes. «Ver casilla» abre Mi álbum en el equipo o serie correctos y enfoca la casilla exacta. El cuadro puede cerrarse con Escape y devuelve el foco al botón de búsqueda.
 
 ## Repetidos, faltantes y estadísticas
 

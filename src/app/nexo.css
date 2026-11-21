@@ -1879,3 +1879,33 @@ button.trade-visual-card:hover:not(:disabled), button.trade-visual-card:focus-vi
 }
 .trade-board:has(.trade-photo-stack) .trade-board-arrow { top: 162px; }
 @media (max-width: 600px) { .trade-board:has(.trade-photo-stack) .trade-board-arrow { top: 145px; } }
+
+.global-search-trigger { flex: 0 0 auto; width: 42px; height: 42px; min-width: 42px; }
+.global-player-search { width: min(640px, calc(100vw - 28px)); max-height: 86dvh; overflow-y: auto; padding: 26px; }
+.global-player-search h2 { font-size: 23px; padding-right: 28px; }
+.global-player-query { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 16px; padding: 0 12px; margin-top: 18px; }
+.global-player-query input { width: 100%; min-width: 0; border: 0; background: transparent; min-height: 50px; font-size: 16px; }
+.global-player-search > p { color: var(--muted); font-size: 14px; }
+.global-player-results { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.global-player-results button { width: 100%; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: 12px; text-align: left; background: #ffffff05; color: var(--ink); border: 1px solid var(--border); border-radius: 15px; padding: 12px; }
+.global-player-results button:hover:not(:disabled) { background: #ffffff0e; color: var(--ink); transform: none; }
+.global-player-photo { display: grid; place-items: center; width: 48px; height: 64px; overflow: hidden; border-radius: 10px; background: #ffffff08; }
+.global-player-photo img { width: 100%; height: 100%; object-fit: contain; }
+.global-player-results strong { display: block; font-size: 16px; overflow-wrap: anywhere; }
+.global-player-results small { display: block; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.global-player-results button > span > span { display: block; font-size: 12px; margin-top: 3px; color: var(--nexo-yellow); }
+.global-player-open { color: var(--nexo-orange); font-size: 12px; }
+.collection-album-entry .duplicate-slot-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.collection-album-entry .duplicate-slot-controls > button { min-height: 36px; width: 100%; }
+.collection-album-entry .duplicate-slot-controls > output { grid-column: 1 / -1; grid-row: 2; text-align: center; }
+.collection-album-entry .duplicate-slot-controls > small { grid-column: 1 / -1; text-align: center; }
+.album-slot.is-search-target { outline: 2px solid var(--nexo-orange); outline-offset: 4px; }
+@media (max-width: 600px) {
+  .app-header .breadcrumb { min-width: 0; flex: 1 1 auto; }
+  .app-header .header-actions { min-width: 0; gap: 6px; }
+  .app-header .header-actions select { max-width: 112px; min-width: 0; }
+  .global-player-search { padding: 20px 16px; }
+  .global-player-results button { grid-template-columns: 40px minmax(0, 1fr); gap: 10px; }
+  .global-player-photo { width: 40px; height: 56px; }
+  .global-player-open { grid-column: 2; }
+}

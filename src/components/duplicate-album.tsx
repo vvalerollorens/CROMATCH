@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import type { Inventory, Sticker } from "@/lib/domain";
 import { DuplicateEntryError } from "@/lib/duplicate-entry";
-import { VisualAlbum } from "./visual-album";
+import { VisualAlbum, type AlbumTarget } from "./visual-album";
 
 export function DuplicateAlbum({
   stickers,
@@ -13,6 +13,11 @@ export function DuplicateAlbum({
   onAdd,
   onRemove,
   onScan,
+  duplicates = true,
+  onQuantity,
+  onNavigate,
+  onOwnedList,
+  target,
 }: {
   stickers: Sticker[];
   inventory: Inventory[];
@@ -22,6 +27,11 @@ export function DuplicateAlbum({
   onAdd: (s: Sticker, extras: number, operation: string) => Promise<void>;
   onRemove: (s: Sticker) => Promise<void>;
   onScan: () => void;
+  duplicates?: boolean;
+  onQuantity?: (s: Sticker, delta: number) => Promise<void>;
+  onNavigate?: (s: "repetidos" | "faltantes") => void;
+  onOwnedList?: () => void;
+  target?: AlbumTarget | null;
 }) {
   const lock = useRef(false);
   const [pending, setPending] = useState(false);
@@ -56,11 +66,17 @@ export function DuplicateAlbum({
     }
   }
   return (
-    <div className="duplicate-album-entry">
-      <p className="duplicate-album-instructions">
-        Toca una casilla para añadir un repetido. Usa − para quitarlo. Siempre
-        conservas una copia para el álbum.
-      </p>
+    <div
+      className={
+        duplicates ? "duplicate-album-entry" : "collection-album-entry"
+      }
+    >
+      {duplicates && (
+        <p className="duplicate-album-instructions">
+          Toca una casilla para añadir un repetido. Usa − para quitarlo. Siempre
+          conservas una copia para el álbum.
+        </p>
+      )}
       {error && (
         <div className="alert" role="alert">
           {error}
@@ -75,7 +91,10 @@ export function DuplicateAlbum({
           )}
         </div>
       )}
-      <p role="status" className="duplicate-album-status">
+      <p
+        role="status"
+        className={duplicates ? "duplicate-album-status" : "sr-only"}
+      >
         {pending ? "Guardando repetido…" : message}
       </p>
       <VisualAlbum
@@ -85,10 +104,21 @@ export function DuplicateAlbum({
         visitor={visitor}
         local={visitor}
         collectionName={collectionName}
-        duplicates
+        duplicates={duplicates}
+        target={target}
+        onOwnedList={onOwnedList}
+        onAddDuplicate={
+          duplicates
+            ? undefined
+            : (s) => add({ sticker: s, operation: crypto.randomUUID() })
+        }
         onScan={onScan}
-        onNavigate={() => {}}
+        onNavigate={onNavigate ?? (() => {})}
         onQuantity={async (s, delta) => {
+          if (!duplicates && onQuantity) {
+            await onQuantity(s, delta);
+            return;
+          }
           if (failed || lock.current || busy) return;
           if (delta > 0)
             await add({ sticker: s, operation: crypto.randomUUID() });

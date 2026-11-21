@@ -710,3 +710,86 @@ test("OCR real de tres cartas y confirmación antes de actualizar el álbum", as
   });
   await expect(first).toContainText("Ahora tienes 1");
 });
+
+test("buscador global abre la casilla y permite añadir repes sin salir del álbum", async ({
+  page,
+}) => {
+  await page.goto("/visita#inicio");
+  for (const name of [
+    "Inicio",
+    "Mi álbum",
+    "Repetidos",
+    "Amigos",
+    "Mi perfil",
+  ]) {
+    await page
+      .getByRole("navigation")
+      .getByRole("button", { name, exact: true })
+      .click();
+    await expect(
+      page.getByRole("button", {
+        name: "Buscar jugador en toda la colección",
+        exact: true,
+      }),
+    ).toBeVisible();
+  }
+  await page
+    .getByRole("button", {
+      name: "Buscar jugador en toda la colección",
+      exact: true,
+    })
+    .click();
+  const dialog = page.getByRole("dialog");
+  const input = dialog.getByRole("textbox", {
+    name: "Buscar jugador en toda la colección",
+    exact: true,
+  });
+  await expect(input).toBeFocused();
+  await input.fill("Chetauya");
+  await dialog.getByRole("button", { name: /Abrir .*Chetauya, 13B,/ }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const album = page.getByRole("region", {
+    name: "Álbum visual por equipos",
+    exact: true,
+  });
+  const target = album.locator(".album-slot.is-search-target");
+  await expect(
+    album.getByRole("heading", { name: "Elche CF", exact: true }),
+  ).toBeVisible();
+  await expect(target.locator(".slot-main")).toBeFocused();
+  const add = target.getByRole("button", {
+    name: /Añadir repetido de .*Chetauya, 13B/,
+  });
+  await add.click();
+  await expect(target.locator("output")).toHaveText("1 repetido");
+  await add.click();
+  await expect(target.locator("output")).toHaveText("2 repetidos");
+  await target
+    .getByRole("button", { name: /Quitar repetido de .*Chetauya, 13B/ })
+    .click();
+  await expect(target.locator("output")).toHaveText("1 repetido");
+  await expect(
+    page.getByRole("heading", { name: "Mi álbum", exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await page
+    .getByRole("button", {
+      name: "Buscar jugador en toda la colección",
+      exact: true,
+    })
+    .click();
+  await page.getByRole("dialog").getByRole("textbox").fill("Chetauya");
+  const result = page
+    .getByRole("dialog")
+    .getByRole("button", { name: /Abrir .*Chetauya, 13B,/ });
+  await expect(result).toContainText("1 repetido");
+  await result.click();
+  await expect(
+    album.getByRole("heading", { name: "Elche CF", exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   Camera,
@@ -76,6 +76,7 @@ const sectionOf = (s: Sticker) =>
   s.catalog_section ??
   (s.sticker_series && albumSectionKey(s.sticker_series.name)) ??
   (s.teams ? teamKey(s.teams.name) : (s.sticker_series?.name ?? "especiales"));
+export type AlbumTarget = { id: string; request: number };
 export function VisualAlbum({
   stickers,
   inventory,
@@ -87,6 +88,8 @@ export function VisualAlbum({
   duplicates = false,
   onScan,
   onOwnedList,
+  onAddDuplicate,
+  target,
   onQuantity,
   onNavigate,
 }: {
@@ -100,6 +103,8 @@ export function VisualAlbum({
   duplicates?: boolean;
   onScan?: () => void;
   onOwnedList?: () => void;
+  onAddDuplicate?: (s: Sticker) => Promise<void>;
+  target?: AlbumTarget | null;
   onQuantity: (s: Sticker, d: number) => Promise<void>;
   onNavigate: (s: "repetidos" | "faltantes") => void;
 }) {
@@ -160,6 +165,40 @@ export function VisualAlbum({
     setPage(0);
     setMarked({});
   }, [collectionName, sections]);
+  const albumRef = useRef<HTMLElement>(null);
+  const focusedRequest = useRef<number | null>(null);
+  useEffect(() => {
+    if (!target) return;
+    const sticker = entries.find((s) => s.id === target.id);
+    if (!sticker) return;
+    const sectionId = sectionOf(sticker);
+    setSelected(sectionId);
+    setGroup(
+      sections.find((s) => s.id === sectionId)?.kind === "series"
+        ? "series"
+        : "team",
+    );
+    setQuery("");
+    setMode("all");
+    setSearchOpen(false);
+    setPage(
+      Math.floor(
+        entries
+          .filter((s) => sectionOf(s) === sectionId)
+          .findIndex((s) => s.id === sticker.id) / 48,
+      ),
+    );
+  }, [target, entries, sections]);
+  useEffect(() => {
+    if (!target || focusedRequest.current === target.request) return;
+    const button = albumRef.current?.querySelector<HTMLButtonElement>(
+      `[data-sticker-id="${target.id}"] .slot-main`,
+    );
+    if (!button) return;
+    focusedRequest.current = target.request;
+    button.focus({ preventScroll: true });
+    button.scrollIntoView({ block: "center", behavior: "instant" });
+  }, [target, selected, page]);
   const section = sections.find((t) => t.id === selected);
   const own = new Map(inventory.map((i) => [i.sticker_id, i]));
   const quantity = (s: Sticker) =>
@@ -189,6 +228,18 @@ export function VisualAlbum({
     setQuery("");
     setMode("all");
   };
+  const manageRepeated = (s: Sticker) => {
+    if (!onAddDuplicate) {
+      onNavigate("repetidos");
+      return;
+    }
+    setAnnouncement(`${s.name}: puedes añadir o quitar repetidos aquí mismo.`);
+    albumRef.current
+      ?.querySelector<HTMLButtonElement>(
+        `[data-sticker-id="${s.id}"] .album-add-copy`,
+      )
+      ?.focus({ preventScroll: true });
+  };
   const open = (s: Sticker) => {
     if (readOnly) return;
     if (duplicates) {
@@ -197,7 +248,7 @@ export function VisualAlbum({
     }
     if (local) {
       const q = quantity(s);
-      if (q > 1) onNavigate("repetidos");
+      if (q > 1) manageRepeated(s);
       else void onQuantity(s, q ? -1 : 1).catch(() => {});
       return;
     }
@@ -212,11 +263,12 @@ export function VisualAlbum({
       setAnnouncement(
         `${s.name}: ${marked[s.id] ? "sin marcar" : "marcado en esta visita"}`,
       );
-    } else if (quantity(s) > 1) onNavigate("repetidos");
+    } else if (quantity(s) > 1) manageRepeated(s);
     else void onQuantity(s, quantity(s) ? -1 : 1).catch(() => {});
   };
   return (
     <section
+      ref={albumRef}
       className={`visual-album ${readOnly ? "is-readonly" : ""} ${group === "team" ? "team-page" : "specials-page"}`}
       aria-label={
         duplicates ? "Repetidos por equipos" : "Álbum visual por equipos"
@@ -483,7 +535,7 @@ export function VisualAlbum({
               : undefined;
           return (
             <article
-              className={`album-slot finish-${cardFinish(s)} real-slot ${reference ? "reference-slot" : ""} ${q ? "unlocked" : ""} ${review ? "needs-review" : ""}`}
+              className={`album-slot finish-${cardFinish(s)} real-slot ${reference ? "reference-slot" : ""} ${q ? "unlocked" : ""} ${review ? "needs-review" : ""} ${target?.id === s.id ? "is-search-target" : ""}`}
               key={s.id}
               data-sticker-id={s.id}
             >
@@ -566,7 +618,7 @@ export function VisualAlbum({
                 </span>
                 {review && <span className="slot-review">Revisar</span>}
               </button>
-              {duplicates && (
+              {(duplicates || Boolean(onAddDuplicate)) && (
                 <div className="duplicate-slot-controls">
                   <button
                     type="button"
@@ -580,8 +632,22 @@ export function VisualAlbum({
                   <output
                     aria-label={`Copias repetidas de ${s.name}, ${s.official_code}`}
                   >
-                    {q} {q === 1 ? "repetido" : "repetidos"}
+                    {duplicates ? q : Math.max(0, q - 1)}{" "}
+                    {(duplicates ? q : Math.max(0, q - 1)) === 1
+                      ? "repetido"
+                      : "repetidos"}
                   </output>
+                  {onAddDuplicate && (
+                    <button
+                      type="button"
+                      className="album-add-copy"
+                      aria-label={`Añadir repetido de ${s.name}, ${s.official_code}`}
+                      disabled={busy || (i?.quantity ?? 0) >= 999}
+                      onClick={() => void onAddDuplicate(s).catch(() => {})}
+                    >
+                      <Plus size={15} />
+                    </button>
+                  )}
                   {Boolean(i?.reserved) && (
                     <small>{i?.reserved} reservados</small>
                   )}

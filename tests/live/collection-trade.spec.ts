@@ -194,6 +194,57 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         exact: true,
       }),
     ).toBeVisible();
+    await nav(page, "Amigos");
+    await nav(page, "Buscar jugador en toda la colección");
+    const globalSearch = page.getByRole("dialog");
+    await globalSearch
+      .getByRole("textbox", {
+        name: "Buscar jugador en toda la colección",
+        exact: true,
+      })
+      .fill("Sivera");
+    await globalSearch
+      .getByRole("button", {
+        name: "Abrir Sivera, 3, Deportivo Alavés",
+        exact: true,
+      })
+      .click();
+    const album = page.getByRole("region", {
+      name: "Álbum visual por equipos",
+      exact: true,
+    });
+    const found = album.locator(".album-slot.is-search-target");
+    await expect(found.locator(".slot-main")).toBeFocused();
+    await found
+      .getByRole("button", {
+        name: "Añadir repetido de Sivera, 3",
+        exact: true,
+      })
+      .click();
+    await expect(found.locator("output")).toHaveText("1 repetido");
+    await expect(
+      page.getByRole("heading", { name: "Mi álbum", exact: true }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-album-inline-repeats.png`,
+      fullPage: true,
+    });
+    await found
+      .getByRole("button", {
+        name: "Quitar repetido de Sivera, 3",
+        exact: true,
+      })
+      .click();
+    await expect(found.locator("output")).toHaveText("0 repetidos");
+    await found
+      .getByRole("button", { name: "Desmarcar Sivera, código 3", exact: true })
+      .click();
+    await expect(
+      found.getByRole("button", {
+        name: "Desbloquear Sivera, código 3",
+        exact: true,
+      }),
+    ).toBeVisible();
     await nav(page, "Ver Deportivo Alavés");
     const mark = page.getByRole("button", {
       name: "Desbloquear Sivera, código 3",
