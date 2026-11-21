@@ -144,6 +144,7 @@ test("visita sin correo recorre pantallas sin peticiones de datos", async ({
   await expect(
     page.getByRole("alert").filter({ hasText: "Estás en modo visita" }),
   ).toContainText("Estás en modo visita");
+  await page.getByRole("button", { name: "Cerrar error", exact: true }).click();
   expect(dataRequests).toEqual([]);
   expect(
     await page.evaluate(
@@ -792,4 +793,67 @@ test("buscador global abre la casilla y permite añadir repes sin salir del álb
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+});
+
+test("cada vista recuerda equipo, filtro y posición sin mezclar álbum y repetidos", async ({
+  page,
+}) => {
+  await page.goto("/visita#album");
+  await page
+    .getByRole("button", { name: "Ver Levante UD", exact: true })
+    .click();
+  const album = page.getByRole("region", {
+    name: "Álbum visual por equipos",
+    exact: true,
+  });
+  await album.locator(".album-slot").last().scrollIntoViewIfNeeded();
+  const previousScroll = await page.evaluate(() => window.scrollY);
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Repetidos", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Ver Elche CF", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Sin repetidos", exact: true })
+    .click();
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Mi álbum", exact: true })
+    .click();
+  await expect(
+    album.getByRole("heading", { name: "Levante UD", exact: true }),
+  ).toBeVisible();
+  await expect
+    .poll(async () =>
+      Math.abs((await page.evaluate(() => window.scrollY)) - previousScroll),
+    )
+    .toBeLessThan(4);
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Repetidos", exact: true })
+    .click();
+  const repeats = page.getByRole("region", {
+    name: "Repetidos por equipos",
+    exact: true,
+  });
+  await expect(
+    repeats.getByRole("heading", { name: "Elche CF", exact: true }),
+  ).toBeVisible();
+  await expect(
+    repeats.getByRole("button", { name: "Sin repetidos", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page.reload();
+  await expect(
+    repeats.getByRole("heading", { name: "Elche CF", exact: true }),
+  ).toBeVisible();
+  await expect(
+    repeats.getByRole("button", { name: "Sin repetidos", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Mi álbum", exact: true })
+    .click();
+  await expect(
+    album.getByRole("heading", { name: "Levante UD", exact: true }),
+  ).toBeVisible();
 });

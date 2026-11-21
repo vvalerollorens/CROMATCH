@@ -265,7 +265,6 @@ export function Cromatch({
   >([]);
   const go = (s: Section) => {
     setAlbumTarget(null);
-    if (s === "repetidos") setRepeatView("copies");
     setSection(s);
     setOther(null);
     setSearch("");
@@ -1365,6 +1364,7 @@ export function Cromatch({
                 <DuplicateAlbum
                   key={`${viewerId}:${collection}`}
                   duplicates={false}
+                  viewKey={`nexo.view.v1:${viewerId || "guest"}:${collection || "reference"}:album`}
                   target={albumTarget}
                   onAdd={addDuplicates}
                   onRemove={(s) => quantity(s, -1)}
@@ -1440,6 +1440,7 @@ export function Cromatch({
                     busy={busy || (visitor && !localAlbum.ready)}
                     visitor={visitor}
                     collectionName={current?.name}
+                    viewKey={`nexo.view.v1:${viewerId || "guest"}:${collection || "reference"}:repetidos`}
                     onAdd={addDuplicates}
                     onRemove={(s) => quantity(s, -1)}
                     onScan={() => go("escaner")}

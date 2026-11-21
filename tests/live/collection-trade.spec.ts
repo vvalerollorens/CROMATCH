@@ -252,6 +252,15 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
         exact: true,
       }),
     ).toBeVisible();
+    await nav(page, "Ver Levante UD");
+    await nav(page, "Repetidos");
+    await nav(page, "Ver Elche CF");
+    await nav(page, "Mi álbum");
+    await expect(
+      page
+        .getByRole("region", { name: "Álbum visual por equipos", exact: true })
+        .getByRole("heading", { name: "Levante UD", exact: true }),
+    ).toBeVisible();
     await nav(page, "Ver Deportivo Alavés");
     const mark = page.getByRole("button", {
       name: "Desbloquear Sivera, código 3",
@@ -318,6 +327,12 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     await expect(mark).toHaveAttribute("aria-pressed", "false");
     // Add three extra copies at once, keeping one album copy, without a dialog.
     await nav(page, "Repetidos");
+    await expect(
+      page
+        .getByRole("region", { name: "Repetidos por equipos", exact: true })
+        .getByRole("heading", { name: "Elche CF", exact: true }),
+    ).toBeVisible();
+    await nav(page, "Ver Deportivo Alavés");
     const repeatedAlbum = page.getByRole("region", {
       name: "Repetidos por equipos",
       exact: true,

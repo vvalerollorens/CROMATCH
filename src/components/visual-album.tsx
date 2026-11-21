@@ -20,6 +20,7 @@ import {
   catalogueSummary,
   referenceStickers,
 } from "@/lib/catalogue";
+import { readAlbumView, saveAlbumView, type AlbumView } from "@/lib/album-view";
 import { playerPhoto } from "@/lib/player-photos";
 import { PlayerPortrait } from "./player-portrait";
 import type { CSSProperties } from "react";
@@ -90,6 +91,7 @@ export function VisualAlbum({
   onOwnedList,
   onAddDuplicate,
   target,
+  viewKey,
   onQuantity,
   onNavigate,
 }: {
@@ -105,6 +107,7 @@ export function VisualAlbum({
   onOwnedList?: () => void;
   onAddDuplicate?: (s: Sticker) => Promise<void>;
   target?: AlbumTarget | null;
+  viewKey?: string;
   onQuantity: (s: Sticker, d: number) => Promise<void>;
   onNavigate: (s: "repetidos" | "faltantes") => void;
 }) {
@@ -157,14 +160,75 @@ export function VisualAlbum({
   const [marked, setMarked] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(0);
   const [announcement, setAnnouncement] = useState("");
+  const [restoredKey, setRestoredKey] = useState<string | null>(null);
+  const lastScroll = useRef(0);
+  const pendingScroll = useRef<number | null>(null);
+  const viewSnapshot = useRef<AlbumView | null>(null);
   useEffect(() => {
-    setSelected(sections[0]?.id ?? "");
-    setGroup("team");
-    setQuery("");
-    setMode("all");
-    setPage(0);
+    const saved = readAlbumView(viewKey, sections);
+    setSelected(saved.sectionId);
+    setGroup(
+      sections.find((s) => s.id === saved.sectionId)?.kind === "series"
+        ? "series"
+        : "team",
+    );
+    setQuery(saved.query);
+    setSearchOpen(saved.searchOpen);
+    setMode(saved.mode);
+    setPage(saved.page);
     setMarked({});
-  }, [collectionName, sections]);
+    lastScroll.current = saved.scrollY;
+    pendingScroll.current = target ? null : saved.scrollY;
+    setRestoredKey(viewKey ?? null);
+  }, [viewKey, collectionName, sections]);
+  useEffect(() => {
+    if (!viewKey || restoredKey !== viewKey) return;
+    viewSnapshot.current = {
+      version: 1,
+      sectionId: selected,
+      query,
+      searchOpen,
+      mode,
+      page,
+      scrollY: lastScroll.current,
+    };
+    saveAlbumView(viewKey, viewSnapshot.current);
+  }, [viewKey, restoredKey, selected, query, searchOpen, mode, page]);
+  useEffect(() => {
+    if (!viewKey || restoredKey !== viewKey || pendingScroll.current === null)
+      return;
+    const y = pendingScroll.current;
+    pendingScroll.current = null;
+    if (!target) {
+      window.scrollTo({ top: y, behavior: "instant" });
+      lastScroll.current = window.scrollY;
+    }
+  }, [viewKey, restoredKey, selected, page, target]);
+  useEffect(() => {
+    if (!viewKey || restoredKey !== viewKey) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    if (target) lastScroll.current = window.scrollY;
+    const save = () => {
+      if (viewSnapshot.current)
+        saveAlbumView(viewKey, {
+          ...viewSnapshot.current,
+          scrollY: lastScroll.current,
+        });
+    };
+    const scroll = () => {
+      lastScroll.current = window.scrollY;
+      clearTimeout(timer);
+      timer = setTimeout(save, 150);
+    };
+    window.addEventListener("scroll", scroll, { passive: true });
+    window.addEventListener("pagehide", save);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", scroll);
+      window.removeEventListener("pagehide", save);
+      save();
+    };
+  }, [viewKey, restoredKey]);
   const albumRef = useRef<HTMLElement>(null);
   const focusedRequest = useRef<number | null>(null);
   useEffect(() => {
@@ -220,6 +284,12 @@ export function VisualAlbum({
         .toLocaleLowerCase("es")
         .includes(query.toLocaleLowerCase("es")),
   );
+  useEffect(() => {
+    if (viewKey && restoredKey !== viewKey) return;
+    setPage((p) =>
+      Math.min(p, Math.max(0, Math.ceil(visible.length / 48) - 1)),
+    );
+  }, [visible.length, viewKey, restoredKey]);
   const colours = clubColours[selected] ?? ["#e1795c", "#df6e9e"];
   const choose = (id: string) => {
     setSelected(id);

@@ -21,6 +21,8 @@ Toca una casilla para marcar o desmarcar el cromo. No se abre información del j
 
 No puedes quitar una unidad comprometida en un intercambio aceptado. Cancela primero ese intercambio si corresponde. Las fotografías de la plantilla llevan el escudo del equipo.
 
+Mi álbum y Repetidos recuerdan por separado el equipo o serie, los filtros, la página y la posición de desplazamiento en este navegador. La posición se guarda por cuenta y colección. Volver a Mi álbum restaura su último equipo, aunque hayas consultado otro en Repetidos. Abrir un resultado de la búsqueda global lleva primero a la casilla buscada.
+
 ## Búsqueda desde cualquier sección
 
 La lupa de la cabecera busca en toda la colección activa por jugador, entrenador, equipo o número, incluidos variantes y especiales. Los resultados muestran si te falta el cromo y cuántos repetidos tienes. «Ver casilla» abre Mi álbum en el equipo o serie correctos y enfoca la casilla exacta. El cuadro puede cerrarse con Escape y devuelve el foco al botón de búsqueda.

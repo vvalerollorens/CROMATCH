@@ -18,6 +18,7 @@ export function DuplicateAlbum({
   onNavigate,
   onOwnedList,
   target,
+  viewKey,
 }: {
   stickers: Sticker[];
   inventory: Inventory[];
@@ -32,6 +33,7 @@ export function DuplicateAlbum({
   onNavigate?: (s: "repetidos" | "faltantes") => void;
   onOwnedList?: () => void;
   target?: AlbumTarget | null;
+  viewKey?: string;
 }) {
   const lock = useRef(false);
   const [pending, setPending] = useState(false);
@@ -106,6 +108,7 @@ export function DuplicateAlbum({
         collectionName={collectionName}
         duplicates={duplicates}
         target={target}
+        viewKey={viewKey}
         onOwnedList={onOwnedList}
         onAddDuplicate={
           duplicates
