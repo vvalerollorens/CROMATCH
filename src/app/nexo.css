@@ -1917,3 +1917,11 @@ html { scroll-padding-block: 90px 110px; }
   .section-album .page-heading > p,
   .section-album .album-topline { display: none; }
 }
+@media (max-width: 600px) {
+  .section-album .album-groups { margin-top: 0; }
+  .section-album .team-strip { margin-bottom: 2px; padding-bottom: 2px; }
+  .section-album .album-team-heading { margin-bottom: 2px; }
+  .section-album .album-progress { margin-bottom: 2px; }
+  .section-album .album-controls { margin-bottom: 6px; }
+  .section-album .album-preview-note { margin-bottom: 6px; }
+}
