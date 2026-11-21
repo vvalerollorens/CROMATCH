@@ -215,6 +215,13 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
     });
     const found = album.locator(".album-slot.is-search-target");
     await expect(found.locator(".slot-main")).toBeFocused();
+    await expect(
+      page.getByRole("button", {
+        name: "Buscar jugador en toda la colección",
+        exact: true,
+      }),
+    ).toBeVisible();
+
     await found
       .getByRole("button", {
         name: "Añadir repetido de Sivera, 3",
