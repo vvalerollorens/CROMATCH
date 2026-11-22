@@ -41,7 +41,7 @@ describe("catálogo de consulta y escudos", () => {
     expect(referenceStickers).toHaveLength(661);
     expect(new Set(referenceStickers.map((s) => s.id)).size).toBe(661);
     expect(catalogueSummary.officiallyComplete).toBe(false);
-    expect(catalogueSummary.review).toBe(6);
+    expect(catalogueSummary.review).toBe(5);
     expect(
       referenceStickers.filter((s) => s.catalog_section === "ultimos-fichajes"),
     ).toHaveLength(66);
@@ -51,7 +51,16 @@ describe("catálogo de consulta y escudos", () => {
       ),
     ).toBe(true);
   });
-  it("no inventa números de Extras ni elige entre números de Top Fichajes que se contradicen", () => {
+  it("respeta el 67 de Cucurella confirmado por el usuario y mantiene las otras discrepancias abiertas", () => {
+    expect(
+      referenceStickers.find(
+        (s) => s.catalog_section === "top-fichajes" && s.name === "Cucurella",
+      ),
+    ).toMatchObject({
+      id: "d66911f6-46e3-5db3-9eec-eb89bbae427c",
+      official_code: "67",
+      catalog_review: "user_confirmed",
+    });
     expect(
       referenceStickers
         .filter((s) => s.catalog_section?.startsWith("extra-"))
@@ -59,7 +68,9 @@ describe("catálogo de consulta y escudos", () => {
     ).toBe(true);
     expect(
       referenceStickers
-        .filter((s) => s.catalog_section === "top-fichajes")
+        .filter(
+          (s) => s.catalog_section === "top-fichajes" && s.name !== "Cucurella",
+        )
         .every(
           (s) => s.official_code === "?" && s.catalog_review === "needs_review",
         ),

@@ -81,7 +81,7 @@ Puedes instalar el acceso PWA desde el menú de tu navegador compatible. Los dat
 4. Tu amigo revisa la propuesta y pulsa «Aceptar y reservar». Las copias quedan reservadas; todavía no cambian de dueño.
 5. Haced el cambio y pulsad cada uno «Ya he hecho el cambio». Si solo confirma uno, la pantalla indica a quién se espera. Cuando confirman ambos, los álbumes se actualizan y las reservas se liberan.
 
-El catálogo de cuentas incluye 655 registros contrastados; seis con discrepancias siguen fuera hasta resolverlas. Las series sin fichas publicadas se identifican como pendientes de revisión.
+El catálogo de cuentas incluye 656 registros: 655 contrastados y Cucurella 67 de Top Fichajes confirmado por el usuario. Cinco fichas con discrepancias siguen fuera hasta resolverlas. Las series sin fichas publicadas se identifican como pendientes de revisión.
 
 ## Comprobar el guardado
 

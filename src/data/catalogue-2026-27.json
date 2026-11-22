@@ -20159,14 +20159,14 @@
       "entries": [
         {
           "id": "d66911f6-46e3-5db3-9eec-eb89bbae427c",
-          "number": null,
-          "number_status": "disputed",
+          "number": "67",
+          "number_status": "user_confirmed",
           "name": "Cucurella",
           "edition": 4,
           "variant": "base",
-          "review_status": "needs_review",
+          "review_status": "user_confirmed",
           "notes": [
-            "Los listados discrepan: número y orden de Top Fichajes pendientes de confirmar con Panini. No se asigna un número definitivo."
+            "Número 67 confirmado expresamente por el usuario para Top Fichajes. Se conservan las discrepancias de las fuentes consultadas como historial; no se declara confirmación oficial de Panini."
           ],
           "sources": [
             {

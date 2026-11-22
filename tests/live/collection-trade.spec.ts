@@ -169,7 +169,16 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       "/rest/v1/stickers?select=id,name,collection_id,catalog_section,official_code&order=catalog_order",
       accounts[0].token,
     );
-    expect(rows).toHaveLength(655);
+    expect(rows).toHaveLength(656);
+    expect(
+      rows.find(
+        (s: { catalog_section: string; name: string }) =>
+          s.catalog_section === "top-fichajes" && s.name === "Cucurella",
+      ),
+    ).toMatchObject({
+      id: "d66911f6-46e3-5db3-9eec-eb89bbae427c",
+      official_code: "67",
+    });
     const elche13b = rows.find(
       (s: { catalog_section: string; official_code: string }) =>
         s.catalog_section === "elche" && s.official_code === "13B",
@@ -186,7 +195,33 @@ test("álbum, repetidos y cambio confirmado por dos cuentas reales", async ({
       (s: { name: string; catalog_section: string }) =>
         s.catalog_section === "alaves" && s.name === "Tenaglia",
     );
+    await nav(page, "Buscar jugador en toda la colección");
+    await page.getByRole("dialog").getByRole("textbox").fill("Cucurella");
+    await page
+      .getByRole("dialog")
+      .getByRole("button", {
+        name: "Abrir Cucurella, 67, Top Fichajes",
+        exact: true,
+      })
+      .click();
+    const cucurella = page.getByRole("button", {
+      name: "Desbloquear Cucurella, código 67",
+      exact: true,
+    });
+    await expect(cucurella).toBeVisible();
+    const portrait67 = cucurella.locator(".slot-portrait img");
+    await expect(portrait67).toBeVisible();
+    await expect
+      .poll(() =>
+        portrait67.evaluate((el) => (el as HTMLImageElement).naturalWidth),
+      )
+      .toBeGreaterThan(0);
+    await page.screenshot({
+      path: `test-results/live-${info.project.name}-cucurella-67.png`,
+      fullPage: true,
+    });
     await nav(page, "Mi álbum");
+    await nav(page, "Equipos 20");
     await nav(page, "Ver Elche CF");
     await expect(
       page.getByRole("button", {

@@ -2,7 +2,7 @@
 
 Aplicación de coleccionismo e intercambio de fútbol, en español, con Next.js, React, TypeScript, Tailwind CSS y Supabase/PostgreSQL.
 
-**Estado: versión privada funcional para pequeños grupos; todavía no se declara lista para un lanzamiento público general.** Supabase ya está conectado y se comprobaron registro/acceso por usuario, persistencia de perfil, privacidad de ajustes y amistad con dos cuentas temporales. El catálogo publica 655 registros contrastados (seis pendientes). El inventario y los intercambios se han probado por API con dos cuentas reales temporales; el cotejo oficial con Panini sigue pendiente. No contiene inventarios de demostración ni cromos inventados.
+**Estado: versión privada funcional para pequeños grupos; todavía no se declara lista para un lanzamiento público general.** Supabase ya está conectado y se comprobaron registro/acceso por usuario, persistencia de perfil, privacidad de ajustes y amistad con dos cuentas temporales. El catálogo publica 656 registros: 655 contrastados y Cucurella 67 de Top Fichajes confirmado por el usuario; quedan cinco pendientes. El inventario y los intercambios se han probado por API con dos cuentas reales temporales; el cotejo oficial con Panini sigue pendiente. No contiene inventarios de demostración ni cromos inventados.
 
 ## Ver las pantallas sin correo
 
@@ -37,7 +37,7 @@ npm ci
 cp .env.example .env.local
 ```
 
-El acceso usa nombre de usuario y contraseña, sin correo personal. Supabase está configurado con las migraciones aplicadas y el acceso por usuario se ha probado con el servicio alojado. El catálogo sincronizado incluye 655 registros y se identifica como parcial.
+El acceso usa nombre de usuario y contraseña, sin correo personal. Supabase está configurado con las migraciones aplicadas y el acceso por usuario se ha probado con el servicio alojado. El catálogo sincronizado incluye 656 registros y se identifica como parcial.
 
 Completa las dos variables públicas con la URL y la clave publicable/anon de tu propio proyecto Supabase. La aplicación no necesita ni debe recibir una clave `service_role`.
 

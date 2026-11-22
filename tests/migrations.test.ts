@@ -20,20 +20,20 @@ it("aplica el esquema real una sola vez y rechaza cambios retroactivos sin modif
     query: (sql: string, args?: unknown[]) =>
       !args && sql.includes(";") ? db.exec(sql) : db.query(sql, args),
   };
-  expect(await applyMigrations(client, migrations)).toHaveLength(8);
+  expect(await applyMigrations(client, migrations)).toHaveLength(9);
   expect(await applyMigrations(client, migrations)).toEqual([]);
   await expect(
     applyMigrations(client, [{ ...migrations[0], checksum: "changed" }]),
   ).rejects.toThrow("MIGRATION_CHANGED");
   expect(
     (await db.query("select name from nexo_migrations.applied")).rows,
-  ).toHaveLength(8);
+  ).toHaveLength(9);
   expect(
     (await db.query("select * from public.collections")).rows,
   ).toHaveLength(1);
 });
 
-it("publica únicamente las 655 fichas contrastadas, con fuentes, IDs estables y números por equipo", async () => {
+it("publica 655 fichas contrastadas y el 67 confirmado por el usuario, con IDs estables", async () => {
   const rows = (
     await db.query<{
       id: string;
@@ -46,17 +46,22 @@ it("publica únicamente las 655 fichas contrastadas, con fuentes, IDs estables y
   ).rows;
   const eligible = source.sections
     .flatMap<{ id: string; review_status: string }>((s) => s.entries)
-    .filter((e) => e.review_status === "cross_checked");
+    .filter((e) =>
+      ["cross_checked", "user_confirmed"].includes(e.review_status),
+    );
   expect(new Set(rows.map((s) => s.id))).toEqual(
     new Set(eligible.map((s) => s.id)),
   );
-  expect(rows).toHaveLength(655);
+  expect(rows).toHaveLength(656);
   expect(
     rows.every(
       (s) =>
-        s.catalog_review === "cross_checked" &&
         s.catalog_sources.length >= 2 &&
-        s.verification_method === "cross_checked_sources",
+        ((s.catalog_review === "cross_checked" &&
+          s.verification_method === "cross_checked_sources") ||
+          (s.id === "d66911f6-46e3-5db3-9eec-eb89bbae427c" &&
+            s.catalog_review === "user_confirmed" &&
+            s.verification_method === "user_confirmation")),
     ),
   ).toBe(true);
   expect(
@@ -75,7 +80,7 @@ it("publica únicamente las 655 fichas contrastadas, con fuentes, IDs estables y
   ).toHaveLength(9);
   expect(
     (await db.query("select id from public.sticker_catalog_revisions")).rows,
-  ).toHaveLength(655);
+  ).toHaveLength(656);
   expect(
     (
       await db.query<{ catalog_status: string }>(
@@ -112,5 +117,23 @@ it("incluye Elche 13B con el UUID original y conserva John/Jon en las fuentes", 
     "John Chetauya",
     "Jon Chetauya",
     "Jon Chetauya",
+  ]);
+});
+
+it("activa Cucurella 67 en Top Fichajes sin crear otra identidad", async () => {
+  const rows = (
+    await db.query(
+      "select id,official_code,name,published,catalog_review,verification_method from public.stickers where catalog_section='top-fichajes'",
+    )
+  ).rows;
+  expect(rows).toEqual([
+    expect.objectContaining({
+      id: "d66911f6-46e3-5db3-9eec-eb89bbae427c",
+      official_code: "67",
+      name: "Cucurella",
+      published: true,
+      catalog_review: "user_confirmed",
+      verification_method: "user_confirmation",
+    }),
   ]);
 });
