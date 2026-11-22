@@ -599,10 +599,22 @@ test("colores por equipo, campo sutil y una carta especial al conseguirla", asyn
   expect(after).not.toBe(before);
   await expect(page.locator(".team-pitch")).toHaveCount(1);
   await page
-    .getByRole("button", { name: "Buscar en este apartado", exact: true })
+    .getByRole("button", {
+      name: "Buscar jugador en toda la colección",
+      exact: true,
+    })
     .click();
-  await page.getByLabel("Buscar cromo", { exact: true }).fill("Lamine");
-  const featured = page.locator(".album-slot.finish-featured");
+  await page.getByRole("dialog").getByRole("textbox").fill("Lamine");
+  await page
+    .getByRole("dialog")
+    .getByRole("button", {
+      name: "Abrir Lamine Yamal, 20, FC Barcelona",
+      exact: true,
+    })
+    .click();
+  const featured = page
+    .locator(".album-slot.finish-featured")
+    .filter({ hasText: "Lamine Yamal" });
   await expect(featured).toHaveCount(1);
   await featured.locator(".slot-main").click();
   await expect(page.getByRole("dialog")).toContainText("Destacado NEXO");
@@ -721,31 +733,23 @@ test("OCR real de tres cartas y confirmación antes de actualizar el álbum", as
 test("buscador global abre la casilla y permite añadir repes sin salir del álbum", async ({
   page,
 }) => {
-  await page.goto("/visita#inicio");
-  for (const name of [
-    "Inicio",
-    "Mi álbum",
-    "Repetidos",
-    "Amigos",
-    "Mi perfil",
-  ]) {
-    await page
-      .getByRole("navigation")
-      .getByRole("button", { name, exact: true })
-      .click();
-    await expect(
-      page.getByRole("button", {
+  await page.goto("/visita#album");
+  await expect(
+    page
+      .locator(".app-header")
+      .getByRole("button", {
         name: "Buscar jugador en toda la colección",
         exact: true,
       }),
-    ).toBeVisible();
-  }
-  await page
+  ).toHaveCount(0);
+  const albumSearch = page
+    .getByRole("region", { name: "Álbum visual por equipos", exact: true })
     .getByRole("button", {
       name: "Buscar jugador en toda la colección",
       exact: true,
-    })
-    .click();
+    });
+  await expect(albumSearch).toBeVisible();
+  await albumSearch.click();
   const dialog = page.getByRole("dialog");
   const input = dialog.getByRole("textbox", {
     name: "Buscar jugador en toda la colección",

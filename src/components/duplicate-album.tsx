@@ -13,6 +13,7 @@ export function DuplicateAlbum({
   onAdd,
   onRemove,
   onScan,
+  onSearch,
   duplicates = true,
   onQuantity,
   onNavigate,
@@ -28,6 +29,7 @@ export function DuplicateAlbum({
   onAdd: (s: Sticker, extras: number, operation: string) => Promise<void>;
   onRemove: (s: Sticker) => Promise<void>;
   onScan: () => void;
+  onSearch?: () => void;
   duplicates?: boolean;
   onQuantity?: (s: Sticker, delta: number) => Promise<void>;
   onNavigate?: (s: "repetidos" | "faltantes") => void;
@@ -116,6 +118,7 @@ export function DuplicateAlbum({
             : (s) => add({ sticker: s, operation: crypto.randomUUID() })
         }
         onScan={onScan}
+        onSearch={onSearch}
         onNavigate={onNavigate ?? (() => {})}
         onQuantity={async (s, delta) => {
           if (!duplicates && onQuantity) {

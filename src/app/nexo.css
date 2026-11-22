@@ -1925,3 +1925,15 @@ html { scroll-padding-block: 90px 110px; }
   .section-album .album-controls { margin-bottom: 6px; }
   .section-album .album-preview-note { margin-bottom: 6px; }
 }
+
+.direct-friend-buttons { display: flex; gap: 10px; overflow-x: auto; padding: 3px 2px 10px; margin: 18px 0 8px; }
+.trade-friend-option { display: flex; flex: 0 0 auto; gap: 10px; min-width: 136px; max-width: 220px; min-height: 60px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 15px; background: #ffffff05; color: var(--ink); text-align: left; }
+.trade-friend-option[aria-pressed="true"] { border-color: var(--nexo-orange); background: #f6a16b14; }
+.trade-friend-option:hover:not(:disabled) { background: #ffffff10; color: var(--ink); transform: none; }
+.trade-friend-option strong, .trade-friend-option small { display: block; overflow-wrap: anywhere; }
+.trade-friend-option strong { font-size: 14px; }
+.trade-friend-option small { font-size: 12px; color: var(--muted); }
+.direct-view-collection { margin-bottom: 12px; font-size: 12px; }
+.direct-trade-board .trade-board-arrow { top: 26px; }
+.direct-trade-board .trade-pile-cards { margin-top: 12px; }
+@media (max-width: 600px) { .app-header .header-actions select { max-width: 148px; } }

@@ -23,9 +23,9 @@ No puedes quitar una unidad comprometida en un intercambio aceptado. Cancela pri
 
 Mi álbum y Repetidos recuerdan por separado el equipo o serie, los filtros, la página y la posición de desplazamiento en este navegador. La posición se guarda por cuenta y colección. Volver a Mi álbum restaura su último equipo, aunque hayas consultado otro en Repetidos. Abrir un resultado de la búsqueda global lleva primero a la casilla buscada.
 
-## Búsqueda desde cualquier sección
+## Buscar jugadores
 
-La lupa de la cabecera busca en toda la colección activa por jugador, entrenador, equipo o número, incluidos variantes y especiales. Los resultados muestran si te falta el cromo y cuántos repetidos tienes. «Ver casilla» abre Mi álbum en el equipo o serie correctos y enfoca la casilla exacta. El cuadro puede cerrarse con Escape y devuelve el foco al botón de búsqueda.
+La lupa situada en Mi álbum y en la vista por equipos de Repetidos busca en toda la colección activa por jugador, entrenador, equipo o número, incluidos variantes y especiales. Los resultados muestran si te falta el cromo y cuántos repetidos tienes. «Ver casilla» abre Mi álbum en el equipo o serie correctos y enfoca la casilla exacta. El cuadro puede cerrarse con Escape y devuelve el foco al botón de búsqueda.
 
 ## Repetidos, faltantes y estadísticas
 
@@ -39,7 +39,7 @@ El progreso cuenta cromos publicados distintos. Inicio muestra el porcentaje de 
 
 ## Amigos y coincidencias
 
-En Amigos, elige «Intercambiar» para ver la propuesta automática. «Ver colección» abre su álbum sin preparar un cambio. Verás dos montones cerrados. Pulsa «Ver cromos» para desplegarlos: el de tu amigo contiene sus repetidos que te faltan, y el tuyo los que le faltan a él. Elige cartas o usa «Elegir todos»; cerrar el montón conserva la selección. «Solicitar reserva» envía la propuesta, pero todavía no bloquea copias. Tu amigo pulsa «Aceptar y reservar» para reservar las copias de ambos. Después confirmáis la entrega para actualizar los álbumes. Después, «Ver solicitud enviada» abre el seguimiento. «Ver mis intercambios» permite aceptar propuestas y confirmar entregas. Las opciones de eliminar o bloquear están dentro de «Gestionar amistad».
+En Amigos, elige «Intercambiar» para ver la propuesta automática. «Ver colección» abre su álbum sin preparar un cambio. Los amigos aparecen como botones directos. Al elegir uno, ves los cromos en dos columnas, «Tú das» y «Tú recibes», sin desplegables. Los repetidos útiles para ambos ya están elegidos: pulsa una carta para quitarla o incluirla de nuevo. «Elegir todos» y «Quitar selección» permiten ajustar cada lado. «Solicitar reserva» envía la propuesta, pero todavía no bloquea copias. Tu amigo pulsa «Aceptar y reservar» para reservar las copias de ambos. Después confirmáis la entrega para actualizar los álbumes. Después, «Ver solicitud enviada» abre el seguimiento. «Ver mis intercambios» permite aceptar propuestas y confirmar entregas. Las opciones de eliminar o bloquear están dentro de «Gestionar amistad».
 
 Busca por el prefijo del nombre de usuario. Envía una solicitud y espera a que la acepten. La amistad no abre una colección privada automáticamente: cada persona debe elegir en Perfil «Solo amigos» o «Usuarios registrados» para permitir la comparación.
 
@@ -49,7 +49,7 @@ Puedes eliminar amistades, bloquear o denunciar desde las vistas disponibles. Un
 
 ## Intercambiar
 
-1. En Amigos pulsa «Intercambiar» junto a la persona. También puedes entrar por Repetidos → Cambiar con amigos. La app muestra los repetidos disponibles que faltan en el otro álbum, con hasta 50 cromos por lado. Abre los montones y elige las cartas; no se seleccionan automáticamente.
+1. En Amigos pulsa «Intercambiar» junto a la persona. También puedes entrar por Repetidos → Cambiar con amigos. La app muestra los repetidos disponibles que faltan en el otro álbum, con hasta 50 cromos por lado. Los cromos útiles ya están seleccionados y visibles. Puedes quitar los que no quieras antes de solicitar.
 2. Revisa «Tú das» y «Tú recibes». Puedes desmarcar cartas. Pulsa «Solicitar reserva» para enviarlo; el destinatario puede aceptarlo o rechazarlo. Hace falta al menos un cromo por lado; no se exige igual cantidad ni se supone que los especiales tengan el mismo valor.
 3. Aceptar revalida existencias y reserva los cromos de ambos. Todavía no cambia la posesión.
 4. Realizad la entrega acordada. Cada persona debe confirmar únicamente cuando se haya realizado la entrega/recepción.

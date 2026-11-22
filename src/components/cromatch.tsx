@@ -1176,15 +1176,6 @@ export function Cromatch({
             <strong>{section === "inicio" ? "Inicio" : titles[section]}</strong>
           </div>
           <div className="header-actions">
-            <button
-              type="button"
-              className="icon-button global-search-trigger"
-              disabled={busy}
-              aria-label="Buscar jugador en toda la colección"
-              onClick={() => setGlobalSearchOpen(true)}
-            >
-              <Search size={21} />
-            </button>
             {!visitor && (
               <select
                 aria-label="Colección activa"
@@ -1374,6 +1365,7 @@ export function Cromatch({
                   busy={busy || (visitor && !localAlbum.ready)}
                   onScan={() => go("escaner")}
                   onOwnedList={() => setAlbumView("owned")}
+                  onSearch={() => setGlobalSearchOpen(true)}
                   collectionName={current?.name}
                   onQuantity={quantity}
                   onNavigate={go}
@@ -1440,6 +1432,7 @@ export function Cromatch({
                     busy={busy || (visitor && !localAlbum.ready)}
                     visitor={visitor}
                     collectionName={current?.name}
+                    onSearch={() => setGlobalSearchOpen(true)}
                     viewKey={`nexo.view.v1:${viewerId || "guest"}:${collection || "reference"}:repetidos`}
                     onAdd={addDuplicates}
                     onRemove={(s) => quantity(s, -1)}
@@ -2099,30 +2092,6 @@ export function Cromatch({
                         otherConfirmed={otherConfirmed}
                       />
                       <TradeBoard
-                        minePreview={tradeItems
-                          .filter(
-                            (i) =>
-                              i.trade_id === t.id && i.giver_id === viewerId,
-                          )
-                          .flatMap((i) => {
-                            const s = stickers.find(
-                              (s) => s.id === i.sticker_id,
-                            );
-                            return s ? [s] : [];
-                          })
-                          .slice(0, 3)}
-                        otherPreview={tradeItems
-                          .filter(
-                            (i) =>
-                              i.trade_id === t.id && i.giver_id !== viewerId,
-                          )
-                          .flatMap((i) => {
-                            const s = stickers.find(
-                              (s) => s.id === i.sticker_id,
-                            );
-                            return s ? [s] : [];
-                          })
-                          .slice(0, 3)}
                         mineName={profile?.display_name ?? "Tú"}
                         otherName={
                           tradePeople[partnerId]?.display_name ?? partner

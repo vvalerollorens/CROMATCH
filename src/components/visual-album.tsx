@@ -88,6 +88,7 @@ export function VisualAlbum({
   readOnly = false,
   duplicates = false,
   onScan,
+  onSearch,
   onOwnedList,
   onAddDuplicate,
   target,
@@ -104,6 +105,7 @@ export function VisualAlbum({
   readOnly?: boolean;
   duplicates?: boolean;
   onScan?: () => void;
+  onSearch?: () => void;
   onOwnedList?: () => void;
   onAddDuplicate?: (s: Sticker) => Promise<void>;
   target?: AlbumTarget | null;
@@ -160,6 +162,7 @@ export function VisualAlbum({
   const [marked, setMarked] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(0);
   const [announcement, setAnnouncement] = useState("");
+  const globalSearch = Boolean(onSearch);
   const [restoredKey, setRestoredKey] = useState<string | null>(null);
   const lastScroll = useRef(0);
   const pendingScroll = useRef<number | null>(null);
@@ -172,15 +175,15 @@ export function VisualAlbum({
         ? "series"
         : "team",
     );
-    setQuery(saved.query);
-    setSearchOpen(saved.searchOpen);
+    setQuery(globalSearch ? "" : saved.query);
+    setSearchOpen(globalSearch ? false : saved.searchOpen);
     setMode(saved.mode);
     setPage(saved.page);
     setMarked({});
     lastScroll.current = saved.scrollY;
     pendingScroll.current = target ? null : saved.scrollY;
     setRestoredKey(viewKey ?? null);
-  }, [viewKey, collectionName, sections]);
+  }, [viewKey, collectionName, sections, globalSearch]);
   useEffect(() => {
     if (!viewKey || restoredKey !== viewKey) return;
     viewSnapshot.current = {
@@ -542,9 +545,19 @@ export function VisualAlbum({
         </div>
         <button
           className="album-search-toggle secondary"
-          aria-label="Buscar en este apartado"
-          aria-expanded={searchOpen}
+          aria-label={
+            onSearch
+              ? "Buscar jugador en toda la colección"
+              : "Buscar en este apartado"
+          }
+          aria-expanded={onSearch ? undefined : searchOpen}
+          aria-haspopup={onSearch ? "dialog" : undefined}
+          disabled={busy}
           onClick={() => {
+            if (onSearch) {
+              onSearch();
+              return;
+            }
             setSearchOpen((v) => !v);
             setQuery("");
             setPage(0);

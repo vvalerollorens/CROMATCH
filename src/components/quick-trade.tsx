@@ -67,7 +67,15 @@ export function QuickTrade({
         if (!active) return;
         setAllowed(Boolean(permission.data));
         setTheirs(rows);
-        setChoices({});
+        const matches = compare(stickers, inventory, rows);
+        setChoices(
+          Object.fromEntries([
+            ...matches.offer.slice(0, 50).map((s) => [`give:${s.id}`, true]),
+            ...matches.receive
+              .slice(0, 50)
+              .map((s) => [`receive:${s.id}`, true]),
+          ]),
+        );
       } catch {
         if (active)
           setError(
@@ -154,60 +162,48 @@ export function QuickTrade({
       className="panel quick-trade"
       aria-label="Preparar intercambio automático"
     >
-      <span className="eyebrow">
-        1 · ELIGE AMIGO · 2 · REVISA · 3 · SOLICITA
-      </span>
-      <h2>{friend ? "Vuestro intercambio" : "¿Con quién quieres cambiar?"}</h2>
+      <h2>
+        {friend ? "Elige las cartas y solicita" : "¿Con quién quieres cambiar?"}
+      </h2>
       <p>
         {friend
-          ? "Dos montones. Elige los cromos y prepara vuestro cambio."
-          : "Elige un amigo. Preparamos los cromos que os faltan a los dos."}
+          ? "Ya están elegidos los repetidos que os faltan. Quita los que no quieras."
+          : "Pulsa un amigo para ver vuestro cambio."}
       </p>
-      <details className="trade-friend-picker" open={!friend}>
-        <summary>
-          {friend ? "Cambiar amigo o ver su colección" : "Tus amigos"}
-        </summary>
-        <div
-          className="trade-friend-buttons"
-          role="group"
-          aria-label="Elegir amigo para intercambiar"
+      <div
+        className="trade-friend-buttons direct-friend-buttons"
+        role="group"
+        aria-label="Elegir amigo para intercambiar"
+      >
+        {friends.map((f) => (
+          <button
+            type="button"
+            key={f.user_id}
+            className="trade-friend-option"
+            aria-label={`Intercambiar con @${f.username}`}
+            aria-pressed={friendId === f.user_id}
+            disabled={sending || Boolean(operation.current) || refreshing}
+            onClick={() => setFriendId(f.user_id)}
+          >
+            <span>
+              <strong>{f.display_name}</strong>
+              <small>@{f.username}</small>
+            </span>
+            {friendId === f.user_id && <Check size={18} />}
+          </button>
+        ))}
+      </div>
+      {friend && (
+        <button
+          type="button"
+          className="secondary direct-view-collection"
+          disabled={sending || Boolean(operation.current)}
+          onClick={() => onProfile(friend)}
+          aria-label={`Ver colección de @${friend.username}`}
         >
-          {friends.map((f) => (
-            <div
-              className={`trade-friend-card ${friendId === f.user_id ? "selected" : ""}`}
-              key={f.user_id}
-            >
-              <div>
-                <strong>{f.display_name}</strong>
-                <small>@{f.username}</small>
-              </div>
-              <button
-                type="button"
-                aria-label={`Intercambiar con @${f.username}`}
-                aria-pressed={friendId === f.user_id}
-                disabled={sending || Boolean(operation.current) || refreshing}
-                onClick={() => setFriendId(f.user_id)}
-              >
-                {friendId === f.user_id ? (
-                  <Check size={18} />
-                ) : (
-                  <ArrowRight size={18} />
-                )}
-                {friendId === f.user_id ? "Seleccionado" : "Intercambiar"}
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => onProfile(f)}
-                disabled={sending || Boolean(operation.current)}
-                aria-label={`Ver colección de @${f.username}`}
-              >
-                Ver colección
-              </button>
-            </div>
-          ))}
-        </div>
-      </details>
+          Ver colección de {friend.display_name}
+        </button>
+      )}
       {!friends.length && (
         <p>Añade primero un amigo para preparar vuestro cambio.</p>
       )}
@@ -283,16 +279,13 @@ export function QuickTrade({
                 </small>
               </div>
               <p className="trade-selection-hint">
-                Abre cada montón y elige las cartas. Solo aparecen repetidos que
-                os faltan al otro.
+                Pulsa una carta para quitarla o volver a incluirla.
               </p>
               <TradeBoard
                 mineName={myName}
                 otherName={friend.display_name}
                 mineCount={matched.offer.length}
                 otherCount={matched.receive.length}
-                minePreview={matched.offer.slice(0, 3)}
-                otherPreview={matched.receive.slice(0, 3)}
                 mineSelected={gives.length}
                 otherSelected={receives.length}
                 mine={
