@@ -341,7 +341,13 @@ test("índice completo de consulta, numeración y fuentes visibles", async ({
   await series
     .getByRole("button", { name: "Ver Top Fichajes", exact: true })
     .click();
-  await expect(page.locator(".needs-review")).toHaveCount(3);
+  await expect(page.locator(".needs-review")).toHaveCount(2);
+  await expect(
+    page.getByRole("button", {
+      name: "Marcar Cucurella, número 67",
+      exact: true,
+    }),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /Ver fuentes de/ }),
   ).toHaveCount(0);
