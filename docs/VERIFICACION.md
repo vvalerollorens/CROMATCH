@@ -138,3 +138,9 @@ Se verifica que la lupa esté disponible en las secciones principales, busque un
 Otro caso deja Mi álbum en Levante, Repetidos en Elche con un filtro y comprueba que cada vista restaura su equipo, filtro y desplazamiento al volver y al recargar. La memoria está separada por usuario, colección y vista en el almacenamiento del navegador y no guarda cantidades. Los resultados globales tienen prioridad sobre la posición anterior al abrir una casilla.
 
 Las pruebas detectaron la antigua cabecera oculta en el álbum móvil y el espacio necesario para mantener la primera casilla por encima de la navegación; se corrigieron y se revisó la captura móvil final. La cabecera permanece accesible al desplazarse. Se mantiene el comportamiento de reintento idempotente para las copias extra. No hay cambios de esquema ni escrituras sobre inventarios de usuarios reales.
+
+## Cucurella 67 · Top Fichajes
+
+Se activa el UUID existente `d66911f6-46e3-5db3-9eec-eb89bbae427c` con el número 67 indicado expresamente por el usuario, conservando su retrato y los números originales de las fuentes como historial. La ficha queda registrada como `user_confirmed` / `user_confirmation`, sin atribuirle una verificación oficial. El catálogo publicado pasa a 656 fichas y quedan cinco discrepancias sin publicar. La migración 009 añade revisión y auditoría y no escribe cantidades.
+
+[Calidad y seguridad](https://github.com/vvalerollorens/CROMATCH/actions/runs/45018784132) completada con TypeScript, compilación, 66 pruebas de lógica/base de datos y 34 pruebas públicas de navegador. [Prueba alojada](https://github.com/vvalerollorens/CROMATCH/actions/runs/45018641978) completada en escritorio y móvil: consulta autenticada de la ficha 67, búsqueda global, apertura de Top Fichajes y carga del retrato. Se revisó la captura móvil. Se mantiene el ciclo completo de inventario e intercambio con dos cuentas temporales, sin modificar inventarios reales.
